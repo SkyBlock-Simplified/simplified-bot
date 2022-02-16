@@ -1,0 +1,186 @@
+<plannerBenchmark xmlns="https://www.optaplanner.org/xsd/benchmark">
+    <benchmarkDirectory>local/benchmark</benchmarkDirectory>
+    <inheritedSolverBenchmark>
+        <solver>
+            <solutionClass>dev.sbs.discordapi.optimizer.modules.damage_per_hit.DamagePerHitSolution</solutionClass>
+            <entityClass>dev.sbs.discordapi.optimizer.modules.damage_per_hit.DamagePerHitItemEntity</entityClass>
+            <scoreDirectorFactory>
+                <easyScoreCalculatorClass>dev.sbs.discordapi.optimizer.modules.damage_per_hit.DamagePerHitCalculator</easyScoreCalculatorClass>
+            </scoreDirectorFactory>
+            <termination>
+                <secondsSpentLimit>5</secondsSpentLimit>
+            </termination>
+        </solver>
+        <problemBenchmarks>
+            <problemStatisticType>BEST_SCORE</problemStatisticType>
+        </problemBenchmarks>
+    </inheritedSolverBenchmark>
+    <solverBenchmark>
+        <name>1 Thread</name>
+        <solver>
+            <moveThreadCount>1</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>2 Threads</name>
+        <solver>
+            <moveThreadCount>2</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>3 Threads</name>
+        <solver>
+            <moveThreadCount>3</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>4 Threads</name>
+        <solver>
+            <moveThreadCount>4</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>5 Threads</name>
+        <solver>
+            <moveThreadCount>5</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>6 Threads</name>
+        <solver>
+            <moveThreadCount>6</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>7 Threads</name>
+        <solver>
+            <moveThreadCount>7</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>8 Threads</name>
+        <solver>
+            <moveThreadCount>8</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>9 Threads</name>
+        <solver>
+            <moveThreadCount>9</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>10 Threads</name>
+        <solver>
+            <moveThreadCount>10</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>11 Threads</name>
+        <solver>
+            <moveThreadCount>11</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+    <solverBenchmark>
+        <name>12 Threads</name>
+        <solver>
+            <moveThreadCount>12</moveThreadCount>
+            <!--Initialize a configuration with all the best reforges selected-->
+            <constructionHeuristic>
+                <constructionHeuristicType>STRONGEST_FIT</constructionHeuristicType>
+            </constructionHeuristic>
+            <!--Refine the configuration-->
+            <localSearch>
+                <localSearchType>TABU_SEARCH</localSearchType>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+</plannerBenchmark>

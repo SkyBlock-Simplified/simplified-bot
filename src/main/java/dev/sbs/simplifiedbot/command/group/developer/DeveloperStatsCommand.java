@@ -1,0 +1,141 @@
+package dev.sbs.simplifiedbot.command.group.developer;
+
+import dev.sbs.api.util.concurrent.Concurrent;
+import dev.sbs.api.util.concurrent.ConcurrentList;
+import dev.sbs.api.util.helper.FormatUtil;
+import dev.sbs.api.util.helper.ListUtil;
+import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.util.helper.WordUtil;
+import dev.sbs.discordapi.DiscordBot;
+import dev.sbs.discordapi.command.Category;
+import dev.sbs.discordapi.command.Command;
+import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.context.command.CommandContext;
+import dev.sbs.discordapi.response.Emoji;
+import dev.sbs.discordapi.response.Response;
+import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.util.exception.DiscordException;
+import dev.sbs.simplifiedbot.command.DeveloperCommand;
+import discord4j.common.util.Snowflake;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.channel.Channel;
+
+import java.awt.*;
+import java.time.Instant;
+import java.util.Optional;
+
+@CommandInfo(
+    name = "stats",
+    category = Category.DEVELOPER,
+    parent = DeveloperCommand.class
+)
+public class DeveloperStatsCommand extends Command {
+
+    protected DeveloperStatsCommand(DiscordBot discordBot) {
+        super(discordBot);
+    }
+
+    @Override
+    protected void process(CommandContext<?> commandContext) throws DiscordException {
+        Optional<Snowflake> optionalGuildId = Optional.empty();
+
+        // Handle DMs
+        if (ListUtil.isEmpty(commandContext.getArguments())) {
+            if (!commandContext.isPrivateChannel())
+                optionalGuildId = commandContext.getGuild().map(Guild::getId).blockOptional();
+        } else
+            optionalGuildId = commandContext.getArguments().get(0).getValue().map(Snowflake::of);
+
+        Embed.EmbedBuilder embedBuilder = Embed.builder()
+            .withTimestamp(Instant.now())
+            .withColor(Color.DARK_GRAY);
+
+        optionalGuildId.flatMap(guildId -> this.getDiscordBot()
+            .getGateway()
+            .getGuildById(guildId)
+            .blockOptional()
+        ).ifPresentOrElse(guild -> {
+            String replyStem = Emoji.of(929253844414763060L, "reply_stem").asFormat();
+            String replyEnd = Emoji.of(929253844247007232L, "reply_end").asFormat();
+            ConcurrentList<Channel> channels = guild.getChannels().toStream().collect(Concurrent.toList());
+            boolean animatedIcon = guild.getData().icon().map(value -> value.startsWith("a_")).orElse(false);
+
+            embedBuilder.withAuthor("Server Information", Emoji.of(929250313821638666L, "status_info").getUrl())
+                .withFooter(
+                    guild.getVanityUrlCode().map(vanityCode -> FormatUtil.format("https://discord.gg/{0}", vanityCode)).orElse(""),
+                    this.getDiscordBot().getMainGuild().getIconUrl(discord4j.rest.util.Image.Format.GIF)
+                )
+                .withTitle("Server :: {0}", guild.getName())
+                .withDescription(guild.getDescription())
+                .withThumbnailUrl(guild.getIconUrl(animatedIcon ? discord4j.rest.util.Image.Format.GIF : discord4j.rest.util.Image.Format.PNG))
+                .withField(
+                    "About",
+                    FormatUtil.format(
+                        """
+                        {0}Owner: {2}
+                        {0}Created: <t:{3,number,#}:D>
+                        {0}Members: {4} / {5}
+                        {0}Roles: {6}
+                        {1}Channels: {7}
+                        """,
+                        replyStem,
+                        replyEnd,
+                        guild.getOwner().map(Member::getMention).blockOptional().orElse("Unknown"),
+                        guild.getId().getTimestamp().getEpochSecond(),
+                        this.getDiscordBot().getGateway().getRestClient().restGuild(guild.getData()).getData().blockOptional().flatMap(guildUpdateData -> guildUpdateData.approximatePresenceCount().toOptional()).orElse(0),
+                        guild.getMemberCount(),
+                        guild.getRoles().toStream().collect(Concurrent.toList()).size(),
+                        channels.size()
+                    )
+                )
+                .withField(
+                    "Security",
+                    FormatUtil.format(
+                        """
+                        {0}Verification Level: {2}
+                        {0}Content Filter: {3}
+                        {0}Default Notifications: {4}
+                        {1}Two-Factor Authentication: {5}
+                        """,
+                        replyStem,
+                        replyEnd,
+                        this.capitalizeEnum(guild.getVerificationLevel()),
+                        this.capitalizeEnum(guild.getContentFilterLevel()),
+                        this.capitalizeEnum(guild.getNotificationLevel()),
+                        this.capitalizeEnum(guild.getMfaLevel())
+                    )
+                );
+
+            if (ListUtil.notEmpty(guild.getFeatures())) {
+                embedBuilder.withField(
+                    "Features",
+                    StringUtil.join(
+                        guild.getFeatures()
+                            .stream()
+                            .map(this::capitalizeFully)
+                            .collect(Concurrent.toList()),
+                        ", "
+                    )
+                );
+            }
+        }, () -> embedBuilder.withDescription("This isn't a Guild."));
+
+        commandContext.reply(
+            Response.builder()
+                .isInteractable(false)
+                .withReference(commandContext)
+                .withEmbeds(embedBuilder.build())
+                .build()
+        );
+    }
+
+    private String capitalizeEnum(Enum<?> value) {
+        return this.capitalizeFully(value.name());
+    }
+
+    private String capitalizeFully(String value) {
+        return WordUtil.capitalizeFully(StringUtil.defaultIfEmpty(value, "").replace("_", " "));
+    }
+
+}
