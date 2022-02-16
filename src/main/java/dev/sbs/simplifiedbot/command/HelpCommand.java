@@ -126,8 +126,8 @@ public class HelpCommand extends Command {
         return Concurrent.newUnmodifiableList(
             new Parameter(
                 "command",
-                Parameter.Type.TEXT,
                 "The command you want the help menu for.",
+                Parameter.Type.TEXT,
                 false
             )
         );

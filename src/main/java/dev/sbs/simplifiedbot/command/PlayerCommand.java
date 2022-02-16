@@ -62,14 +62,15 @@ public class PlayerCommand extends Command {
         return Concurrent.newUnmodifiableList(
             new Parameter(
                 "name",
-                Parameter.Type.WORD,
                 "Mojang Username or Unique ID",
+                Parameter.Type.WORD,
+                false,
                 (argument, commandContext) -> StringUtil.isUUID(argument) || MOJANG_NAME.matcher(argument).matches()
             ),
             new Parameter(
                 "profile",
-                Parameter.Type.WORD,
                 "SkyBlock Profile Name",
+                Parameter.Type.WORD,
                 false,
                 (argument, commandContext) -> true//SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent()
             )
