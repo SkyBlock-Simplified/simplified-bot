@@ -82,11 +82,17 @@ public class HelpCommand extends Command {
                                             .getRootCommandRelationship()
                                             .getSubCommands()
                                             .stream()
-                                            .map(Relationship::getCommandInfo)
-                                            .filter(commandInfo -> commandInfo.category() == category)
-                                            .map(commandInfo -> Field.of(
-                                                FormatUtil.format("{0}{1}", Emoji.of(commandInfo).map(emoji -> emoji.asFormat() + " ").orElse(""), commandInfo.name()),
-                                                commandInfo.description(),
+                                            .filter(relationship -> relationship.getCommandInfo().category() == category)
+                                            .map(relationship -> Field.of(
+                                                FormatUtil.format(
+                                                    "{0}{1}",
+                                                    relationship.getInstance()
+                                                        .getEmoji()
+                                                        .map(emoji -> emoji.asFormat() + " ")
+                                                        .orElse(""),
+                                                    relationship.getCommandInfo().name()
+                                                ),
+                                                relationship.getInstance().getDescription(),
                                                 true
                                             ))
                                             .collect(Concurrent.toList())
@@ -102,9 +108,9 @@ public class HelpCommand extends Command {
                                     .map(relationship -> Page.create()
                                         .withOption(
                                             SelectMenu.Option.builder()
-                                                .withEmoji(Emoji.of(relationship.getCommandInfo()))
+                                                .withEmoji(relationship.getInstance().getEmoji())
                                                 .withLabel(relationship.getCommandInfo().name())
-                                                .withDescription(relationship.getCommandInfo().description())
+                                                .withDescription(relationship.getInstance().getDescription())
                                                 .withValue(relationship.getCommandInfo().name())
                                                 .build()
                                         )
