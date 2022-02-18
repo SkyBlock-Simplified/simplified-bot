@@ -1,6 +1,5 @@
 package dev.sbs.simplifiedbot.command.prefix;
 
-import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.PrefixCommand;
 import dev.sbs.discordapi.command.UserPermission;
 import dev.sbs.discordapi.command.data.CommandInfo;
@@ -18,9 +17,5 @@ import discord4j.rest.util.Permission;
     userPermissions = { UserPermission.MAIN_SERVER_ADMIN }
 )
 public class SbsCommand extends PrefixCommand {
-
-    protected SbsCommand(DiscordBot discordBot) {
-        super(discordBot);
-    }
 
 }
