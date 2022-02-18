@@ -5,7 +5,6 @@ import dev.sbs.api.util.concurrent.ConcurrentList;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
-import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Category;
 import dev.sbs.discordapi.command.Command;
@@ -14,6 +13,7 @@ import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.util.DiscordObject;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DeveloperCommand;
 import discord4j.common.util.Snowflake;
@@ -100,10 +100,10 @@ public class DeveloperStatsCommand extends Command {
                         """,
                         replyStem,
                         replyEnd,
-                        this.capitalizeEnum(guild.getVerificationLevel()),
-                        this.capitalizeEnum(guild.getContentFilterLevel()),
-                        this.capitalizeEnum(guild.getNotificationLevel()),
-                        this.capitalizeEnum(guild.getMfaLevel())
+                        capitalizeEnum(guild.getVerificationLevel()),
+                        capitalizeEnum(guild.getContentFilterLevel()),
+                        capitalizeEnum(guild.getNotificationLevel()),
+                        capitalizeEnum(guild.getMfaLevel())
                     )
                 );
 
@@ -113,7 +113,7 @@ public class DeveloperStatsCommand extends Command {
                     StringUtil.join(
                         guild.getFeatures()
                             .stream()
-                            .map(this::capitalizeFully)
+                            .map(DiscordObject::capitalizeFully)
                             .collect(Concurrent.toList()),
                         ", "
                     )
@@ -128,14 +128,6 @@ public class DeveloperStatsCommand extends Command {
                 .withEmbeds(embedBuilder.build())
                 .build()
         );
-    }
-
-    private String capitalizeEnum(Enum<?> value) {
-        return this.capitalizeFully(value.name());
-    }
-
-    private String capitalizeFully(String value) {
-        return WordUtil.capitalizeFully(StringUtil.defaultIfEmpty(value, "").replace("_", " "));
     }
 
 }
