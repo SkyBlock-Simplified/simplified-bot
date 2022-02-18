@@ -39,8 +39,8 @@ import java.util.regex.Pattern;
 @CommandInfo(
     name = "player",
     category = Category.PLAYER,
-    description = "Lookup a players SkyBlock profile.",
-    aliases = { "check", "lookup", "auctions", "stats", "pets", "slayer", "dungeons?", "networth", "minions", "farming", "jacobs", "reputation" }
+    description = "Lookup a players SkyBlock profile."
+    //aliases = { "check", "lookup", "auctions", "stats", "pets", "slayer", "dungeons?", "networth", "minions", "farming", "jacobs", "reputation" }
 )
 public class PlayerCommand extends Command {
 
