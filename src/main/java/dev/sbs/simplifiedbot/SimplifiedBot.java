@@ -13,6 +13,7 @@ import dev.sbs.simplifiedbot.command.GuildCommand;
 import dev.sbs.simplifiedbot.command.HelpCommand;
 import dev.sbs.simplifiedbot.command.MissingCommand;
 import dev.sbs.simplifiedbot.command.PlayerCommand;
+import dev.sbs.simplifiedbot.command.VerifyCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DeveloperStatsCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DeveloperSubCommand;
 import dev.sbs.simplifiedbot.command.prefix.SbsCommand;
@@ -45,6 +46,7 @@ public final class SimplifiedBot extends DiscordBot {
             PlayerCommand.class,
             GuildCommand.class,
             MissingCommand.class,
+            VerifyCommand.class,
 
             // Sub Commands
             DeveloperSubCommand.class,
