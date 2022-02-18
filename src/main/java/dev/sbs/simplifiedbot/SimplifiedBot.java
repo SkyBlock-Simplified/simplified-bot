@@ -1,8 +1,13 @@
 package dev.sbs.simplifiedbot;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.data.model.discord.emojis.EmojiModel;
+import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
+import dev.sbs.api.data.model.discord.guilds.GuildModel;
+import dev.sbs.api.data.model.discord.guilds.GuildSqlModel;
 import dev.sbs.api.util.concurrent.Concurrent;
 import dev.sbs.api.util.concurrent.ConcurrentSet;
+import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.PrefixCommand;
@@ -17,6 +22,7 @@ import dev.sbs.simplifiedbot.command.VerifyCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DeveloperStatsCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DeveloperSubCommand;
 import dev.sbs.simplifiedbot.command.prefix.SbsCommand;
+import discord4j.common.util.Snowflake;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.gateway.ShardInfo;
@@ -86,7 +92,6 @@ public final class SimplifiedBot extends DiscordBot {
 
     @Override
     protected void onDatabaseConnected() {
-        /*this.getLog().info("Adding emojis");
         SimplifiedApi.getRepositoryOf(GuildModel.class)
             .matchAll(GuildModel::getId, GuildModel::isEmojiServer)
             .forEach(guildModel -> this.getGateway()
@@ -107,10 +112,17 @@ public final class SimplifiedBot extends DiscordBot {
                             newEmojiModel.setName(name);
                             newEmojiModel.save();
                             this.getLog().info("Saving new emoji: {0} :: {1,number,#} :: {2}", guild.getName(), guildEmoji.getId().asLong(), name);
+                        } else {
+                            if (existingEmojiModel.getEmojiId() != guildEmoji.getId().asLong()) {
+                                EmojiSqlModel emojiSqlModel = (EmojiSqlModel) existingEmojiModel;
+                                emojiSqlModel.setEmojiId(guildEmoji.getId().asLong());
+                                emojiSqlModel.update();
+                                this.getLog().info("Updating emoji: {0} :: {1,number,#} :: {2}", guild.getName(), guildEmoji.getId().asLong(), name);
+                            }
                         }
                     })
                 )
-            );*/
+            );
     }
 
 }
