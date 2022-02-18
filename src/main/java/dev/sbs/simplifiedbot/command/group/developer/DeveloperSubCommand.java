@@ -68,7 +68,7 @@ public class DeveloperSubCommand extends Command {
                                 SelectMenu.Option.builder()
                                     .withLabel("Neigh")
                                     .withValue("value 1")
-                                    .withEmoji(Emoji.of(861042819748593684L, "Horse"))
+                                    .withEmoji(getEmoji("SKYBLOCK_ICON_HORSE"))
                                     .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
                                     .build(),
                                 SelectMenu.Option.builder()

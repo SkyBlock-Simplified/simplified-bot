@@ -41,7 +41,7 @@ public class HelpCommand extends Command {
                 .withTimeToLive(60)
                 .withEmbeds(
                     Embed.builder()
-                        .withAuthor("Help", Emoji.of(929250313821638666L, "status_info").getUrl())
+                        .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
                         .withTitle("Categories")
                         .withDescription("Select a category in the select menu to view a list of commands.")
                         .withTimestamp(Instant.now())
@@ -72,7 +72,7 @@ public class HelpCommand extends Command {
                             )
                             .withEmbeds(
                                 Embed.builder()
-                                    .withAuthor("Help", Emoji.of(929250313821638666L, "status_info").getUrl())
+                                    .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                     .withTitle("Category :: {0}", category.getName())
                                     .withDescription(category.getDescription())
                                     .withTimestamp(Instant.now())

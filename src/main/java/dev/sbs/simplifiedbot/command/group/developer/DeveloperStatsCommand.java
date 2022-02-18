@@ -56,12 +56,12 @@ public class DeveloperStatsCommand extends Command {
             .getGuildById(guildId)
             .blockOptional()
         ).ifPresentOrElse(guild -> {
-            String replyStem = Emoji.of(929253844414763060L, "reply_stem").asFormat();
-            String replyEnd = Emoji.of(929253844247007232L, "reply_end").asFormat();
+            String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asFormat).orElse("");
+            String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asFormat).orElse("");
             ConcurrentList<Channel> channels = guild.getChannels().toStream().collect(Concurrent.toList());
             boolean animatedIcon = guild.getData().icon().map(value -> value.startsWith("a_")).orElse(false);
 
-            embedBuilder.withAuthor("Server Information", Emoji.of(929250313821638666L, "status_info").getUrl())
+            embedBuilder.withAuthor("Server Information", getEmoji("STATUS_INFO").map(Emoji::getUrl))
                 .withFooter(
                     guild.getVanityUrlCode().map(vanityCode -> FormatUtil.format("https://discord.gg/{0}", vanityCode)).orElse(""),
                     this.getDiscordBot().getMainGuild().getIconUrl(discord4j.rest.util.Image.Format.GIF)
@@ -79,8 +79,8 @@ public class DeveloperStatsCommand extends Command {
                         {0}Roles: {6}
                         {1}Channels: {7}
                         """,
-                        replyStem,
-                        replyEnd,
+                        emojiReplyStem,
+                        emojiReplyEnd,
                         guild.getOwner().map(Member::getMention).blockOptional().orElse("Unknown"),
                         guild.getId().getTimestamp().getEpochSecond(),
                         this.getDiscordBot().getGateway().getRestClient().restGuild(guild.getData()).getData().blockOptional().flatMap(guildUpdateData -> guildUpdateData.approximatePresenceCount().toOptional()).orElse(0),
@@ -98,8 +98,8 @@ public class DeveloperStatsCommand extends Command {
                         {0}Default Notifications: {4}
                         {1}Two-Factor Authentication: {5}
                         """,
-                        replyStem,
-                        replyEnd,
+                        emojiReplyStem,
+                        emojiReplyEnd,
                         capitalizeEnum(guild.getVerificationLevel()),
                         capitalizeEnum(guild.getContentFilterLevel()),
                         capitalizeEnum(guild.getNotificationLevel()),
