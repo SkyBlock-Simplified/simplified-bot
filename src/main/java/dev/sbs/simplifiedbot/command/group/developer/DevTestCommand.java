@@ -11,18 +11,18 @@ import dev.sbs.discordapi.response.component.action.SelectMenu;
 import dev.sbs.discordapi.response.component.layout.ActionRow;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.DeveloperCommand;
+import dev.sbs.simplifiedbot.command.DevCommand;
 
 import java.util.Optional;
 
 @CommandInfo(
     id = "75f1762a-4672-48db-83d8-86d953645d08",
-    name = "sub",
-    parent = DeveloperCommand.class
+    name = "test",
+    parent = DevCommand.class
 )
-public class DeveloperSubCommand extends Command {
+public class DevTestCommand extends Command {
 
-    protected DeveloperSubCommand(DiscordBot discordBot) {
+    protected DevTestCommand(DiscordBot discordBot) {
         super(discordBot);
     }
 
@@ -32,7 +32,7 @@ public class DeveloperSubCommand extends Command {
 
         commandContext.reply(
             Response.builder()
-                .withContent("dev sub command")
+                .withContent("test command")
                 .withReference(commandContext)
                 .replyMention()
                 .withReactions(Emoji.of("\uD83D\uDC80", reactionContext -> {

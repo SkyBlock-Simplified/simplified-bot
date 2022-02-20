@@ -14,7 +14,7 @@ import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.util.DiscordObject;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.DeveloperCommand;
+import dev.sbs.simplifiedbot.command.DevCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
@@ -27,11 +27,11 @@ import java.util.Optional;
 @CommandInfo(
     id = "2ce215ee-1d4e-4c7a-bb77-82f6c39eb02d",
     name = "stats",
-    parent = DeveloperCommand.class
+    parent = DevCommand.class
 )
-public class DeveloperStatsCommand extends Command {
+public class DevStatsCommand extends Command {
 
-    protected DeveloperStatsCommand(DiscordBot discordBot) {
+    protected DevStatsCommand(DiscordBot discordBot) {
         super(discordBot);
     }
 

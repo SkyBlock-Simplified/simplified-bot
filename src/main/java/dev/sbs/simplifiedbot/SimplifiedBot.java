@@ -13,14 +13,14 @@ import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.PrefixCommand;
 import dev.sbs.discordapi.util.DiscordConfig;
 import dev.sbs.simplifiedbot.command.AboutCommand;
-import dev.sbs.simplifiedbot.command.DeveloperCommand;
+import dev.sbs.simplifiedbot.command.DevCommand;
 import dev.sbs.simplifiedbot.command.GuildCommand;
 import dev.sbs.simplifiedbot.command.HelpCommand;
 import dev.sbs.simplifiedbot.command.MissingCommand;
 import dev.sbs.simplifiedbot.command.PlayerCommand;
 import dev.sbs.simplifiedbot.command.VerifyCommand;
-import dev.sbs.simplifiedbot.command.group.developer.DeveloperStatsCommand;
-import dev.sbs.simplifiedbot.command.group.developer.DeveloperSubCommand;
+import dev.sbs.simplifiedbot.command.group.developer.DevStatsCommand;
+import dev.sbs.simplifiedbot.command.group.developer.DevTestCommand;
 import dev.sbs.simplifiedbot.command.prefix.SbsCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.presence.ClientActivity;
@@ -47,7 +47,7 @@ public final class SimplifiedBot extends DiscordBot {
         return Concurrent.newUnmodifiableSet(
             // Top-Level/Slash Commands
             AboutCommand.class,
-            DeveloperCommand.class,
+            DevCommand.class,
             HelpCommand.class,
             PlayerCommand.class,
             GuildCommand.class,
@@ -55,8 +55,8 @@ public final class SimplifiedBot extends DiscordBot {
             VerifyCommand.class,
 
             // Sub Commands
-            DeveloperSubCommand.class,
-            DeveloperStatsCommand.class
+            DevTestCommand.class,
+            DevStatsCommand.class
         );
     }
 
