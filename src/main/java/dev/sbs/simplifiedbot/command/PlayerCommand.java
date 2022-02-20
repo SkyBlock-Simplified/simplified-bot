@@ -70,7 +70,7 @@ public class PlayerCommand extends Command {
     }
 
     @Override
-    public @NotNull ConcurrentUnmodifiableList<String> getExamples() {
+    public @NotNull ConcurrentUnmodifiableList<String> getExampleArguments() {
         return Concurrent.newUnmodifiableList(
             "CraftedFury",
             "CraftedFury Pineapple"
