@@ -1,10 +1,31 @@
 package dev.sbs.simplifiedbot.command;
 
+import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.SimplifiedException;
+import dev.sbs.api.client.hypixel.implementation.HypixelPlayerData;
+import dev.sbs.api.client.hypixel.response.hypixel.HypixelPlayerResponse;
+import dev.sbs.api.client.mojang.implementation.MojangData;
+import dev.sbs.api.client.mojang.response.MojangProfileResponse;
+import dev.sbs.api.data.model.discord.users.UserModel;
+import dev.sbs.api.data.model.discord.users.UserSqlModel;
+import dev.sbs.api.data.model.discord.users.UserSqlRepository;
+import dev.sbs.api.util.concurrent.Concurrent;
+import dev.sbs.api.util.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.util.helper.FormatUtil;
+import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
+import dev.sbs.discordapi.command.data.Argument;
 import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.command.CommandContext;
+import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
+import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.response.embed.Field;
+import dev.sbs.discordapi.util.exception.DiscordException;
+import discord4j.core.object.entity.User;
+import org.jetbrains.annotations.NotNull;
 
 @CommandInfo(
     id = "48b8f351-4e74-4010-b1ef-9b3d18c9833a",
@@ -19,11 +40,109 @@ public class VerifyCommand extends Command {
 
     @Override
     protected void process(CommandContext<?> commandContext) {
-        commandContext.reply(
-            Response.builder()
-                .withContent("verify command")
-                .withReference(commandContext)
+        String playerName = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow(); // Will never throw
+        MojangProfileResponse mojangProfileResponse = SimplifiedApi.getWebApi(MojangData.class).getProfileFromUsername(playerName);
+        HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getWebApi(HypixelPlayerData.class).getPlayer(mojangProfileResponse.getUniqueId());
+
+        String interactDiscordTag = commandContext.getInteractUser()
+            .map(User::getTag)
+            .blockOptional()
+            .orElseThrow(() -> SimplifiedException.of(DiscordException.class)
+                .withMessage("Unable to identify discord user!")
                 .build()
+            );
+
+        String hypixelDiscordTag = hypixelPlayerResponse.getPlayer()
+            .getSocialMedia()
+            .getLinks()
+            .getOrDefault(HypixelPlayerResponse.SocialMedia.Service.DISCORD, "");
+
+        if (interactDiscordTag.equals(hypixelDiscordTag)) {
+            UserModel userModel = SimplifiedApi.getRepositoryOf(UserModel.class).matchFirstOrNull(user ->
+                user.getDiscordIds().contains(commandContext.getInteractUserId().asLong()) ||
+                    user.getMojangUniqueIds().contains(mojangProfileResponse.getUniqueId())
+            );
+
+            String message = FormatUtil.format("You have linked `{0}` to your Discord account.", mojangProfileResponse.getUsername());
+
+            if (userModel == null) {
+                // Create New User
+                UserSqlModel newUserModel = new UserSqlModel();
+                newUserModel.getDiscordIds().add(commandContext.getInteractUserId().asLong());
+                newUserModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
+
+                // Save User
+                ((UserSqlRepository) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).save(newUserModel);
+            } else {
+                // Update Existing User
+                if (userModel.getDiscordIds().contains(commandContext.getInteractUserId().asLong()))
+                    userModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
+                else if (userModel.getMojangUniqueIds().contains(mojangProfileResponse.getUniqueId())) {
+                    userModel.getDiscordIds().add(commandContext.getInteractUserId().asLong());
+                    message = FormatUtil.format("You have linked your new Discord account to `{0}`.", mojangProfileResponse.getUsername());
+                }
+
+                // Save User
+                ((UserSqlRepository) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).save((UserSqlModel) userModel);
+            }
+
+            // TODO: Check User Reports
+            // Don't forget to assign back to userModel
+
+            commandContext.reply(
+                Response.builder()
+                    .withReference(commandContext)
+                    .isInteractable(false)
+                    .withEmbeds(
+                        Embed.builder()
+                            .withAuthor("Hypixel Verification", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                            .withDescription(message)
+                            .build()
+                    )
+                    .build()
+            );
+        } else {
+            String emptyError = "Your Hypixel account has no associated Discord tag.";
+            String invalidError = "Your Hypixel account's Discord tag does not match your Discord account.";
+
+            Embed.EmbedBuilder embedBuilder = Embed.builder()
+                .withAuthor("Discord Tag Mismatch", getEmoji("STATUS_ERROR").map(Emoji::getUrl))
+                .withDescription(StringUtil.isEmpty(hypixelDiscordTag) ? emptyError : invalidError);
+
+            if (StringUtil.isNotEmpty(hypixelDiscordTag)) {
+                embedBuilder.withFields(
+                    Field.of(
+                        "Expected",
+                        FormatUtil.format("`{0}`", interactDiscordTag)
+                    ),
+                    Field.of(
+                        "Found",
+                        FormatUtil.format("`{0}`", hypixelDiscordTag)
+                    )
+                );
+            }
+
+            commandContext.reply(
+                Response.builder()
+                    .withReference(commandContext)
+                    .isInteractable(false)
+                    .isEphemeral()
+                    .withEmbeds(embedBuilder.build())
+                    .build()
+            );
+        }
+    }
+
+    @NotNull
+    @Override
+    public ConcurrentUnmodifiableList<Parameter> getParameters() {
+        return Concurrent.newUnmodifiableList(
+            new Parameter(
+                "name",
+                "Provide your minecraft username.",
+                Parameter.Type.WORD,
+                true
+            )
         );
     }
 
