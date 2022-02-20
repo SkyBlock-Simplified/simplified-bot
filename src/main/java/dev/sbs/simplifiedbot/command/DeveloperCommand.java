@@ -16,6 +16,7 @@ import discord4j.discordjson.json.ApplicationTeamMemberData;
 import discord4j.discordjson.json.UserData;
 
 @CommandInfo(
+    id = "a48552da-56bb-4262-b48f-05ad3dee5ff6",
     name = "dev",
     userPermissions = { UserPermission.BOT_OWNER }
 )

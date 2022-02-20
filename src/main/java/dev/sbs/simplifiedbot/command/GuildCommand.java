@@ -9,8 +9,9 @@ import dev.sbs.discordapi.response.Response;
 import java.util.regex.Pattern;
 
 @CommandInfo(
-    name = "guild",
-    description = "Lookup a Hypixel Guild."
+    id = "b04d133d-3532-447b-8782-37d1036f3957",
+    name = "guild"
+    //description = "Lookup a Hypixel Guild."
 )
 public class GuildCommand extends Command {
 

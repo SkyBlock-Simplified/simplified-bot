@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 @CommandInfo(
+    id = "2ce215ee-1d4e-4c7a-bb77-82f6c39eb02d",
     name = "stats",
     parent = DeveloperCommand.class
 )

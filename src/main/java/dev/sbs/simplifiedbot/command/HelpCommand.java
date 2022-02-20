@@ -23,6 +23,7 @@ import java.awt.*;
 import java.time.Instant;
 
 @CommandInfo(
+    id = "e54b45ec-e47d-4784-bac4-72c4908ba87d",
     name = "help"
 )
 public class HelpCommand extends Command {

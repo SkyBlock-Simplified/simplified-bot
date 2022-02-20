@@ -16,6 +16,7 @@ import dev.sbs.simplifiedbot.command.DeveloperCommand;
 import java.util.Optional;
 
 @CommandInfo(
+    id = "75f1762a-4672-48db-83d8-86d953645d08",
     name = "sub",
     parent = DeveloperCommand.class
 )

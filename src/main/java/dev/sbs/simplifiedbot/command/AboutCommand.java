@@ -15,8 +15,9 @@ import java.awt.*;
 import java.time.Instant;
 
 @CommandInfo(
-    name = "about",
-    description = "About the SkyBlock Simplified Discord and Bot."
+    id = "1b072a71-2045-457a-a9f7-354b936567cb",
+    name = "about"
+    //description = "About the SkyBlock Simplified Discord and Bot."
 )
 public class AboutCommand extends Command {
 
