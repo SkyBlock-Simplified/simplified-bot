@@ -19,12 +19,13 @@ import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.Argument;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.command.data.Parameter;
+import dev.sbs.discordapi.command.exception.user.UserInputException;
+import dev.sbs.discordapi.command.exception.user.UserVerificationException;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.discordapi.util.exception.UserInputException;
 import discord4j.core.object.entity.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,16 +77,29 @@ public class VerifyCommand extends Command {
                 // Save User
                 ((UserSqlRepository) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).save(newUserModel);
             } else {
+                boolean alreadyVerified = false;
+
                 // Update Existing User
                 if (userModel.getDiscordIds().contains(commandContext.getInteractUserId().asLong()))
                     userModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
                 else if (userModel.getMojangUniqueIds().contains(mojangProfileResponse.getUniqueId())) {
                     userModel.getDiscordIds().add(commandContext.getInteractUserId().asLong());
                     message = FormatUtil.format("You have linked your new Discord account to `{0}`.", mojangProfileResponse.getUsername());
-                }
+                } else
+                    alreadyVerified = true;
 
                 // Save User
                 ((UserSqlRepository) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).save((UserSqlModel) userModel);
+
+                // TODO: Assign verified member role
+
+                if (alreadyVerified) {
+                    // TODO: Only throw error if they have the verified membe role
+                    throw SimplifiedException.of(UserVerificationException.class)
+                        .addData("MESSAGE", true)
+                        .withMessage("Your Discord account is already linked to `{0}`!", mojangProfileResponse.getUsername())
+                        .build();
+                }
             }
 
             // TODO: Check User Reports
