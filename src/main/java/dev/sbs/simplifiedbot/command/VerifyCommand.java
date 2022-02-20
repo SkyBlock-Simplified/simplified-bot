@@ -40,8 +40,9 @@ public class VerifyCommand extends Command {
 
     @Override
     protected void process(CommandContext<?> commandContext) {
-        String playerName = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow(); // Will never throw
-        MojangProfileResponse mojangProfileResponse = SimplifiedApi.getWebApi(MojangData.class).getProfileFromUsername(playerName);
+        String playerID = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow(); // Will never throw
+        MojangData mojangData = SimplifiedApi.getWebApi(MojangData.class);
+        MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangData.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangData.getProfileFromUsername(playerID);
         HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getWebApi(HypixelPlayerData.class).getPlayer(mojangProfileResponse.getUniqueId());
 
         String interactDiscordTag = commandContext.getInteractUser()
@@ -133,17 +134,18 @@ public class VerifyCommand extends Command {
         }
     }
 
-    @NotNull
     @Override
-    public ConcurrentUnmodifiableList<Parameter> getParameters() {
+    public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
             new Parameter(
                 "name",
-                "Provide your minecraft username.",
+                "Minecraft Username or UUID",
                 Parameter.Type.WORD,
-                true
+                true,
+                (argument, commandContext) -> StringUtil.isUUID(argument) || PlayerCommand.MOJANG_NAME.matcher(argument).matches()
             )
         );
     }
+
 
 }
