@@ -1,10 +1,11 @@
 package dev.sbs.simplifiedbot.command;
 
+import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.data.model.discord.command_categories.CommandCategoryModel;
 import dev.sbs.api.util.concurrent.Concurrent;
 import dev.sbs.api.util.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Category;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.command.data.Parameter;
@@ -20,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.time.Instant;
-import java.util.Arrays;
 
 @CommandInfo(
     name = "help"
@@ -47,10 +47,11 @@ public class HelpCommand extends Command {
                         .withTimestamp(Instant.now())
                         .withColor(Color.DARK_GRAY)
                         .withFields(
-                            Arrays.stream(Category.values())
-                                .filter(category -> category != Category.UNCATEGORIZED)
+                            SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
+                                .findAll()
+                                .stream()
                                 .map(category -> Field.of(
-                                    FormatUtil.format("{0}{1}", category.getEmoji().map(emoji -> emoji.asFormat() + " ").orElse(""), category.getName()),
+                                    FormatUtil.format("{0}{1}", Emoji.of(category.getEmoji()).map(Emoji::asSpacedFormat).orElse(""), category.getName()),
                                     category.getDescription(),
                                     true
                                 ))
@@ -59,22 +60,23 @@ public class HelpCommand extends Command {
                         .build()
                 )
                 .withPages(
-                    Arrays.stream(Category.values())
-                        .filter(category -> category != Category.UNCATEGORIZED)
-                        .map(category -> Page.create()
+                    SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
+                        .findAll()
+                        .stream()
+                        .map(commandCategory -> Page.create()
                             .withOption(
                                 SelectMenu.Option.builder()
-                                    .withEmoji(category.getEmoji())
-                                    .withLabel(category.getName())
-                                    .withDescription(category.getDescription())
-                                    .withValue(category.name())
+                                    .withEmoji(Emoji.of(commandCategory.getEmoji()))
+                                    .withLabel(commandCategory.getName())
+                                    .withDescription(commandCategory.getDescription())
+                                    .withValue(commandCategory.getName())
                                     .build()
                             )
                             .withEmbeds(
                                 Embed.builder()
                                     .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
-                                    .withTitle("Category :: {0}", category.getName())
-                                    .withDescription(category.getDescription())
+                                    .withTitle("Category :: {0}", commandCategory.getName())
+                                    .withDescription(commandCategory.getDescription())
                                     .withTimestamp(Instant.now())
                                     .withColor(Color.DARK_GRAY)
                                     .withFields(
@@ -82,13 +84,17 @@ public class HelpCommand extends Command {
                                             .getRootCommandRelationship()
                                             .getSubCommands()
                                             .stream()
-                                            .filter(relationship -> relationship.getCommandInfo().category() == category)
+                                            .filter(relationship -> relationship.getInstance()
+                                                .getCategory()
+                                                .map(commandCategory::equals)
+                                                .orElse(false)
+                                            )
                                             .map(relationship -> Field.of(
                                                 FormatUtil.format(
                                                     "{0}{1}",
                                                     relationship.getInstance()
                                                         .getEmoji()
-                                                        .map(emoji -> emoji.asFormat() + " ")
+                                                        .map(Emoji::asSpacedFormat)
                                                         .orElse(""),
                                                     relationship.getCommandInfo().name()
                                                 ),
@@ -104,7 +110,11 @@ public class HelpCommand extends Command {
                                     .getRootCommandRelationship()
                                     .getSubCommands()
                                     .stream()
-                                    .filter(relationship -> relationship.getCommandInfo().category() == category)
+                                    .filter(relationship -> relationship.getInstance()
+                                        .getCategory()
+                                        .map(commandCategory::equals)
+                                        .orElse(false)
+                                    )
                                     .map(relationship -> Page.create()
                                         .withOption(
                                             SelectMenu.Option.builder()
@@ -132,8 +142,8 @@ public class HelpCommand extends Command {
         return Concurrent.newUnmodifiableList(
             new Parameter(
                 "command",
-                "The command you want the help menu for.",
-                Parameter.Type.TEXT,
+                "The command you want help with.",
+                Parameter.Type.WORD,
                 false
             )
         );

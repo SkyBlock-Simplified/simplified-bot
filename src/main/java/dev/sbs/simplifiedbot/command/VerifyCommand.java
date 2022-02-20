@@ -1,7 +1,6 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Category;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
@@ -9,7 +8,6 @@ import dev.sbs.discordapi.response.Response;
 
 @CommandInfo(
     name = "verify",
-    category = Category.HYPIXEL_VERIFICATION,
     description = "Link your Hypixel Account to your Discord Account."
 )
 public class VerifyCommand extends Command {

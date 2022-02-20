@@ -1,7 +1,6 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Category;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
@@ -11,7 +10,6 @@ import java.util.regex.Pattern;
 
 @CommandInfo(
     name = "guild",
-    category = Category.PLAYER,
     description = "Lookup a Hypixel Guild."
 )
 public class GuildCommand extends Command {

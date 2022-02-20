@@ -6,7 +6,6 @@ import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Category;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
@@ -27,7 +26,6 @@ import java.util.Optional;
 
 @CommandInfo(
     name = "stats",
-    category = Category.DEVELOPER,
     parent = DeveloperCommand.class
 )
 public class DeveloperStatsCommand extends Command {
