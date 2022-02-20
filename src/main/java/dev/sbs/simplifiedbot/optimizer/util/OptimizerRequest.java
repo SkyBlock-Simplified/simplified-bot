@@ -124,10 +124,7 @@ public final class OptimizerRequest {
         }
 
         public OptimizerRequestBuilder withIsland(@NotNull ProfileModel profileModel) {
-            return this.withIsland(this.skyBlockProfilesResponse.getIslands()
-                .stream()
-                .filter(skyBlockIsland -> skyBlockIsland.getProfileName().map(profileModel::equals).orElse(false))
-                .findFirst()
+            return this.withIsland(this.skyBlockProfilesResponse.getIsland(profileModel)
                 .map(skyBlockIsland -> skyBlockProfilesResponse.getIslands().indexOf(skyBlockIsland))
                 .orElse(0)
             );

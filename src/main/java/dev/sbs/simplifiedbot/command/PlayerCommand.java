@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 )
 public class PlayerCommand extends Command {
 
-    private static final Pattern MOJANG_NAME = Pattern.compile("[\\w]{3,16}");
+    public static final Pattern MOJANG_NAME = Pattern.compile("[\\w]{3,16}");
 
     protected PlayerCommand(DiscordBot discordBot) {
         super(discordBot);
@@ -83,7 +83,7 @@ public class PlayerCommand extends Command {
         return Concurrent.newUnmodifiableList(
             new Parameter(
                 "name",
-                "Mojang Username or Unique ID",
+                "Minecraft Username or UUID",
                 Parameter.Type.WORD,
                 false,
                 (argument, commandContext) -> StringUtil.isUUID(argument) || MOJANG_NAME.matcher(argument).matches()
