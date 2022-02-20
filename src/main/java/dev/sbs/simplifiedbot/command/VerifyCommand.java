@@ -13,6 +13,7 @@ import dev.sbs.api.util.concurrent.Concurrent;
 import dev.sbs.api.util.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.util.tuple.Pair;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.Argument;
@@ -22,8 +23,8 @@ import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.util.exception.DiscordException;
+import dev.sbs.discordapi.util.exception.UserInputException;
 import discord4j.core.object.entity.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -106,31 +107,23 @@ public class VerifyCommand extends Command {
             String emptyError = "Your Hypixel account has no associated Discord tag.";
             String invalidError = "Your Hypixel account's Discord tag does not match your Discord account.";
 
-            Embed.EmbedBuilder embedBuilder = Embed.builder()
-                .withAuthor("Discord Tag Mismatch", getEmoji("STATUS_ERROR").map(Emoji::getUrl))
-                .withDescription(StringUtil.isEmpty(hypixelDiscordTag) ? emptyError : invalidError);
+            SimplifiedException.ExceptionBuilder<UserInputException> userInputError = SimplifiedException.of(UserInputException.class)
+                .withMessage(StringUtil.isEmpty(hypixelDiscordTag) ? emptyError : invalidError);
 
             if (StringUtil.isNotEmpty(hypixelDiscordTag)) {
-                embedBuilder.withFields(
-                    Field.of(
+                userInputError.withFields(
+                    Pair.of(
                         "Expected",
                         FormatUtil.format("`{0}`", interactDiscordTag)
                     ),
-                    Field.of(
+                    Pair.of(
                         "Found",
                         FormatUtil.format("`{0}`", hypixelDiscordTag)
                     )
                 );
             }
 
-            commandContext.reply(
-                Response.builder()
-                    .withReference(commandContext)
-                    .isInteractable(false)
-                    .isEphemeral()
-                    .withEmbeds(embedBuilder.build())
-                    .build()
-            );
+            throw userInputError.build();
         }
     }
 
