@@ -1,5 +1,10 @@
 package dev.sbs.simplifiedbot.command;
 
+import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.data.model.discord.sbs_developers.SbsDeveloperModel;
+import dev.sbs.api.util.concurrent.Concurrent;
+import dev.sbs.api.util.helper.FormatUtil;
+import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
@@ -62,11 +67,14 @@ public class AboutCommand extends Command {
                             ),
                             Field.of(
                                 "Developers",
-                                """
-                                    <@154743493464555521>
-                                    <@181152738086748160>
-                                    <@346439124498120714>
-                                    """,
+                                StringUtil.join(
+                                    SimplifiedApi.getRepositoryOf(SbsDeveloperModel.class)
+                                        .findAll()
+                                        .stream()
+                                        .map(sbsDeveloperModel -> FormatUtil.format("<@{0,number,#}>", sbsDeveloperModel.getDiscordId()))
+                                        .collect(Concurrent.toList()),
+                                    "\n"
+                                ),
                                 true
                             ),
                             Field.of(
