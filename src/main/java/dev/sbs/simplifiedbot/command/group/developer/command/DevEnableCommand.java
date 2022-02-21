@@ -1,4 +1,4 @@
-package dev.sbs.simplifiedbot.command.group.developer;
+package dev.sbs.simplifiedbot.command.group.developer.command;
 
 import dev.sbs.api.util.concurrent.Concurrent;
 import dev.sbs.api.util.concurrent.unmodifiable.ConcurrentUnmodifiableList;
@@ -12,13 +12,13 @@ import dev.sbs.simplifiedbot.command.DevCommand;
 import org.jetbrains.annotations.NotNull;
 
 @CommandInfo(
-    id = "79dbe55c-22a5-41dc-9bb0-fc956e2390b3",
-    name = "disable",
+    id = "5f279de3-6cf2-468e-9ec1-b208637efc8c",
+    name = "enable",
     parent = DevCommand.class
 )
-public class DevDisableCommand extends Command {
+public class DevEnableCommand extends Command {
 
-    protected DevDisableCommand(DiscordBot discordBot) {
+    protected DevEnableCommand(DiscordBot discordBot) {
         super(discordBot);
     }
 
@@ -33,7 +33,7 @@ public class DevDisableCommand extends Command {
         return Concurrent.newUnmodifiableList(
             new Parameter(
                 "command",
-                "The command to disable.",
+                "The command to enable.",
                 Parameter.Type.WORD,
                 true
             )
