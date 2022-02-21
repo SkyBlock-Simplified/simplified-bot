@@ -2,14 +2,12 @@ package dev.sbs.simplifiedbot.command.group.player;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.UserPermission;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
 
 @CommandInfo(
     id = "938888f7-1950-484c-a1e2-73bd8df2871a",
-    name = "skills",
-    userPermissions = { UserPermission.BOT_OWNER }
+    name = "skills"
 )
 public class PlayerSkillsCommand extends Command {
 
