@@ -26,13 +26,14 @@ import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.util.exception.DiscordException;
+import discord4j.common.util.Snowflake;
+import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.User;
 import org.jetbrains.annotations.NotNull;
 
 @CommandInfo(
     id = "48b8f351-4e74-4010-b1ef-9b3d18c9833a",
     name = "verify"
-    //description = "Link your Hypixel Account to your Discord Account."
 )
 public class VerifyCommand extends Command {
 
@@ -74,36 +75,46 @@ public class VerifyCommand extends Command {
                 newUserModel.getDiscordIds().add(commandContext.getInteractUserId().asLong());
                 newUserModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
 
-                // Save User
+                // Save New User
                 ((UserSqlRepository) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).save(newUserModel);
             } else {
                 boolean alreadyVerified = false;
 
                 // Update Existing User
-                if (userModel.getDiscordIds().contains(commandContext.getInteractUserId().asLong()))
-                    userModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
-                else if (userModel.getMojangUniqueIds().contains(mojangProfileResponse.getUniqueId())) {
+                if (!userModel.getDiscordIds().contains(commandContext.getInteractUserId().asLong())) {
                     userModel.getDiscordIds().add(commandContext.getInteractUserId().asLong());
                     message = FormatUtil.format("You have linked your new Discord account to `{0}`.", mojangProfileResponse.getUsername());
-                } else
+                } else if (!userModel.getMojangUniqueIds().contains(mojangProfileResponse.getUniqueId()))
+                    userModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
+                else
                     alreadyVerified = true;
 
-                // Save User
-                ((UserSqlRepository) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).save((UserSqlModel) userModel);
+                // Update User
+                if (!alreadyVerified)
+                    ((UserSqlRepository) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).update((UserSqlModel) userModel);
+                else
+                    message = "Your Discord account has been verified.";
+
+                // TODO: Check User Reports
+                // Don't forget to assign back to userModel
 
                 // TODO: Assign verified member role
+                Member guildMember = commandContext.getGuild()
+                    .flatMap(guild -> guild.getMemberById(commandContext.getInteractUserId()))
+                    .blockOptional()
+                    .orElseThrow(); // Shouldn't reach here
 
-                if (alreadyVerified) {
-                    // TODO: Only throw error if they have the verified membe role
+                boolean hasVerifiedRole = guildMember.getRoleIds().contains(Snowflake.of(862138423175544862L));
+
+                if (!hasVerifiedRole)
+                    guildMember.addRole(Snowflake.of(862138423175544862L)).subscribe();
+                else {
                     throw SimplifiedException.of(UserVerificationException.class)
                         .addData("MESSAGE", true)
                         .withMessage("Your Discord account is already linked to `{0}`!", mojangProfileResponse.getUsername())
                         .build();
                 }
             }
-
-            // TODO: Check User Reports
-            // Don't forget to assign back to userModel
 
             commandContext.reply(
                 Response.builder()
