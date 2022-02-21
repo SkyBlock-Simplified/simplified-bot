@@ -119,7 +119,8 @@ public final class SimplifiedBot extends DiscordBot {
     @Override
     protected void onDatabaseConnected() {
         SimplifiedApi.getRepositoryOf(GuildModel.class)
-            .matchAll(GuildModel::getId, GuildModel::isEmojiServer)
+            .matchAll(GuildModel::isEmojiServer)
+            .sort(GuildModel::getId)
             .forEach(guildModel -> this.getGateway()
                 .getGuildById(Snowflake.of(guildModel.getGuildId()))
                 .blockOptional()
