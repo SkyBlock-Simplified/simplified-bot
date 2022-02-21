@@ -19,8 +19,20 @@ import dev.sbs.simplifiedbot.command.HelpCommand;
 import dev.sbs.simplifiedbot.command.MissingCommand;
 import dev.sbs.simplifiedbot.command.PlayerCommand;
 import dev.sbs.simplifiedbot.command.VerifyCommand;
+import dev.sbs.simplifiedbot.command.group.developer.DevActivityCommand;
+import dev.sbs.simplifiedbot.command.group.developer.DevLatencyCommand;
+import dev.sbs.simplifiedbot.command.group.developer.DevShardCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevStatsCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevTestCommand;
+import dev.sbs.simplifiedbot.command.group.developer.command.DevDisableCommand;
+import dev.sbs.simplifiedbot.command.group.developer.command.DevEnableCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerDungeonClassesCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerDungeonsCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerNetworthCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerPetsCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerSkillsCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerSlayersCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerWeightCommand;
 import dev.sbs.simplifiedbot.command.prefix.SbsCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.presence.ClientActivity;
@@ -48,15 +60,29 @@ public final class SimplifiedBot extends DiscordBot {
             // Top-Level/Slash Commands
             AboutCommand.class,
             DevCommand.class,
-            HelpCommand.class,
-            PlayerCommand.class,
             GuildCommand.class,
+            HelpCommand.class,
             MissingCommand.class,
+            PlayerCommand.class,
             VerifyCommand.class,
 
-            // Sub Commands
+            // Developer Commands
+            DevDisableCommand.class,
+            DevEnableCommand.class,
+            DevActivityCommand.class,
+            DevLatencyCommand.class,
+            DevShardCommand.class,
+            DevStatsCommand.class,
             DevTestCommand.class,
-            DevStatsCommand.class
+
+            // Player Commands
+            PlayerDungeonClassesCommand.class,
+            PlayerDungeonsCommand.class,
+            PlayerNetworthCommand.class,
+            PlayerPetsCommand.class,
+            PlayerSkillsCommand.class,
+            PlayerSlayersCommand.class,
+            PlayerWeightCommand.class
         );
     }
 

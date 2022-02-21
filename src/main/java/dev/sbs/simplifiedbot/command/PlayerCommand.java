@@ -38,8 +38,6 @@ import java.util.regex.Pattern;
 @CommandInfo(
     id = "733e6780-84cd-45ed-921a-9b1ca9b02ed6",
     name = "player"
-    //description = "Lookup a players SkyBlock profile."
-    //aliases = { "check", "lookup", "auctions", "stats", "pets", "slayer", "dungeons?", "networth", "minions", "farming", "jacobs", "reputation" }
 )
 public class PlayerCommand extends Command {
 

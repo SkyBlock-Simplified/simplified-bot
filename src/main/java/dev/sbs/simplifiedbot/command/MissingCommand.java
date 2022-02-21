@@ -37,7 +37,6 @@ import java.util.UUID;
 @CommandInfo(
     id = "b0e6bdee-971c-4774-9373-a8ef3ccd4e5b",
     name = "missing"
-    //description = "Lookup missing accessories."
 )
 public class MissingCommand extends Command {
 
