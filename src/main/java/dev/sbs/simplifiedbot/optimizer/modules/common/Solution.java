@@ -70,7 +70,7 @@ public abstract class Solution<T extends ItemEntity> {
         // Handle Accessories
         this.getOptimizerRequest()
             .getPlayerStats()
-            .getAccessories()
+            .getFilteredAccessories()
             .forEach(accessoryData -> availableItems.add(this.getOptimalReforges(
                 accessoryReforgeTypeModel,
                 accessoryData
@@ -119,7 +119,7 @@ public abstract class Solution<T extends ItemEntity> {
             .sum();
 
         // Accessory Stats
-        total += playerStats.getAccessories()
+        total += playerStats.getFilteredAccessories()
             .stream()
             .mapToDouble(accessoryData -> getDataSum(accessoryData, ObjectData.Type::isOptimizerConstant, statModel, AccessoryData.Type.values()))
             .sum();
