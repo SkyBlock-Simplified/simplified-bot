@@ -6,6 +6,7 @@ import dev.sbs.api.client.hypixel.implementation.HypixelSkyBlockData;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.PlayerStats;
+import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.AccessoryData;
 import dev.sbs.api.client.mojang.implementation.MojangData;
 import dev.sbs.api.client.mojang.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.users.UserModel;
@@ -17,6 +18,7 @@ import dev.sbs.api.util.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.api.util.helper.WordUtil;
+import dev.sbs.api.util.search.function.SearchFunction;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.Argument;
@@ -27,10 +29,11 @@ import dev.sbs.discordapi.command.exception.user.UserVerificationException;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.action.SelectMenu;
-import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.discordapi.response.page.PageItem;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -72,20 +75,75 @@ public class MissingCommand extends Command {
                 .build();
         }
 
-        String profileName = commandContext.getArgument("profile").flatMap(Argument::getValue).orElse("");
-        ProfileModel profileModel = SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirstOrNull(ProfileModel::getKey, profileName.toUpperCase());
+        Optional<String> optionalProfileName = commandContext.getArgument("profile").flatMap(Argument::getValue);
+        Optional<SkyBlockIsland> optionalSkyBlockIsland = Optional.empty();
 
-        // Invalid Profile Name
-        if (profileModel == null) {
-            throw SimplifiedException.of(UserInputException.class)
-                .withMessage("The Hypixel account `{0}` does not contain a profile with name `{1}`.", mojangProfileResponse.getUsername(), WordUtil.capitalizeFully(profileName))
-                .build();
+        if (optionalProfileName.isPresent()) {
+            String profileName = optionalProfileName.get();
+            ProfileModel profileModel = SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirstOrNull(ProfileModel::getKey, profileName.toUpperCase());
+
+            // Invalid Profile Name
+            if (profileModel == null) {
+                throw SimplifiedException.of(UserInputException.class)
+                    .withMessage("The Hypixel account `{0}` does not contain a profile with name `{1}`.", mojangProfileResponse.getUsername(), WordUtil.capitalizeFully(profileName))
+                    .build();
+            }
+
+            optionalSkyBlockIsland = skyBlockProfilesResponse.getIsland(profileModel);
         }
 
-        SkyBlockIsland skyBlockIsland = skyBlockProfilesResponse.getIsland(profileModel).orElse(skyBlockProfilesResponse.getIslands().get(0));
+        SkyBlockIsland skyBlockIsland = optionalSkyBlockIsland.orElse(skyBlockProfilesResponse.getLastPlayed(mojangProfileResponse.getUniqueId()));
         skyBlockIsland.getMember(mojangProfileResponse.getUniqueId()).ifPresent(skyBlockMember -> {
             PlayerStats playerStats = skyBlockIsland.getPlayerStats(skyBlockMember);
-            ConcurrentList<AccessoryModel> accessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).findAll();
+            ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).findAll();
+
+            // Load Missing Accessories
+            ConcurrentList<AccessoryModel> missingAccessories = allAccessories.stream()
+                .filter(AccessoryModel::isAttainable)
+                .filter(accessoryModel -> playerStats.getAccessories()
+                    .stream()
+                    .noneMatch(accessoryData -> accessoryData.getAccessory().equals(accessoryModel))
+                )
+                .filter(accessoryModel -> {
+                    if (Objects.isNull(accessoryModel.getFamily()))
+                        return true;
+
+                    return playerStats.getAccessories()
+                        .stream()
+                        .map(AccessoryData::getAccessory)
+                        .filter(playerAccessoryModel -> Objects.nonNull(playerAccessoryModel.getFamily()))
+                        .filter(playerAccessoryModel -> playerAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
+                        .noneMatch(playerAccessoryModel -> playerAccessoryModel.getFamilyRank() >= accessoryModel.getFamilyRank());
+                })
+                .filter(accessoryModel -> {
+                    if (Objects.isNull(accessoryModel.getFamily()))
+                        return true;
+
+                    return allAccessories.stream()
+                        .filter(AccessoryModel::isAttainable)
+                        .filter(compareAccessoryModel -> Objects.nonNull(compareAccessoryModel.getFamily()))
+                        .filter(compareAccessoryModel -> compareAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
+                        .allMatch(compareAccessoryModel -> accessoryModel.getFamilyRank() >= compareAccessoryModel.getFamilyRank());
+                })
+                .collect(Concurrent.toList());
+
+            // Load Unwanted Accessories
+            ConcurrentList<AccessoryModel> unwantedAccessories = playerStats.getAccessories()
+                .stream()
+                .filter(accessoryData -> !playerStats.getFilteredAccessories().contains(accessoryData))
+                .map(AccessoryData::getAccessory)
+                .collect(Concurrent.toList());
+
+            // Load Missing Stackable Accessories
+            ConcurrentList<AccessoryModel> stackableAccessories = allAccessories.matchAll(
+                    SearchFunction.Match.ANY,
+                    accessoryModel -> accessoryModel.getFamily().isStatsStackable(),
+                    accessoryModel -> accessoryModel.getFamily().isReforgesStackable()
+                )
+                .stream()
+                .filter(accessoryModel -> !playerStats.getFilteredAccessories().contains(accessoryData -> accessoryData.getAccessory().equals(accessoryModel), true))
+                .collect(Concurrent.toList())
+                .sort(accessoryModel -> accessoryModel.getFamily().getKey(), AccessoryModel::getFamilyRank);
 
             commandContext.reply(
                 Response.builder()
@@ -99,23 +157,51 @@ public class MissingCommand extends Command {
                                     .withLabel("Missing Accessories")
                                     .build()
                             )
-                            .withEmbeds(
-                                Embed.builder()
-                                    // TODO
-                                    .build()
+                            .withItemsPerPage(10)
+                            .withItems(
+                                missingAccessories.stream()
+                                    .map(accessoryModel -> PageItem.builder()
+                                        .withValue(accessoryModel.getItem().getItemId())
+                                        .withLabel(accessoryModel.getName())
+                                        .build()
+                                    )
+                                    .collect(Concurrent.toList())
                             )
                             .build(),
                         Page.create()
                             .withOption(
                                 SelectMenu.Option.builder()
-                                    .withValue("unstackable")
-                                    .withLabel("Non-Stackable Accessories")
+                                    .withValue("unwanted")
+                                    .withLabel("Unwanted Accessories")
                                     .build()
                             )
-                            .withEmbeds(
-                                Embed.builder()
-                                    // TODO
+                            .withItemsPerPage(10)
+                            .withItems(
+                                unwantedAccessories.stream()
+                                    .map(accessoryModel -> PageItem.builder()
+                                        .withValue(accessoryModel.getItem().getItemId())
+                                        .withLabel(accessoryModel.getName())
+                                        .build()
+                                    )
+                                    .collect(Concurrent.toList())
+                            )
+                            .build(),
+                        Page.create()
+                            .withOption(
+                                SelectMenu.Option.builder()
+                                    .withValue("stackable")
+                                    .withLabel("Missing Stackable Accessories")
                                     .build()
+                            )
+                            .withItemsPerPage(10)
+                            .withItems(
+                                stackableAccessories.stream()
+                                    .map(accessoryModel -> PageItem.builder()
+                                        .withValue(accessoryModel.getItem().getItemId())
+                                        .withLabel(accessoryModel.getName())
+                                        .build()
+                                    )
+                                    .collect(Concurrent.toList())
                             )
                             .build()
                     )
