@@ -5,6 +5,7 @@ import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
+import dev.sbs.discordapi.util.DiscordConfig;
 import dev.sbs.simplifiedbot.optimizer.Optimizer;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitSolution;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_second.DamagePerSecondSolution;
@@ -14,14 +15,26 @@ import org.junit.jupiter.api.Test;
 import org.optaplanner.benchmark.api.PlannerBenchmark;
 import org.optaplanner.benchmark.api.PlannerBenchmarkFactory;
 
+import java.io.File;
+
 public class OptimizerTest {
 
     private static final PlannerBenchmarkFactory damagePerHitBenchmarker = PlannerBenchmarkFactory.createFromXmlResource("optaplanner/damagePerHitBenchmark.xml");
     private static final PlannerBenchmarkFactory damagePerSecondBenchmarker = PlannerBenchmarkFactory.createFromXmlResource("optaplanner/damagePerSecondBenchmark.xml");
+    private static final DiscordConfig config;
+
+    static {
+        try {
+            File currentDir = new File(SimplifiedApi.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            config = new DiscordConfig(currentDir.getParentFile(), "simplified-discord");
+        } catch (Exception exception) {
+            throw new IllegalArgumentException("Unable to retrieve current directory!", exception); // Should never get here
+        }
+    }
     
     private void initializeDatabase() {
         System.out.println("Database Starting... ");
-        SimplifiedApi.connectDatabase();
+        SimplifiedApi.connectDatabase(config);
         System.out.println("Database initialized in " + SimplifiedApi.getSqlSession().getInitializationTime() + "ms");
         System.out.println("Database started in " + SimplifiedApi.getSqlSession().getStartupTime() + "ms");
     }
