@@ -2,9 +2,9 @@ package dev.sbs.simplifiedbot.optimizer.modules.damage_per_second;
 
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ObjectData;
 import dev.sbs.api.data.model.skyblock.reforge_types.ReforgeTypeModel;
-import dev.sbs.api.util.concurrent.Concurrent;
-import dev.sbs.api.util.concurrent.ConcurrentList;
-import dev.sbs.api.util.tuple.Pair;
+import dev.sbs.api.util.collection.concurrent.Concurrent;
+import dev.sbs.api.util.collection.concurrent.ConcurrentList;
+import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;

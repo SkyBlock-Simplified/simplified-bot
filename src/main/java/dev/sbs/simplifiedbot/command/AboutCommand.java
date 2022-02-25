@@ -2,7 +2,7 @@ package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.sbs_developers.SbsDeveloperModel;
-import dev.sbs.api.util.concurrent.Concurrent;
+import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;

@@ -2,8 +2,8 @@ package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.command_categories.CommandCategoryModel;
-import dev.sbs.api.util.concurrent.Concurrent;
-import dev.sbs.api.util.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.util.collection.concurrent.Concurrent;
+import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;

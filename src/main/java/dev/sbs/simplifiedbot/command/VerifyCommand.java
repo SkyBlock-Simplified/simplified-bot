@@ -1,7 +1,6 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.SimplifiedException;
 import dev.sbs.api.client.hypixel.implementation.HypixelPlayerData;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelPlayerResponse;
 import dev.sbs.api.client.mojang.implementation.MojangData;
@@ -9,11 +8,12 @@ import dev.sbs.api.client.mojang.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.discord.users.UserSqlModel;
 import dev.sbs.api.data.model.discord.users.UserSqlRepository;
-import dev.sbs.api.util.concurrent.Concurrent;
-import dev.sbs.api.util.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.util.SimplifiedException;
+import dev.sbs.api.util.collection.concurrent.Concurrent;
+import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
-import dev.sbs.api.util.tuple.Pair;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.Argument;

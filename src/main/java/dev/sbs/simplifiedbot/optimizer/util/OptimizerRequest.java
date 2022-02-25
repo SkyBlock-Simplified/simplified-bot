@@ -1,7 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.SimplifiedException;
 import dev.sbs.api.client.hypixel.implementation.HypixelSkyBlockData;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
@@ -16,11 +15,11 @@ import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.minecraft.nbt.tags.collection.CompoundTag;
 import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
-import dev.sbs.api.util.LogTime;
+import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.api.util.builder.Builder;
-import dev.sbs.api.util.concurrent.Concurrent;
-import dev.sbs.api.util.concurrent.ConcurrentList;
-import dev.sbs.api.util.concurrent.ConcurrentMap;
+import dev.sbs.api.util.collection.concurrent.Concurrent;
+import dev.sbs.api.util.collection.concurrent.ConcurrentList;
+import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.simplifiedbot.optimizer.exception.OptimizerException;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -52,9 +51,7 @@ public final class OptimizerRequest {
         );
 
         this.member = member;
-        LogTime.log("Start loading player stats");
         this.playerStats = island.getPlayerStats(member);
-        LogTime.log("After loading player stats");
         this.expressionVariables = this.playerStats.getExpressionVariables();
         this.allowedReforges = optimizerRequestBuilder.allowedReforges;
         this.type = optimizerRequestBuilder.type;
@@ -93,7 +90,6 @@ public final class OptimizerRequest {
             }
         }
         this.weapon = optionalWeapon;
-        LogTime.log("After loading weapon");
     }
 
     public static OptimizerRequestBuilder of(String username) {

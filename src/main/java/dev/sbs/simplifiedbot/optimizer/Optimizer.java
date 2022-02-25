@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.optimizer;
 
-import dev.sbs.api.SimplifiedException;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.PlayerStats;
+import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.simplifiedbot.optimizer.exception.OptimizerException;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitCalculator;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitItemEntity;

@@ -2,7 +2,7 @@ package dev.sbs.simplifiedbot.optimizer.modules.common;
 
 import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatSqlModel;
-import dev.sbs.api.util.concurrent.ConcurrentMap;
+import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
