@@ -1,13 +1,8 @@
 package dev.sbs.simplifiedbot;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.data.model.discord.emojis.EmojiModel;
-import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
-import dev.sbs.api.data.model.discord.guilds.GuildModel;
-import dev.sbs.api.data.model.discord.guilds.GuildSqlModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentSet;
-import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.PrefixCommand;
@@ -34,7 +29,7 @@ import dev.sbs.simplifiedbot.command.group.player.PlayerSkillsCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerSlayersCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerWeightCommand;
 import dev.sbs.simplifiedbot.command.prefix.SbsCommand;
-import discord4j.common.util.Snowflake;
+import dev.sbs.simplifiedbot.util.ItemCache;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.gateway.ShardInfo;
@@ -49,6 +44,7 @@ import java.io.File;
 public final class SimplifiedBot extends DiscordBot {
 
     @Getter private DiscordConfig config;
+    @Getter private final ItemCache itemCache = new ItemCache();
 
     public static void main(final String[] args) {
         new SimplifiedBot();
@@ -118,38 +114,12 @@ public final class SimplifiedBot extends DiscordBot {
 
     @Override
     protected void onDatabaseConnected() {
-        SimplifiedApi.getRepositoryOf(GuildModel.class)
-            .matchAll(GuildModel::isEmojiServer)
-            .sort(GuildModel::getId)
-            .forEach(guildModel -> this.getGateway()
-                .getGuildById(Snowflake.of(guildModel.getGuildId()))
-                .blockOptional()
-                .ifPresent(guild -> guild.getEmojis()
-                    .toStream()
-                    .forEach(guildEmoji -> {
-                        String key = guildEmoji.getName().toUpperCase();
-                        String name = WordUtil.capitalizeFully(guildEmoji.getName().replace("_", " "));
-                        EmojiModel existingEmojiModel = SimplifiedApi.getRepositoryOf(EmojiModel.class).findFirstOrNull(EmojiModel::getKey, key);
-
-                        if (existingEmojiModel == null) {
-                            EmojiSqlModel newEmojiModel = new EmojiSqlModel();
-                            newEmojiModel.setEmojiId(guildEmoji.getId().asLong());
-                            newEmojiModel.setGuild((GuildSqlModel) guildModel);
-                            newEmojiModel.setKey(key);
-                            newEmojiModel.setName(name);
-                            newEmojiModel.save();
-                            this.getLog().info("Saving new emoji: {0} :: {1,number,#} :: {2}", guild.getName(), guildEmoji.getId().asLong(), name);
-                        } else {
-                            if (existingEmojiModel.getEmojiId() != guildEmoji.getId().asLong()) {
-                                EmojiSqlModel emojiSqlModel = (EmojiSqlModel) existingEmojiModel;
-                                emojiSqlModel.setEmojiId(guildEmoji.getId().asLong());
-                                emojiSqlModel.update();
-                                this.getLog().info("Updating emoji: {0} :: {1,number,#} :: {2}", guild.getName(), guildEmoji.getId().asLong(), name);
-                            }
-                        }
-                    })
-                )
-            );
+        // Schedule Item Cache Updates
+        this.getScheduler().scheduleAsync(() -> {
+            this.getItemCache().getAuctionHouse().update();
+            this.getItemCache().getBazaar().update();
+            this.getItemCache().getEndedAuctions().update();
+        }, 0, 1000);
     }
 
 }
