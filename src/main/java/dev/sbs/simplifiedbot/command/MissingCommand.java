@@ -189,7 +189,16 @@ public class MissingCommand extends Command {
                         )
                         .withItemsPerPage(10)
                         .withItems(
-
+                            playerStats.getFilteredAccessories()
+                                .stream()
+                                .filter(accessoryData -> accessoryData.getEnrichment().isEmpty())
+                                .map(AccessoryData::getAccessory)
+                                .map(accessoryModel -> PageItem.builder()
+                                    .withValue(accessoryModel.getItem().getItemId())
+                                    .withLabel(accessoryModel.getName())
+                                    .build()
+                                )
+                                .collect(Concurrent.toList())
                         )
                         .build()
                 )
