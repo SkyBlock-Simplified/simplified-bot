@@ -30,6 +30,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.User;
 import org.jetbrains.annotations.NotNull;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "48b8f351-4e74-4010-b1ef-9b3d18c9833a",
@@ -42,7 +43,7 @@ public class VerifyCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) {
+    protected Mono<Void> process(CommandContext<?> commandContext) {
         String playerID = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow(); // Will never throw
         MojangData mojangData = SimplifiedApi.getWebApi(MojangData.class);
         MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangData.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangData.getProfileFromUsername(playerID);
@@ -116,7 +117,7 @@ public class VerifyCommand extends Command {
                 }
             }
 
-            commandContext.reply(
+            return commandContext.reply(
                 Response.builder()
                     .withReference(commandContext)
                     .isInteractable(false)

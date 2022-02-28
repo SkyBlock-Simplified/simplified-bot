@@ -5,6 +5,7 @@ import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Response;
+import reactor.core.publisher.Mono;
 
 import java.util.regex.Pattern;
 
@@ -21,8 +22,8 @@ public class GuildCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) {
-        commandContext.reply(
+    protected Mono<Void> process(CommandContext<?> commandContext) {
+        return commandContext.reply(
             Response.builder()
                 .withContent("guild command")
                 .withReference(commandContext)

@@ -4,6 +4,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "45378587-204e-423f-8dd6-09307b522493",
@@ -16,8 +17,8 @@ public class PlayerDungeonClassesCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) {
-
+    protected Mono<Void> process(CommandContext<?> commandContext) {
+        return Mono.empty();
     }
 
 }

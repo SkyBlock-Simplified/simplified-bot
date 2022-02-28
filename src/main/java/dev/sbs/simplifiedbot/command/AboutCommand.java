@@ -15,6 +15,7 @@ import dev.sbs.discordapi.response.component.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
+import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.time.Instant;
@@ -30,8 +31,8 @@ public class AboutCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) {
-        commandContext.reply(
+    protected Mono<Void> process(CommandContext<?> commandContext) {
+        return commandContext.reply(
             Response.builder()
                 .replyMention()
                 .withReference(commandContext)

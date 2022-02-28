@@ -6,6 +6,7 @@ import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "4be179c5-c163-47e9-a682-7c6f237d9437",
@@ -19,8 +20,8 @@ public class DevShardCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) throws DiscordException {
-
+    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
+        return Mono.empty();
     }
 
 }

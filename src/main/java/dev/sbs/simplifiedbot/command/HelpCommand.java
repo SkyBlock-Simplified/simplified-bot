@@ -18,6 +18,7 @@ import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
+import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.time.Instant;
@@ -33,8 +34,8 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) throws DiscordException {
-        commandContext.reply(
+    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
+        return commandContext.reply(
             Response.builder()
                 .replyMention()
                 .withReference(commandContext)

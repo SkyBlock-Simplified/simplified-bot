@@ -4,6 +4,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "93d1546e-5522-4eed-95d5-cee418e1a2c4",
@@ -16,8 +17,8 @@ public class PlayerWeightCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) {
-
+    protected Mono<Void> process(CommandContext<?> commandContext) {
+        return Mono.empty();
     }
 
 }

@@ -19,6 +19,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.channel.Channel;
+import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.time.Instant;
@@ -36,7 +37,7 @@ public class DevStatsCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) throws DiscordException {
+    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
         Optional<Snowflake> optionalGuildId = Optional.empty();
 
         // Handle DMs
@@ -120,7 +121,7 @@ public class DevStatsCommand extends Command {
             }
         }, () -> embedBuilder.withDescription("This isn't a Guild."));
 
-        commandContext.reply(
+        return commandContext.reply(
             Response.builder()
                 .isInteractable(false)
                 .withReference(commandContext)

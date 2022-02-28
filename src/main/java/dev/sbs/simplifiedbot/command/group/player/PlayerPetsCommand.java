@@ -4,6 +4,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "ec1c37e2-ea99-4da2-ba04-8eecc368cda9",
@@ -16,8 +17,8 @@ public class PlayerPetsCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) {
-
+    protected Mono<Void> process(CommandContext<?> commandContext) {
+        return Mono.empty();
     }
 
 }

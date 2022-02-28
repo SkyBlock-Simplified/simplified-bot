@@ -4,6 +4,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "086d67ba-eba9-40db-958f-2f6759ae3b70",
@@ -16,8 +17,8 @@ public class PlayerSlayersCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) {
-
+    protected Mono<Void> process(CommandContext<?> commandContext) {
+        return Mono.empty();
     }
 
 }

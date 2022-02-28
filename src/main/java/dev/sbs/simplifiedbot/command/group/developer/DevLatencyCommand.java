@@ -6,6 +6,7 @@ import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "67702b52-3f90-43d5-8c66-ac52613dc7aa",
@@ -19,8 +20,8 @@ public class DevLatencyCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) throws DiscordException {
-
+    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
+        return Mono.empty();
     }
 
 }

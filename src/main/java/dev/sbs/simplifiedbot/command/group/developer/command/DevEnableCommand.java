@@ -10,6 +10,7 @@ import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
 import org.jetbrains.annotations.NotNull;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "5f279de3-6cf2-468e-9ec1-b208637efc8c",
@@ -23,8 +24,8 @@ public class DevEnableCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) throws DiscordException {
-
+    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
+        return Mono.empty();
     }
 
     @NotNull

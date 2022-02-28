@@ -14,6 +14,7 @@ import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
 import discord4j.common.util.Snowflake;
+import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
@@ -29,8 +30,8 @@ public class DevEmojiCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) throws DiscordException {
-        SimplifiedApi.getRepositoryOf(GuildModel.class)
+    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
+        return Mono.fromRunnable(() -> SimplifiedApi.getRepositoryOf(GuildModel.class)
             .matchAll(GuildModel::isEmojiServer)
             .sort(GuildModel::getId)
             .forEach(guildModel -> this.getDiscordBot()
@@ -62,7 +63,7 @@ public class DevEmojiCommand extends Command {
                         }
                     })
                 )
-            );
+            ));
     }
 
 }

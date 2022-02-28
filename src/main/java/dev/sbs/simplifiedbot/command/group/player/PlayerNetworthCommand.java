@@ -4,6 +4,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "df6db078-5f43-41f8-9439-40f21b3ddc18",
@@ -16,8 +17,8 @@ public class PlayerNetworthCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) {
-
+    protected Mono<Void> process(CommandContext<?> commandContext) {
+        return Mono.empty();
     }
 
 }

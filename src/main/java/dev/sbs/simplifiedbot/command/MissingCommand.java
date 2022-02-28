@@ -22,6 +22,7 @@ import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.PageItem;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import org.jetbrains.annotations.NotNull;
+import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
@@ -36,12 +37,12 @@ public class MissingCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) {
+    protected Mono<Void> process(CommandContext<?> commandContext) {
         SkyBlockUser skyBlockUser = new SkyBlockUser(commandContext);
         PlayerStats playerStats = skyBlockUser.getSelectedIsland().getPlayerStats(skyBlockUser.getMember());
         ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).findAll();
 
-        commandContext.reply(
+        return commandContext.reply(
             Response.builder()
                 .withReference(commandContext)
                 .isInteractable()
