@@ -12,8 +12,7 @@ import dev.sbs.discordapi.response.component.layout.ActionRow;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
-
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "75f1762a-4672-48db-83d8-86d953645d08",
@@ -27,9 +26,76 @@ public class DevTestCommand extends Command {
     }
 
     @Override
-    protected void process(CommandContext<?> commandContext) throws DiscordException {
-        Optional<Emoji> test = getEmoji("SKYBLOCK_ICON_HORSE");
+    protected Mono<Void> process2(CommandContext<?> commandContext) throws DiscordException {
+        return commandContext.softReply(
+            Response.builder()
+                .withContent("test command")
+                .withReference(commandContext)
+                .replyMention()
+                .withReactions(Emoji.of("\uD83D\uDC80", reactionContext -> {
+                    reactionContext.removeUserReaction();
+                    reactionContext.edit(responseBuilder -> responseBuilder.withContent("reaction: " + reactionContext.getEmoji().asFormat()));
+                }))
+                .withEmbeds(
+                    Embed.builder()
+                        .withDescription("[Is this google?](https://google.com/)")
+                        .build()
+                )
+                .withComponents(
+                    ActionRow.of(
+                        Button.builder()
+                            .withStyle(Button.Style.PRIMARY)
+                            .withEmoji(Emoji.of("\uD83C\uDF85"))
+                            .withLabel("Santa")
+                            .onInteract(buttonContext -> buttonContext.edit(responseBuilder -> responseBuilder.withContent("santa!")))
+                            .build(),
+                        Button.builder()
+                            .withStyle(Button.Style.SECONDARY)
+                            .withEmoji(Emoji.of("\uD83D\uDC31"))
+                            .withLabel("Cat")
+                            .onInteract(buttonContext -> buttonContext.edit(responseBuilder -> responseBuilder.withContent("cat!")))
+                            .build(),
+                        Button.builder()
+                            .withStyle(Button.Style.LINK)
+                            .withUrl("#")
+                            .withLabel("Google")
+                            .isPreserved()
+                            .build()
+                    ),
+                    ActionRow.of(
+                        SelectMenu.builder()
+                            .withPlaceholder("Derpy menu")
+                            .placeholderUsesSelectedOption()
+                            .withOptions(
+                                SelectMenu.Option.builder()
+                                    .withLabel("Neigh")
+                                    .withValue("value 1")
+                                    .withEmoji(getEmoji("SKYBLOCK_ICON_HORSE"))
+                                    .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                    .build(),
+                                SelectMenu.Option.builder()
+                                    .withLabel("Buni")
+                                    .withValue("value 2")
+                                    .withDescription("Looking for ores!")
+                                    .withEmoji(Emoji.of(669279331875946506L, "Buni", true))
+                                    .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                    .build(),
+                                SelectMenu.Option.builder()
+                                    .withLabel("Santa Claus")
+                                    .withValue("value 3")
+                                    .withEmoji(Emoji.of("\uD83C\uDF85"))
+                                    .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                    .build()
+                            )
+                            .build()
+                    )
+                )
+                .build()
+        );
+    }
 
+    @Override
+    protected void process(CommandContext<?> commandContext) throws DiscordException {
         commandContext.reply(
             Response.builder()
                 .withContent("test command")
