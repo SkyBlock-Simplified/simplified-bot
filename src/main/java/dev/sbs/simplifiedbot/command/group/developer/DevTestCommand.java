@@ -77,7 +77,7 @@ public class DevTestCommand extends Command {
                                     .withLabel("Buni")
                                     .withValue("value 2")
                                     .withDescription("Looking for ores!")
-                                    .withEmoji(Emoji.of(669279331875946506L, "Buni", true))
+                                    .withEmoji(Emoji.of(769279331875946506L, "Buni", true))
                                     .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
                                     .build(),
                                 SelectMenu.Option.builder()
