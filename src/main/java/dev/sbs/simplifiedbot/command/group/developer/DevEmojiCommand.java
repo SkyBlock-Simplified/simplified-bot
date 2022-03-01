@@ -58,6 +58,7 @@ public class DevEmojiCommand extends Command {
                             newEmojiModel.setGuild((GuildSqlModel) guildModel);
                             newEmojiModel.setKey(key);
                             newEmojiModel.setName(name);
+                            newEmojiModel.setAnimated(guildEmoji.isAnimated());
                             ((EmojiSqlRepository) SimplifiedApi.getRepositoryOf(EmojiSqlModel.class)).save(newEmojiModel);
                             this.getLog().info("Saving new emoji: {0} :: {1,number,#} :: {2}", guild.getName(), guildEmoji.getId().asLong(), name);
                         }
