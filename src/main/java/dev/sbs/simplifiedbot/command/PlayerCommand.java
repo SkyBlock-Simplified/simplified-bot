@@ -50,23 +50,12 @@ public class PlayerCommand extends Command {
 
     @Override
     protected Mono<Void> process(CommandContext<?> commandContext) {
-        //MojangProfileResponse response = SimplifiedApi.getWebApi(MojangData.class).getProfileFromUsername("CraftedFury");
         return commandContext.reply(
             Response.builder()
                 .withContent("player command")
                 .withReference(commandContext)
                 .build()
         );
-
-        /*commandContext.getMessage()
-            .getMessageChannel()
-            .ofType(GuildMessageChannel.class)
-            .flatMap(guildMessageChannel -> Mono.fromRunnable(() -> guildMessageChannel.getMessagesBefore(commandContext.getMessage().getId())
-                .take(4)
-                .filter(filterMessage -> filterMessage.getContent().contains("test"))
-                .transform(guildMessageChannel::bulkDeleteMessages)
-                .subscribe()
-            )).subscribe();*/
     }
 
     @Override

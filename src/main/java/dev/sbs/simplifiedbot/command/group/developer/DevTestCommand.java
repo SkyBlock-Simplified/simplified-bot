@@ -32,10 +32,10 @@ public class DevTestCommand extends Command {
                 .withContent("test command")
                 .withReference(commandContext)
                 .replyMention()
-                .withReactions(Emoji.of("\uD83D\uDC80", reactionContext -> {
-                    reactionContext.removeUserReaction();
-                    reactionContext.edit(responseBuilder -> responseBuilder.withContent("reaction: " + reactionContext.getEmoji().asFormat()));
-                }))
+                .withTimeToLive(30)
+                .withReactions(Emoji.of("\uD83D\uDC80", reactionContext -> reactionContext.removeUserReaction()
+                    .then(reactionContext.edit(responseBuilder -> responseBuilder.withContent("reaction: " + reactionContext.getEmoji().asFormat()))))
+                )
                 .withEmbeds(
                     Embed.builder()
                         .withDescription("[Is this google?](https://google.com/)")
@@ -54,6 +54,14 @@ public class DevTestCommand extends Command {
                             .withEmoji(Emoji.of("\uD83D\uDC31"))
                             .withLabel("Cat")
                             .onInteract(buttonContext -> buttonContext.edit(responseBuilder -> responseBuilder.withContent("cat!")))
+                            .build(),
+                        Button.builder()
+                            .withStyle(Button.Style.DANGER)
+                            .withLabel("Danger!")
+                            .build(),
+                        Button.builder()
+                            .withStyle(Button.Style.SUCCESS)
+                            .withLabel("Success!")
                             .build(),
                         Button.builder()
                             .withStyle(Button.Style.LINK)
@@ -81,10 +89,15 @@ public class DevTestCommand extends Command {
                                     .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
                                     .build(),
                                 SelectMenu.Option.builder()
-                                    .withLabel("Santa Claus")
+                                    .withLabel("Yes sir!")
                                     .withValue("value 3")
-                                    .withEmoji(Emoji.of("\uD83C\uDF85"))
+                                    .withEmoji(Emoji.of(837805777187241985L, "linasalute"))
                                     .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                    .build(),
+                                SelectMenu.Option.builder()
+                                    .withLabel("I do nothing :)")
+                                    .withValue("value 4")
+                                    .withEmoji(Emoji.of(851662312925954068L, "goosewalk", true))
                                     .build()
                             )
                             .build()
