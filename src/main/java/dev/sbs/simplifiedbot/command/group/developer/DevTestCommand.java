@@ -37,7 +37,7 @@ public class DevTestCommand extends Command {
                     Page.builder()
                         .withContent("test command")
                         .withReactions(Emoji.of("\uD83D\uDC80", reactionContext -> reactionContext.removeUserReaction()
-                            .then(reactionContext.edit(responseBuilder -> responseBuilder.withContent("reaction: " + reactionContext.getEmoji().asFormat()))))
+                            .then(reactionContext.edit(pageBuilder -> pageBuilder.withContent("reaction: " + reactionContext.getEmoji().asFormat()))))
                         )
                         .withEmbeds(
                             Embed.builder()
@@ -50,13 +50,13 @@ public class DevTestCommand extends Command {
                                     .withStyle(Button.Style.PRIMARY)
                                     .withEmoji(Emoji.of("\uD83C\uDF85"))
                                     .withLabel("Santa")
-                                    .onInteract(buttonContext -> buttonContext.edit(responseBuilder -> responseBuilder.withContent("santa!")))
+                                    .onInteract(buttonContext -> buttonContext.edit(pageBuilder -> pageBuilder.withContent("santa!")))
                                     .build(),
                                 Button.builder()
                                     .withStyle(Button.Style.SECONDARY)
                                     .withEmoji(Emoji.of("\uD83D\uDC31"))
                                     .withLabel("Cat")
-                                    .onInteract(buttonContext -> buttonContext.edit(responseBuilder -> responseBuilder.withContent("cat!")))
+                                    .onInteract(buttonContext -> buttonContext.edit(pageBuilder -> pageBuilder.withContent("cat!")))
                                     .build(),
                                 Button.builder()
                                     .withStyle(Button.Style.DANGER)
@@ -82,20 +82,20 @@ public class DevTestCommand extends Command {
                                             .withLabel("Neigh")
                                             .withValue("value 1")
                                             .withEmoji(getEmoji("SKYBLOCK_ICON_HORSE"))
-                                            .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                            .onInteract(optionContext -> optionContext.edit(pageBuilder -> pageBuilder.withContent(optionContext.getOption().getValue())))
                                             .build(),
                                         SelectMenu.Option.builder()
                                             .withLabel("Buni")
                                             .withValue("value 2")
                                             .withDescription("Looking for ores!")
                                             .withEmoji(Emoji.of(769279331875946506L, "Buni", true))
-                                            .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                            .onInteract(optionContext -> optionContext.edit(pageBuilder -> pageBuilder.withContent(optionContext.getOption().getValue())))
                                             .build(),
                                         SelectMenu.Option.builder()
                                             .withLabel("Yes sir!")
                                             .withValue("value 3")
                                             .withEmoji(Emoji.of(837805777187241985L, "linasalute"))
-                                            .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                            .onInteract(optionContext -> optionContext.edit(pageBuilder -> pageBuilder.withContent(optionContext.getOption().getValue())))
                                             .build(),
                                         SelectMenu.Option.builder()
                                             .withLabel("I do nothing :)")
