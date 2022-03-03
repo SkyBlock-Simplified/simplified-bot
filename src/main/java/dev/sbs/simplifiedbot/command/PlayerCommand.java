@@ -52,8 +52,12 @@ public class PlayerCommand extends Command {
     protected Mono<Void> process(CommandContext<?> commandContext) {
         return commandContext.reply(
             Response.builder()
-                .withContent("player command")
                 .withReference(commandContext)
+                .withPages(
+                    Page.builder()
+                        .withContent("player command")
+                        .build()
+                )
                 .build()
         );
     }
@@ -91,7 +95,7 @@ public class PlayerCommand extends Command {
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
 
         return switch (identifier.toLowerCase()) {
-            case "stats" -> Page.create()
+            case "stats" -> Page.builder()
                 .withOption(
                     getOptionBuilder("stats", identifier)
                         .build()
@@ -194,7 +198,7 @@ public class PlayerCommand extends Command {
                         .build()
                 )
                 .build();
-            case "skills" -> Page.create()
+            case "skills" -> Page.builder()
                 .withOption(
                     getOptionBuilder("skills", identifier)
                         .build()
@@ -212,7 +216,7 @@ public class PlayerCommand extends Command {
                     )
                 )
                 .build();
-            case "slayers" -> Page.create()
+            case "slayers" -> Page.builder()
                 .withOption(
                     getOptionBuilder("slayers", identifier)
                         .build()
@@ -230,7 +234,7 @@ public class PlayerCommand extends Command {
                     )
                 )
                 .build();
-            case "dungeons" -> Page.create()
+            case "dungeons" -> Page.builder()
                 .withOption(
                     getOptionBuilder("dungeons", identifier)
                         .build()
@@ -276,7 +280,7 @@ public class PlayerCommand extends Command {
                         .build()
                 )
                 .build();
-            case "dungeon_classes" -> Page.create()
+            case "dungeon_classes" -> Page.builder()
                 .withOption(
                     getOptionBuilder("dungeon_classes", identifier)
                         .build()
@@ -294,7 +298,7 @@ public class PlayerCommand extends Command {
                     )
                 )
                 .build();
-            case "jacobs_farming" -> Page.create()
+            case "jacobs_farming" -> Page.builder()
                 .withOption(
                     getOptionBuilder("jacobs_farming", identifier)
                         .build()
@@ -393,7 +397,7 @@ public class PlayerCommand extends Command {
                         .build()
                 )
                 .build();
-            default -> Page.create().build(); // Will never create this
+            default -> Page.builder().build(); // Will never create this
         };
     }
 

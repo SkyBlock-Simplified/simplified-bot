@@ -47,7 +47,7 @@ public class MissingCommand extends Command {
                 .withReference(commandContext)
                 .isInteractable()
                 .withPages(
-                    Page.create()
+                    Page.builder()
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("missing")
@@ -91,7 +91,7 @@ public class MissingCommand extends Command {
                                 .collect(Concurrent.toList())
                         )
                         .build(),
-                    Page.create()
+                    Page.builder()
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("unwanted")
@@ -112,7 +112,7 @@ public class MissingCommand extends Command {
                                 .collect(Concurrent.toList())
                         )
                         .build(),
-                    Page.create()
+                    Page.builder()
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("stackable")
@@ -139,7 +139,7 @@ public class MissingCommand extends Command {
                                 .collect(Concurrent.toList())
                         )
                         .build(),
-                    Page.create()
+                    Page.builder()
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("reforges")
@@ -160,7 +160,7 @@ public class MissingCommand extends Command {
                                 .collect(Concurrent.toList())
                         )
                         .build(),
-                    Page.create()
+                    Page.builder()
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("recombobulators")
@@ -181,7 +181,7 @@ public class MissingCommand extends Command {
                                 .collect(Concurrent.toList())
                         )
                         .build(),
-                    Page.create()
+                    Page.builder()
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("enrichments")

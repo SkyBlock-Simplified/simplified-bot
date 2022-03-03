@@ -25,6 +25,7 @@ import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
@@ -121,10 +122,14 @@ public class VerifyCommand extends Command {
                 Response.builder()
                     .withReference(commandContext)
                     .isInteractable(false)
-                    .withEmbeds(
-                        Embed.builder()
-                            .withAuthor("Hypixel Verification", getEmoji("STATUS_INFO").map(Emoji::getUrl))
-                            .withDescription(message)
+                    .withPages(
+                        Page.builder()
+                            .withEmbeds(
+                                Embed.builder()
+                                    .withAuthor("Hypixel Verification", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                    .withDescription(message)
+                                    .build()
+                            )
                             .build()
                     )
                     .build()

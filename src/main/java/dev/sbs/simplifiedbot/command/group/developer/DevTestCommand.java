@@ -10,6 +10,7 @@ import dev.sbs.discordapi.response.component.action.Button;
 import dev.sbs.discordapi.response.component.action.SelectMenu;
 import dev.sbs.discordapi.response.component.layout.ActionRow;
 import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
 import reactor.core.publisher.Mono;
@@ -29,79 +30,83 @@ public class DevTestCommand extends Command {
     protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
         return commandContext.reply(
             Response.builder()
-                .withContent("test command")
                 .withReference(commandContext)
                 .replyMention()
                 .withTimeToLive(30)
-                .withReactions(Emoji.of("\uD83D\uDC80", reactionContext -> reactionContext.removeUserReaction()
-                    .then(reactionContext.edit(responseBuilder -> responseBuilder.withContent("reaction: " + reactionContext.getEmoji().asFormat()))))
-                )
-                .withEmbeds(
-                    Embed.builder()
-                        .withDescription("[Is this google?](https://google.com/)")
-                        .build()
-                )
-                .withComponents(
-                    ActionRow.of(
-                        Button.builder()
-                            .withStyle(Button.Style.PRIMARY)
-                            .withEmoji(Emoji.of("\uD83C\uDF85"))
-                            .withLabel("Santa")
-                            .onInteract(buttonContext -> buttonContext.edit(responseBuilder -> responseBuilder.withContent("santa!")))
-                            .build(),
-                        Button.builder()
-                            .withStyle(Button.Style.SECONDARY)
-                            .withEmoji(Emoji.of("\uD83D\uDC31"))
-                            .withLabel("Cat")
-                            .onInteract(buttonContext -> buttonContext.edit(responseBuilder -> responseBuilder.withContent("cat!")))
-                            .build(),
-                        Button.builder()
-                            .withStyle(Button.Style.DANGER)
-                            .withLabel("Danger!")
-                            .build(),
-                        Button.builder()
-                            .withStyle(Button.Style.SUCCESS)
-                            .withLabel("Success!")
-                            .build(),
-                        Button.builder()
-                            .withStyle(Button.Style.LINK)
-                            .withUrl("https://google.com/")
-                            .withLabel("Google")
-                            .isPreserved()
-                            .build()
-                    ),
-                    ActionRow.of(
-                        SelectMenu.builder()
-                            .withPlaceholder("Derpy menu")
-                            .placeholderUsesSelectedOption()
-                            .withOptions(
-                                SelectMenu.Option.builder()
-                                    .withLabel("Neigh")
-                                    .withValue("value 1")
-                                    .withEmoji(getEmoji("SKYBLOCK_ICON_HORSE"))
-                                    .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                .withPages(
+                    Page.builder()
+                        .withContent("test command")
+                        .withReactions(Emoji.of("\uD83D\uDC80", reactionContext -> reactionContext.removeUserReaction()
+                            .then(reactionContext.edit(responseBuilder -> responseBuilder.withContent("reaction: " + reactionContext.getEmoji().asFormat()))))
+                        )
+                        .withEmbeds(
+                            Embed.builder()
+                                .withDescription("[Is this google?](https://google.com/)")
+                                .build()
+                        )
+                        .withComponents(
+                            ActionRow.of(
+                                Button.builder()
+                                    .withStyle(Button.Style.PRIMARY)
+                                    .withEmoji(Emoji.of("\uD83C\uDF85"))
+                                    .withLabel("Santa")
+                                    .onInteract(buttonContext -> buttonContext.edit(responseBuilder -> responseBuilder.withContent("santa!")))
                                     .build(),
-                                SelectMenu.Option.builder()
-                                    .withLabel("Buni")
-                                    .withValue("value 2")
-                                    .withDescription("Looking for ores!")
-                                    .withEmoji(Emoji.of(769279331875946506L, "Buni", true))
-                                    .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                Button.builder()
+                                    .withStyle(Button.Style.SECONDARY)
+                                    .withEmoji(Emoji.of("\uD83D\uDC31"))
+                                    .withLabel("Cat")
+                                    .onInteract(buttonContext -> buttonContext.edit(responseBuilder -> responseBuilder.withContent("cat!")))
                                     .build(),
-                                SelectMenu.Option.builder()
-                                    .withLabel("Yes sir!")
-                                    .withValue("value 3")
-                                    .withEmoji(Emoji.of(837805777187241985L, "linasalute"))
-                                    .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                Button.builder()
+                                    .withStyle(Button.Style.DANGER)
+                                    .withLabel("Danger!")
                                     .build(),
-                                SelectMenu.Option.builder()
-                                    .withLabel("I do nothing :)")
-                                    .withValue("value 4")
-                                    .withEmoji(Emoji.of(851662312925954068L, "goosewalk", true))
+                                Button.builder()
+                                    .withStyle(Button.Style.SUCCESS)
+                                    .withLabel("Success!")
+                                    .build(),
+                                Button.builder()
+                                    .withStyle(Button.Style.LINK)
+                                    .withUrl("https://google.com/")
+                                    .withLabel("Google")
+                                    .isPreserved()
+                                    .build()
+                            ),
+                            ActionRow.of(
+                                SelectMenu.builder()
+                                    .withPlaceholder("Derpy menu")
+                                    .placeholderUsesSelectedOption()
+                                    .withOptions(
+                                        SelectMenu.Option.builder()
+                                            .withLabel("Neigh")
+                                            .withValue("value 1")
+                                            .withEmoji(getEmoji("SKYBLOCK_ICON_HORSE"))
+                                            .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                            .build(),
+                                        SelectMenu.Option.builder()
+                                            .withLabel("Buni")
+                                            .withValue("value 2")
+                                            .withDescription("Looking for ores!")
+                                            .withEmoji(Emoji.of(769279331875946506L, "Buni", true))
+                                            .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                            .build(),
+                                        SelectMenu.Option.builder()
+                                            .withLabel("Yes sir!")
+                                            .withValue("value 3")
+                                            .withEmoji(Emoji.of(837805777187241985L, "linasalute"))
+                                            .onInteract(optionContext -> optionContext.edit(responseBuilder -> responseBuilder.withContent(optionContext.getOption().getValue())))
+                                            .build(),
+                                        SelectMenu.Option.builder()
+                                            .withLabel("I do nothing :)")
+                                            .withValue("value 4")
+                                            .withEmoji(Emoji.of(851662312925954068L, "goosewalk", true))
+                                            .build()
+                                    )
                                     .build()
                             )
-                            .build()
-                    )
+                        )
+                        .build()
                 )
                 .build()
             );

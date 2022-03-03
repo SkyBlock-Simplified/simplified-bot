@@ -41,47 +41,75 @@ public class HelpCommand extends Command {
                 .withReference(commandContext)
                 .isInteractable()
                 .withTimeToLive(60)
-                .withEmbeds(
-                    Embed.builder()
-                        .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
-                        .withTitle("Categories")
-                        .withDescription("Select a category in the select menu to view a list of commands.")
-                        .withTimestamp(Instant.now())
-                        .withColor(Color.DARK_GRAY)
-                        .withFields(
+                .withPages(
+                    Page.builder()
+                        .withEmbeds(
+                            Embed.builder()
+                                .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                .withTitle("Categories")
+                                .withDescription("Select a category in the select menu to view a list of commands.")
+                                .withTimestamp(Instant.now())
+                                .withColor(Color.DARK_GRAY)
+                                .withFields(
+                                    SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
+                                        .findAll()
+                                        .stream()
+                                        .map(category -> Field.of(
+                                            FormatUtil.format("{0}{1}", Emoji.of(category.getEmoji()).map(Emoji::asSpacedFormat).orElse(""), category.getName()),
+                                            category.getDescription(),
+                                            true
+                                        ))
+                                        .collect(Concurrent.toList())
+                                )
+                                .build()
+                        )
+                        .withSubPages(
                             SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
                                 .findAll()
                                 .stream()
-                                .map(category -> Field.of(
-                                    FormatUtil.format("{0}{1}", Emoji.of(category.getEmoji()).map(Emoji::asSpacedFormat).orElse(""), category.getName()),
-                                    category.getDescription(),
-                                    true
-                                ))
-                                .collect(Concurrent.toList())
-                        )
-                        .build()
-                )
-                .withPages(
-                    SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
-                        .findAll()
-                        .stream()
-                        .map(commandCategory -> Page.create()
-                            .withOption(
-                                SelectMenu.Option.builder()
-                                    .withEmoji(Emoji.of(commandCategory.getEmoji()))
-                                    .withLabel(commandCategory.getName())
-                                    .withDescription(commandCategory.getDescription())
-                                    .withValue(commandCategory.getName())
-                                    .build()
-                            )
-                            .withEmbeds(
-                                Embed.builder()
-                                    .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
-                                    .withTitle("Category :: {0}", commandCategory.getName())
-                                    .withDescription(commandCategory.getDescription())
-                                    .withTimestamp(Instant.now())
-                                    .withColor(Color.DARK_GRAY)
-                                    .withFields(
+                                .map(commandCategory -> Page.builder()
+                                    .withOption(
+                                        SelectMenu.Option.builder()
+                                            .withEmoji(Emoji.of(commandCategory.getEmoji()))
+                                            .withLabel(commandCategory.getName())
+                                            .withDescription(commandCategory.getDescription())
+                                            .withValue(commandCategory.getName())
+                                            .build()
+                                    )
+                                    .withEmbeds(
+                                        Embed.builder()
+                                            .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                            .withTitle("Category :: {0}", commandCategory.getName())
+                                            .withDescription(commandCategory.getDescription())
+                                            .withTimestamp(Instant.now())
+                                            .withColor(Color.DARK_GRAY)
+                                            .withFields(
+                                                this.getDiscordBot()
+                                                    .getRootCommandRelationship()
+                                                    .getSubCommands()
+                                                    .stream()
+                                                    .filter(relationship -> relationship.getInstance()
+                                                        .getCategory()
+                                                        .map(commandCategory::equals)
+                                                        .orElse(false)
+                                                    )
+                                                    .map(relationship -> Field.of(
+                                                        FormatUtil.format(
+                                                            "{0}{1}",
+                                                            relationship.getInstance()
+                                                                .getEmoji()
+                                                                .map(Emoji::asSpacedFormat)
+                                                                .orElse(""),
+                                                            relationship.getCommandInfo().name()
+                                                        ),
+                                                        relationship.getInstance().getDescription(),
+                                                        true
+                                                    ))
+                                                    .collect(Concurrent.toList())
+                                            )
+                                            .build()
+                                    )
+                                    .withSubPages(
                                         this.getDiscordBot()
                                             .getRootCommandRelationship()
                                             .getSubCommands()
@@ -91,49 +119,25 @@ public class HelpCommand extends Command {
                                                 .map(commandCategory::equals)
                                                 .orElse(false)
                                             )
-                                            .map(relationship -> Field.of(
-                                                FormatUtil.format(
-                                                    "{0}{1}",
-                                                    relationship.getInstance()
-                                                        .getEmoji()
-                                                        .map(Emoji::asSpacedFormat)
-                                                        .orElse(""),
-                                                    relationship.getCommandInfo().name()
-                                                ),
-                                                relationship.getInstance().getDescription(),
-                                                true
-                                            ))
+                                            .map(relationship -> Page.builder()
+                                                .withOption(
+                                                    SelectMenu.Option.builder()
+                                                        .withEmoji(relationship.getInstance().getEmoji())
+                                                        .withLabel(relationship.getCommandInfo().name())
+                                                        .withDescription(relationship.getInstance().getDescription())
+                                                        .withValue(relationship.getCommandInfo().name())
+                                                        .build()
+                                                )
+                                                .withEmbeds(Command.createHelpEmbed(relationship))
+                                                .build()
+                                            )
                                             .collect(Concurrent.toList())
                                     )
                                     .build()
-                            )
-                            .withPages(
-                                this.getDiscordBot()
-                                    .getRootCommandRelationship()
-                                    .getSubCommands()
-                                    .stream()
-                                    .filter(relationship -> relationship.getInstance()
-                                        .getCategory()
-                                        .map(commandCategory::equals)
-                                        .orElse(false)
-                                    )
-                                    .map(relationship -> Page.create()
-                                        .withOption(
-                                            SelectMenu.Option.builder()
-                                                .withEmoji(relationship.getInstance().getEmoji())
-                                                .withLabel(relationship.getCommandInfo().name())
-                                                .withDescription(relationship.getInstance().getDescription())
-                                                .withValue(relationship.getCommandInfo().name())
-                                                .build()
-                                        )
-                                        .withEmbeds(Command.createHelpEmbed(relationship))
-                                        .build()
-                                    )
-                                    .collect(Concurrent.toList())
-                            )
-                            .build()
+                                )
+                                .collect(Concurrent.toList())
                         )
-                        .collect(Concurrent.toList())
+                        .build()
                 )
                 .build()
         );

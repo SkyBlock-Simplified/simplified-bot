@@ -12,6 +12,7 @@ import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.DiscordObject;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
@@ -125,7 +126,11 @@ public class DevStatsCommand extends Command {
             Response.builder()
                 .isInteractable(false)
                 .withReference(commandContext)
-                .withEmbeds(embedBuilder.build())
+                .withPages(
+                    Page.builder()
+                        .withEmbeds(embedBuilder.build())
+                        .build()
+                )
                 .build()
         );
     }
