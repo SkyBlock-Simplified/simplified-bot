@@ -149,7 +149,6 @@ public class PlayerCommand extends Command {
                                 StringUtil.join(
                                     StreamUtil.prependEach(
                                             SimplifiedApi.getRepositoryOf(ShopProfileUpgradeModel.class)
-                                                .findAll()
                                                 .stream()
                                                 .map(shopProfileUpgradeModel -> FormatUtil.format(
                                                     "{0}: {1} / {2}",
@@ -263,7 +262,6 @@ public class PlayerCommand extends Command {
                                 "Floor",
                                 StringUtil.join(
                                     SimplifiedApi.getRepositoryOf(DungeonFloorModel.class)
-                                        .findAll()
                                         .stream()
                                         .map(dungeonFloorModel -> dungeonFloorModel.getFloor() > 0 ? FormatUtil.format("Floor {0}", dungeonFloorModel.getFloor()) : "Entrance")
                                 )

@@ -52,7 +52,6 @@ public class HelpCommand extends Command {
                                 .withColor(Color.DARK_GRAY)
                                 .withFields(
                                     SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
-                                        .findAll()
                                         .stream()
                                         .map(category -> Field.of(
                                             FormatUtil.format("{0}{1}", Emoji.of(category.getEmoji()).map(Emoji::asSpacedFormat).orElse(""), category.getName()),
@@ -65,7 +64,6 @@ public class HelpCommand extends Command {
                         )
                         .withSubPages(
                             SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
-                                .findAll()
                                 .stream()
                                 .map(commandCategory -> Page.builder()
                                     .withOption(

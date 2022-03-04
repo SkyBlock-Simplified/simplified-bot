@@ -71,7 +71,6 @@ public class AboutCommand extends Command {
                                         "Developers",
                                         StringUtil.join(
                                             SimplifiedApi.getRepositoryOf(SbsDeveloperModel.class)
-                                                .findAll()
                                                 .stream()
                                                 .map(sbsDeveloperModel -> FormatUtil.format("<@{0,number,#}>", sbsDeveloperModel.getDiscordId()))
                                                 .collect(Concurrent.toList()),
