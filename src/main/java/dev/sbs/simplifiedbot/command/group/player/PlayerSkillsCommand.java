@@ -1,23 +1,25 @@
 package dev.sbs.simplifiedbot.command.group.player;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
+import dev.sbs.simplifiedbot.util.SkyBlockUser;
+import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
+import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 @CommandInfo(
     id = "938888f7-1950-484c-a1e2-73bd8df2871a",
     name = "skills"
 )
-public class PlayerSkillsCommand extends Command {
+public class PlayerSkillsCommand extends SkyBlockUserCommand {
 
     protected PlayerSkillsCommand(DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) {
+    protected Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
         return Mono.empty();
     }
 

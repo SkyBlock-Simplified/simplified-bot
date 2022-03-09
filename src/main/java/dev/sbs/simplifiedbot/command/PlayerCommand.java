@@ -10,15 +10,12 @@ import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.shop_profile_upgrades.ShopProfileUpgradeModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
-import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -26,6 +23,8 @@ import dev.sbs.discordapi.response.component.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.simplifiedbot.util.SkyBlockUser;
+import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -40,7 +39,7 @@ import java.util.regex.Pattern;
     id = "733e6780-84cd-45ed-921a-9b1ca9b02ed6",
     name = "player"
 )
-public class PlayerCommand extends Command {
+public class PlayerCommand extends SkyBlockUserCommand {
 
     public static final Pattern MOJANG_NAME = Pattern.compile("[\\w]{3,16}");
 
@@ -49,7 +48,7 @@ public class PlayerCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) {
+    protected Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
         return commandContext.reply(
             Response.builder()
                 .withReference(commandContext)
@@ -59,34 +58,6 @@ public class PlayerCommand extends Command {
                         .build()
                 )
                 .build()
-        );
-    }
-
-    @Override
-    public @NotNull ConcurrentUnmodifiableList<String> getExampleArguments() {
-        return Concurrent.newUnmodifiableList(
-            "CraftedFury",
-            "CraftedFury Pineapple"
-        );
-    }
-
-    @Override
-    public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
-        return Concurrent.newUnmodifiableList(
-            new Parameter(
-                "name",
-                "Minecraft Username or UUID",
-                Parameter.Type.WORD,
-                false,
-                (argument, commandContext) -> StringUtil.isUUID(argument) || MOJANG_NAME.matcher(argument).matches()
-            ),
-            new Parameter(
-                "profile",
-                "SkyBlock Profile Name",
-                Parameter.Type.WORD,
-                false,
-                (argument, commandContext) -> SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent()
-            )
         );
     }
 
