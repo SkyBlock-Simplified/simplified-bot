@@ -34,7 +34,7 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
+    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return commandContext.reply(
             Response.builder()
                 .replyMention()

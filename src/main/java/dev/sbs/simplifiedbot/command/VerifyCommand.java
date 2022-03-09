@@ -44,7 +44,7 @@ public class VerifyCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) {
+    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) {
         String playerID = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow(); // Will never throw
         MojangData mojangData = SimplifiedApi.getWebApi(MojangData.class);
         MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangData.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangData.getProfileFromUsername(playerID);

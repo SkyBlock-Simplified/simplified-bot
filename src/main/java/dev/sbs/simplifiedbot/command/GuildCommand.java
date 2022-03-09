@@ -6,6 +6,7 @@ import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.page.Page;
+import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.util.regex.Pattern;
@@ -23,7 +24,7 @@ public class GuildCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) {
+    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) {
         return commandContext.reply(
             Response.builder()
                 .withReference(commandContext)

@@ -15,6 +15,7 @@ import dev.sbs.discordapi.response.component.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
+import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
@@ -31,7 +32,7 @@ public class AboutCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) {
+    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) {
         return commandContext.reply(
             Response.builder()
                 .replyMention()

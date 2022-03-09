@@ -5,6 +5,7 @@ import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.UserPermission;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
+import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 @CommandInfo(
@@ -19,7 +20,7 @@ public class DevCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) {
+    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) {
         return Mono.empty();
     }
 

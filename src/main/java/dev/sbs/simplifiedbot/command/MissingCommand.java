@@ -13,7 +13,6 @@ import dev.sbs.api.util.collection.search.function.SearchFunction;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.command.CommandContext;
@@ -23,6 +22,7 @@ import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.PageItem;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
+import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -32,15 +32,14 @@ import java.util.Objects;
     id = "b0e6bdee-971c-4774-9373-a8ef3ccd4e5b",
     name = "missing"
 )
-public class MissingCommand extends Command {
+public class MissingCommand extends SkyBlockUserCommand {
 
     protected MissingCommand(DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) {
-        SkyBlockUser skyBlockUser = new SkyBlockUser(commandContext);
+    protected Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
         PlayerStats playerStats = skyBlockUser.getSelectedIsland().getPlayerStats(skyBlockUser.getMember());
         ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).findAll();
 

@@ -13,6 +13,7 @@ import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
+import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 @CommandInfo(
@@ -27,7 +28,7 @@ public class DevTestCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
+    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return commandContext.reply(
             Response.builder()
                 .withReference(commandContext)

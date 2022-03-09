@@ -24,7 +24,7 @@ public class DevEnableCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
+    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return Mono.empty();
     }
 

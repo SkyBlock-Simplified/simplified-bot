@@ -20,6 +20,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.channel.Channel;
+import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
@@ -38,7 +39,7 @@ public class DevStatsCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(CommandContext<?> commandContext) throws DiscordException {
+    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         Optional<Snowflake> optionalGuildId = Optional.empty();
 
         // Handle DMs
