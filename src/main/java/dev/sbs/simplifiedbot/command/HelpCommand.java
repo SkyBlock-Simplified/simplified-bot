@@ -37,10 +37,11 @@ public class HelpCommand extends Command {
     protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return commandContext.reply(
             Response.builder()
-                .replyMention()
                 .withReference(commandContext)
-                .isInteractable()
                 .withTimeToLive(60)
+                .replyMention()
+                .isInteractable()
+                .isEphemeral()
                 .withPages(
                     Page.builder()
                         .withEmbeds(
