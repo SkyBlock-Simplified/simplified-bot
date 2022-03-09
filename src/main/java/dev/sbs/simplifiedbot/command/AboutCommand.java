@@ -104,7 +104,7 @@ public class AboutCommand extends Command {
                                 )
                                 .build()
                         )
-                        .withSubPages(
+                        .withPages(
                             Page.builder()
                                 .withOption(
                                     SelectMenu.Option.builder()

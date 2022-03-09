@@ -62,7 +62,7 @@ public class HelpCommand extends Command {
                                 )
                                 .build()
                         )
-                        .withSubPages(
+                        .withPages(
                             SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
                                 .stream()
                                 .map(commandCategory -> Page.builder()
@@ -107,7 +107,7 @@ public class HelpCommand extends Command {
                                             )
                                             .build()
                                     )
-                                    .withSubPages(
+                                    .withPages(
                                         this.getDiscordBot()
                                             .getRootCommandRelationship()
                                             .getSubCommands()
@@ -126,7 +126,7 @@ public class HelpCommand extends Command {
                                                         .withValue(relationship.getCommandInfo().name())
                                                         .build()
                                                 )
-                                                .withEmbeds(Command.createHelpEmbed(relationship))
+                                                .withEmbeds(Command.createHelpEmbed(relationship, commandContext))
                                                 .build()
                                             )
                                             .collect(Concurrent.toList())
