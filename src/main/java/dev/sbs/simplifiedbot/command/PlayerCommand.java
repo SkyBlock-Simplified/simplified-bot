@@ -6,7 +6,6 @@ import dev.sbs.api.client.mojang.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.collection_items.CollectionItemModel;
 import dev.sbs.api.data.model.skyblock.dungeon_classes.DungeonClassModel;
 import dev.sbs.api.data.model.skyblock.dungeon_floors.DungeonFloorModel;
-import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.shop_profile_upgrades.ShopProfileUpgradeModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
@@ -17,7 +16,6 @@ import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
-import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
@@ -28,8 +26,6 @@ import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-import java.awt.*;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.Function;
@@ -72,7 +68,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, "stats")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "stats", "Player Information")
                         .withFields(
                             Field.of(
                                 FormatUtil.format(
@@ -210,7 +206,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, "dungeons")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "dungeons", "Player Information")
                         .withField(
                             "Details",
                             FormatUtil.format(
@@ -273,7 +269,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifier)
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifier, "Player Information")
                         .withFields(
                             Field.of(
                                 "Medals",
@@ -380,7 +376,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
         double totalProgress,
         Function<T, String> nameFunction
     ) {
-        return getEmbedBuilder(mojangProfile, skyBlockIsland, value)
+        return getEmbedBuilder(mojangProfile, skyBlockIsland, value, "Player Information")
                 .withField(
                     "Details",
                     FormatUtil.format(
@@ -438,28 +434,6 @@ public class PlayerCommand extends SkyBlockUserCommand {
             .withValue(value)
             .withLabel(WordUtil.capitalizeFully(value.replace("_", " ")))
             .isDefault(value.equalsIgnoreCase(identifier));
-    }
-
-    private static Embed.EmbedBuilder getEmbedBuilder(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, String identifier) {
-        return Embed.builder()
-            .withAuthor("Player Information")
-            .withColor(Color.DARK_GRAY)
-            .withTitle(
-                "{0} :: {1} ({2}{3})",
-                WordUtil.capitalizeFully(identifier.replace("_", " ")),
-                mojangProfile.getUsername(),
-                skyBlockIsland.getProfileName()
-                    .map(ProfileModel::getEmoji)
-                    .flatMap(Emoji::of)
-                    .map(emoji -> FormatUtil.format("{0} ", emoji.asFormat()))
-                    .orElse(""),
-                skyBlockIsland.getProfileName().map(ProfileModel::getName).orElse("")
-            )
-            .withTimestamp(Instant.now())
-            .withThumbnailUrl(
-                "https://api.sbs.dev/mojang/avatar/{0}",
-                mojangProfile.getUsername()
-            );
     }
 
 }

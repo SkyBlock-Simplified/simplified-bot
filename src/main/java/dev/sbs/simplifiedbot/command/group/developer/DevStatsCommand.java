@@ -13,7 +13,7 @@ import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.util.DiscordObject;
+import dev.sbs.discordapi.util.base.DiscordHelper;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
 import discord4j.common.util.Snowflake;
@@ -115,7 +115,7 @@ public class DevStatsCommand extends Command {
                     StringUtil.join(
                         guild.getFeatures()
                             .stream()
-                            .map(DiscordObject::capitalizeFully)
+                            .map(DiscordHelper::capitalizeFully)
                             .collect(Concurrent.toList()),
                         ", "
                     )
