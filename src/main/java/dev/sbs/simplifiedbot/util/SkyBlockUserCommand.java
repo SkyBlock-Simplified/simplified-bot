@@ -1,18 +1,25 @@
 package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
+import dev.sbs.api.client.mojang.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.command.CommandContext;
+import dev.sbs.discordapi.response.Emoji;
+import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
+import java.awt.*;
+import java.time.Instant;
 import java.util.regex.Pattern;
 
 public abstract class SkyBlockUserCommand extends Command {
@@ -25,7 +32,7 @@ public abstract class SkyBlockUserCommand extends Command {
 
     @Override
     protected final Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
-        return Mono.just(commandContext).flatMap(context -> this.subprocess(context, new SkyBlockUser(context)));
+        return this.subprocess(commandContext, new SkyBlockUser(commandContext));
     }
 
     protected abstract Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser);
@@ -56,6 +63,28 @@ public abstract class SkyBlockUserCommand extends Command {
                 (argument, commandContext) -> SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent()
             )
         );
+    }
+
+    protected static Embed.EmbedBuilder getEmbedBuilder(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, String identifier, String title) {
+        return Embed.builder()
+            .withAuthor(title)
+            .withColor(Color.DARK_GRAY)
+            .withTitle(
+                "{0} :: {1} ({2}{3})",
+                WordUtil.capitalizeFully(identifier.replace("_", " ")),
+                mojangProfile.getUsername(),
+                skyBlockIsland.getProfileName()
+                    .map(ProfileModel::getEmoji)
+                    .flatMap(Emoji::of)
+                    .map(Emoji::asSpacedFormat)
+                    .orElse(""),
+                skyBlockIsland.getProfileName().map(ProfileModel::getName).orElse("")
+            )
+            .withTimestamp(Instant.now())
+            .withThumbnailUrl(
+                "https://api.sbs.dev/mojang/avatar/{0}",
+                mojangProfile.getUsername()
+            );
     }
 
 }
