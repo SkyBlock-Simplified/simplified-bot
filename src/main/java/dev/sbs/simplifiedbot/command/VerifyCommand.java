@@ -26,10 +26,8 @@ import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.util.exception.DiscordException;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.User;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -49,14 +47,7 @@ public class VerifyCommand extends Command {
         MojangData mojangData = SimplifiedApi.getWebApi(MojangData.class);
         MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangData.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangData.getProfileFromUsername(playerID);
         HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getWebApi(HypixelPlayerData.class).getPlayer(mojangProfileResponse.getUniqueId());
-
-        String interactDiscordTag = commandContext.getInteractUser()
-            .map(User::getTag)
-            .blockOptional()
-            .orElseThrow(() -> SimplifiedException.of(DiscordException.class)
-                .withMessage("Unable to identify discord user!")
-                .build()
-            );
+        String interactDiscordTag = commandContext.getInteractUser().getTag();
 
         String hypixelDiscordTag = hypixelPlayerResponse.getPlayer()
             .getSocialMedia()
