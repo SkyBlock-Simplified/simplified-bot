@@ -127,7 +127,7 @@ public class HelpCommand extends Command {
                                                         .withValue(relationship.getCommandInfo().name())
                                                         .build()
                                                 )
-                                                .withEmbeds(Command.createHelpEmbed(relationship, commandContext))
+                                                .withEmbeds(relationship.createHelpEmbed(commandContext.isSlashCommand()))
                                                 .build()
                                             )
                                             .collect(Concurrent.toList())
