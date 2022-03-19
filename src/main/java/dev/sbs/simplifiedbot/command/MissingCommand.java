@@ -5,16 +5,12 @@ import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.PlayerSta
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.AccessoryData;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ObjectData;
 import dev.sbs.api.data.model.skyblock.accessories.AccessoryModel;
-import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.collection.search.function.SearchFunction;
 import dev.sbs.api.util.helper.FormatUtil;
-import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandInfo;
-import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.action.SelectMenu;
@@ -242,26 +238,6 @@ public class MissingCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .build()
-        );
-    }
-
-    @Override
-    public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
-        return Concurrent.newUnmodifiableList(
-            new Parameter(
-                "name",
-                "Minecraft Username or UUID",
-                Parameter.Type.WORD,
-                false,
-                (argument, commandContext) -> StringUtil.isUUID(argument) || PlayerCommand.MOJANG_NAME.matcher(argument).matches()
-            ),
-            new Parameter(
-                "profile",
-                "SkyBlock Profile Name",
-                Parameter.Type.WORD,
-                false,
-                (argument, commandContext) -> SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent()
-            )
         );
     }
 
