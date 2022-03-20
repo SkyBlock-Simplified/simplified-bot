@@ -6,6 +6,7 @@ import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
 import dev.sbs.api.client.sbs.implementation.MojangData;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
+import dev.sbs.api.client.sbs.response.SkyBlockEmojisResponse;
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.SimplifiedException;
@@ -17,6 +18,7 @@ import dev.sbs.discordapi.command.data.Argument;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
 import dev.sbs.discordapi.context.command.CommandContext;
+import dev.sbs.simplifiedbot.SimplifiedBot;
 import discord4j.common.util.Snowflake;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -29,8 +31,10 @@ public final class SkyBlockUser {
     @Getter private final MojangProfileResponse mojangProfile;
     private final SkyBlockProfilesResponse profiles;
     @Getter private SkyBlockIsland selectedIsland;
+    @Getter private final SkyBlockEmojisResponse skyBlockEmojis;
 
     public SkyBlockUser(CommandContext<?> commandContext) {
+        this.skyBlockEmojis = ((SimplifiedBot) commandContext.getDiscordBot()).getSkyBlockEmojis();
         Optional<String> optionalPlayerID = commandContext.getArgument("name").flatMap(Argument::getValue);
 
         if (optionalPlayerID.isEmpty()) {
