@@ -28,7 +28,7 @@ public class PlayerSkillsCommand extends SkyBlockUserCommand {
                 .replyMention()
                 .withReference(commandContext)
                 .withPages(
-                    PlayerCommand.getPages(
+                    PlayerCommand.buildPages(
                         skyBlockUser,
                         "skills"
                     )
