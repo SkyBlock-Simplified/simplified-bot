@@ -31,11 +31,11 @@ public abstract class SkyBlockUserCommand extends Command {
     }
 
     @Override
-    protected final Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected final @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return this.subprocess(commandContext, new SkyBlockUser(commandContext));
     }
 
-    protected abstract Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser);
+    protected abstract @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser);
 
     @Override
     public @NotNull ConcurrentUnmodifiableList<String> getExampleArguments() {
