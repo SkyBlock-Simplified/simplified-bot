@@ -1,6 +1,7 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuction;
 import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
@@ -10,6 +11,7 @@ import dev.sbs.api.data.model.skyblock.dungeon_classes.DungeonClassModel;
 import dev.sbs.api.data.model.skyblock.dungeon_floors.DungeonFloorModel;
 import dev.sbs.api.data.model.skyblock.dungeons.DungeonModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
+import dev.sbs.api.data.model.skyblock.minion_uniques.MinionUniqueModel;
 import dev.sbs.api.data.model.skyblock.shop_profile_upgrades.ShopProfileUpgradeModel;
 import dev.sbs.api.data.model.skyblock.skills.SkillModel;
 import dev.sbs.api.data.model.skyblock.slayers.SlayerModel;
@@ -94,6 +96,10 @@ public class PlayerCommand extends SkyBlockUserCommand {
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         SkyBlockIsland.Member member = skyBlockUser.getMember();
+        ConcurrentList<SkyBlockIsland.Minion> minions = member.getMinions();
+        int uniqueMinions = minions.stream()
+            .mapToInt(minion -> minion.getUnlocked().size())
+            .sum();
 
         // Weights
         SkyBlockIsland.Experience.Weight totalWeight = member.getTotalWeight();
@@ -122,9 +128,9 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
-                                    "?",
+                                    skyBlockUser.getSession().isOnline() ? "Online" : "Offline",
                                     member.getDeathCount(),
-                                    "?"
+                                    skyBlockUser.getGuild().map(HypixelGuildResponse.Guild::getName).orElse("None")
                                 )
                                 .isInline()
                                 .build(),
@@ -133,8 +139,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withName("Coins")
                                 .withValue(
                                     """
-                                        {0}Bank: {2}
-                                        {1}Purse: {3,number,#.##}
+                                        {0}Bank: {2,number,#,###}
+                                        {1}Purse: {3,number,#,###}
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
@@ -181,6 +187,10 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
+                                    SimplifiedApi.getRepositoryOf(MinionUniqueModel.class)
+                                        .matchLast(minionUniqueModel -> uniqueMinions >= minionUniqueModel.getUniqueCrafts())
+                                        .map(MinionUniqueModel::getPlaceable)
+                                        .orElse(0) +
                                     skyBlockIsland.getCommunityUpgrades()
                                         .stream()
                                         .mapToInt(communityUpgrades -> SimplifiedApi.getRepositoryOf(ShopProfileUpgradeModel.class)
@@ -189,10 +199,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                             .orElse(0)
                                         )
                                         .sum(),
-                                    member.getMinions()
-                                        .stream()
-                                        .mapToInt(minion -> minion.getUnlocked().size())
-                                        .sum()
+                                    uniqueMinions
                                 )
                                 .isInline()
                                 .build(),

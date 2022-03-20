@@ -1,7 +1,10 @@
 package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.client.hypixel.implementation.HypixelPlayerData;
 import dev.sbs.api.client.hypixel.implementation.HypixelSkyBlockData;
+import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
+import dev.sbs.api.client.hypixel.response.hypixel.HypixelStatusResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuction;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
@@ -35,6 +38,8 @@ public final class SkyBlockUser {
     @Getter private final SkyBlockEmojisResponse skyBlockEmojis;
     @Getter private final ConcurrentList<SkyBlockAuction> auctions;
     @Getter private final ItemCache.AuctionHouse auctionHouse;
+    @Getter private final Optional<HypixelGuildResponse.Guild> guild;
+    @Getter private final HypixelStatusResponse.Session session;
 
     public SkyBlockUser(CommandContext<?> commandContext) {
         this.auctionHouse = ((SimplifiedBot) commandContext.getDiscordBot()).getItemCache().getAuctionHouse();
@@ -57,6 +62,8 @@ public final class SkyBlockUser {
         MojangData mojangData = SimplifiedApi.getWebApi(MojangData.class);
         this.mojangProfile = StringUtil.isUUID(playerID) ? mojangData.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangData.getProfileFromUsername(playerID);
         this.profiles = SimplifiedApi.getWebApi(HypixelSkyBlockData.class).getProfiles(this.getMojangProfile().getUniqueId());
+        this.guild = SimplifiedApi.getWebApi(HypixelPlayerData.class).getGuildByPlayer(this.getMojangProfile().getUniqueId()).getGuild();
+        this.session = SimplifiedApi.getWebApi(HypixelPlayerData.class).getStatus(this.getMojangProfile().getUniqueId()).getSession();
         this.auctions = SimplifiedApi.getWebApi(HypixelSkyBlockData.class).getAuctionByPlayer(this.getMojangProfile().getUniqueId()).getAuctions();
 
         // Empty Profile
