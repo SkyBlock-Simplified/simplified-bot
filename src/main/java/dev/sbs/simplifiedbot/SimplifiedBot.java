@@ -15,6 +15,7 @@ import dev.sbs.simplifiedbot.command.GuildCommand;
 import dev.sbs.simplifiedbot.command.HelpCommand;
 import dev.sbs.simplifiedbot.command.MissingCommand;
 import dev.sbs.simplifiedbot.command.PlayerCommand;
+import dev.sbs.simplifiedbot.command.PlayerDungeonsCommand;
 import dev.sbs.simplifiedbot.command.VerifyCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevActivityCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevLatencyCommand;
@@ -23,8 +24,6 @@ import dev.sbs.simplifiedbot.command.group.developer.DevStatsCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevTestCommand;
 import dev.sbs.simplifiedbot.command.group.developer.command.DevDisableCommand;
 import dev.sbs.simplifiedbot.command.group.developer.command.DevEnableCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerDungeonClassesCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerDungeonsCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerNetworthCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerPetsCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerSkillsCommand;
@@ -76,7 +75,6 @@ public final class SimplifiedBot extends DiscordBot {
             DevTestCommand.class,
 
             // Player Commands
-            PlayerDungeonClassesCommand.class,
             PlayerDungeonsCommand.class,
             PlayerNetworthCommand.class,
             PlayerPetsCommand.class,
