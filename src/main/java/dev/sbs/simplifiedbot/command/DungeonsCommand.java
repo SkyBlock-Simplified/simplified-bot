@@ -22,8 +22,6 @@ import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -33,8 +31,6 @@ import java.util.function.Function;
     name = "dungeons"
 )
 public class DungeonsCommand extends SkyBlockUserCommand {
-
-    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("m:s", Locale.US);
 
     protected DungeonsCommand(DiscordBot discordBot) {
         super(discordBot);
