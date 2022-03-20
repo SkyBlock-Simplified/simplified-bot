@@ -1,6 +1,7 @@
 package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.client.hypixel.exception.HypixelApiException;
 import dev.sbs.api.client.hypixel.implementation.HypixelSkyBlockData;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuction;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuctionsEndedResponse;
@@ -103,11 +104,18 @@ public class ItemCache {
 
                 // Handle Auction Pages
                 for (int i = 1; i < skyBlockAuctionsResponse.getTotalPages(); i++) {
-                    SkyBlockAuctionsResponse skyBlockAuctionsPageResponse = hypixelSkyBlockData.getAuctions(i);
-                    auctions.addAll(skyBlockAuctionsPageResponse.getAuctions());
+                    try {
+                        SkyBlockAuctionsResponse skyBlockAuctionsPageResponse = hypixelSkyBlockData.getAuctions(i);
+                        auctions.addAll(skyBlockAuctionsPageResponse.getAuctions());
 
-                    if (skyBlockAuctionsPageResponse.getLastUpdated().getRealTime() > lastUpdated)
-                        lastUpdated = skyBlockAuctionsPageResponse.getLastUpdated().getRealTime();
+                        if (skyBlockAuctionsPageResponse.getLastUpdated().getRealTime() > lastUpdated)
+                            lastUpdated = skyBlockAuctionsPageResponse.getLastUpdated().getRealTime();
+                    } catch (HypixelApiException hypixelApiException) {
+                        if (hypixelApiException.getHttpStatus().getCode() == 404)
+                            break;
+                        else
+                            throw hypixelApiException;
+                    }
                 }
 
                 this.replaceItems(auctions);
