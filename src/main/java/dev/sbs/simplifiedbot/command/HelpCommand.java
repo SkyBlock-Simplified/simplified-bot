@@ -4,7 +4,6 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.command_categories.CommandCategoryModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
@@ -54,11 +53,13 @@ public class HelpCommand extends Command {
                                 .withFields(
                                     SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
                                         .stream()
-                                        .map(category -> Field.of(
-                                            FormatUtil.format("{0}{1}", Emoji.of(category.getEmoji()).map(Emoji::asSpacedFormat).orElse(""), category.getName()),
-                                            category.getDescription(),
-                                            true
-                                        ))
+                                        .map(category -> Field.builder()
+                                            .withEmoji(Emoji.of(category.getEmoji()))
+                                            .withName(category.getName())
+                                            .withValue(category.getDescription())
+                                            .isInline()
+                                            .build()
+                                        )
                                         .collect(Concurrent.toList())
                                 )
                                 .build()
@@ -92,18 +93,13 @@ public class HelpCommand extends Command {
                                                         .map(commandCategory::equals)
                                                         .orElse(false)
                                                     )
-                                                    .map(relationship -> Field.of(
-                                                        FormatUtil.format(
-                                                            "{0}{1}",
-                                                            relationship.getInstance()
-                                                                .getEmoji()
-                                                                .map(Emoji::asSpacedFormat)
-                                                                .orElse(""),
-                                                            relationship.getCommandInfo().name()
-                                                        ),
-                                                        relationship.getInstance().getDescription(),
-                                                        true
-                                                    ))
+                                                    .map(relationship -> Field.builder()
+                                                        .withEmoji(relationship.getInstance().getEmoji())
+                                                        .withName(relationship.getCommandInfo().name())
+                                                        .withValue(relationship.getInstance().getDescription())
+                                                        .isInline()
+                                                        .build()
+                                                    )
                                                     .collect(Concurrent.toList())
                                             )
                                             .build()

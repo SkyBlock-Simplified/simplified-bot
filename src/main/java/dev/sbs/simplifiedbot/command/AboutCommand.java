@@ -63,39 +63,41 @@ public class AboutCommand extends Command {
                                         "receive reputation with `/rep`, host giveaways, and much more."
                                 )
                                 .withFields(
-                                    Field.of(
-                                        "Owner",
-                                        "<@154743493464555521>",
-                                        true
-                                    ),
-                                    Field.of(
-                                        "Developers",
-                                        StringUtil.join(
-                                            SimplifiedApi.getRepositoryOf(SbsDeveloperModel.class)
-                                                .stream()
-                                                .map(sbsDeveloperModel -> FormatUtil.format("<@{0,number,#}>", sbsDeveloperModel.getDiscordId()))
-                                                .collect(Concurrent.toList()),
-                                            "\n"
-                                        ),
-                                        true
-                                    ),
-                                    Field.of(
-                                        "Version",
-                                        "1.5 Beta"
-                                    )
+                                    Field.builder()
+                                        .withName("Owner")
+                                        .withValue("<@154743493464555521>")
+                                        .isInline()
+                                        .build(),
+                                    Field.builder()
+                                        .withName("Developers")
+                                        .withValue(
+                                            StringUtil.join(
+                                                SimplifiedApi.getRepositoryOf(SbsDeveloperModel.class)
+                                                    .stream()
+                                                    .map(sbsDeveloperModel -> FormatUtil.format("<@{0,number,#}>", sbsDeveloperModel.getDiscordId()))
+                                                    .collect(Concurrent.toList()),
+                                                "\n"
+                                            )
+                                        )
+                                        .build(),
+                                    Field.builder()
+                                        .withName("Version")
+                                        .withValue("1.5 Beta")
+                                        .isInline()
+                                        .build()
                                 )
                                 .withFields(
-                                    Field.of(
-                                        "Support Server",
-                                        "https://discord.gg/sbs",
-                                        true
-                                    ),
+                                    Field.builder()
+                                        .withName("Support Server")
+                                        .withValue("https://discord.gg/sbs")
+                                        .isInline()
+                                        .build(),
                                     Field.empty(),
-                                    Field.of(
-                                        "Invite Bot",
-                                        "https://sbs.dev/bot/invite",
-                                        true
-                                    )
+                                    Field.builder()
+                                        .withName("Bot Invite Link")
+                                        .withValue("https://sbs.dev/bot/invite")
+                                        .isInline()
+                                        .build()
                                 )
                                 .withField(
                                     "Patreon",
