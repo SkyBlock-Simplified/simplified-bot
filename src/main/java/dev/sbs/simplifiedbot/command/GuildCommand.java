@@ -9,15 +9,11 @@ import dev.sbs.discordapi.response.page.Page;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-import java.util.regex.Pattern;
-
 @CommandInfo(
     id = "b04d133d-3532-447b-8782-37d1036f3957",
     name = "guild"
 )
 public class GuildCommand extends Command {
-
-    private static final Pattern MOJANG_NAME = Pattern.compile("[\\w]{3,16}");
 
     protected GuildCommand(DiscordBot discordBot) {
         super(discordBot);

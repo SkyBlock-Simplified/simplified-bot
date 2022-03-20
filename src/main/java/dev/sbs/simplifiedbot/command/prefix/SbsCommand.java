@@ -15,7 +15,7 @@ import discord4j.rest.util.Permission;
         Permission.USE_EXTERNAL_EMOJIS,
         Permission.MANAGE_MESSAGES,
     },
-    userPermissions = { UserPermission.MAIN_SERVER_ADMIN }
+    userPermissions = { UserPermission.MAIN_SERVER, UserPermission.GUILD_ADMIN }
 )
 public class SbsCommand extends PrefixCommand {
 

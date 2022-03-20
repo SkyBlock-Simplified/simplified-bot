@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 @CommandInfo(
     id = "a48552da-56bb-4262-b48f-05ad3dee5ff6",
     name = "dev",
-    userPermissions = { UserPermission.BOT_OWNER }
+    userPermissions = { UserPermission.DEVELOPER }
 )
 public class DevCommand extends Command {
 
