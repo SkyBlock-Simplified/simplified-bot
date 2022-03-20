@@ -1,6 +1,8 @@
 package dev.sbs.simplifiedbot;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.client.sbs.implementation.SkyBlockData;
+import dev.sbs.api.client.sbs.response.SkyBlockEmojisResponse;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentSet;
 import dev.sbs.discordapi.DiscordBot;
@@ -40,11 +42,13 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 public final class SimplifiedBot extends DiscordBot {
 
     @Getter private DiscordConfig config;
     @Getter private final ItemCache itemCache = new ItemCache();
+    @Getter private SkyBlockEmojisResponse skyBlockEmojis;
 
     public static void main(final String[] args) {
         new SimplifiedBot();
@@ -114,12 +118,20 @@ public final class SimplifiedBot extends DiscordBot {
 
     @Override
     protected void onDatabaseConnected() {
+        // Schedule SkyBlock Emoji Cache Updates
+        this.getScheduler().scheduleAsync(
+            () -> this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockData.class).getEmojis(),
+            0,
+            10,
+            TimeUnit.MINUTES
+        );
+
         // Schedule Item Cache Updates
         this.getScheduler().scheduleAsync(() -> {
             this.getItemCache().getAuctionHouse().update();
             this.getItemCache().getBazaar().update();
             this.getItemCache().getEndedAuctions().update();
-        }, 0, 1000);
+        }, 0, 1, TimeUnit.SECONDS);
     }
 
 }
