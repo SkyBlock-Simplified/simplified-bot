@@ -21,7 +21,7 @@ public class DevSlashCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return this.getDiscordBot().getCommandRegistrar().updateSlashCommands();
     }
 

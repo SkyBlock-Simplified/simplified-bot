@@ -28,7 +28,7 @@ public class DevTestCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return commandContext.reply(
             Response.builder()
                 .withReference(commandContext)

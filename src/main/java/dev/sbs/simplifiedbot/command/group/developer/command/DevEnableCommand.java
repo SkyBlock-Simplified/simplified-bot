@@ -24,13 +24,12 @@ public class DevEnableCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return Mono.empty();
     }
 
-    @NotNull
     @Override
-    public ConcurrentUnmodifiableList<Parameter> getParameters() {
+    public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
             new Parameter(
                 "command",

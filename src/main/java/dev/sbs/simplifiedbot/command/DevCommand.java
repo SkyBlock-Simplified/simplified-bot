@@ -20,7 +20,7 @@ public class DevCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) {
+    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
         return Mono.empty();
     }
 

@@ -44,7 +44,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
     }
 
     @Override
-    protected Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
+    protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
         return commandContext.reply(
             Response.builder()
                 .withReference(commandContext)
@@ -57,7 +57,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
         );
     }
 
-    public static Page buildPage(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, SkyBlockIsland.Member member, String identifier) {
+    public static @NotNull Page buildPage(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, SkyBlockIsland.Member member, String identifier) {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
 

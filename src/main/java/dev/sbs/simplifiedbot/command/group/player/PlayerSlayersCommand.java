@@ -19,7 +19,7 @@ public class PlayerSlayersCommand extends SkyBlockUserCommand {
     }
 
     @Override
-    protected Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
+    protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
         return Mono.empty();
     }
 

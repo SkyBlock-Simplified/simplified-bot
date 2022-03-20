@@ -32,7 +32,7 @@ public class AboutCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) {
+    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
         return commandContext.reply(
             Response.builder()
                 .replyMention()

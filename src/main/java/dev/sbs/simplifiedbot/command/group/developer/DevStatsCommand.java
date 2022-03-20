@@ -39,7 +39,7 @@ public class DevStatsCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         Optional<Snowflake> optionalGuildId = Optional.empty();
 
         // Handle DMs

@@ -31,7 +31,7 @@ public class DevEmojiCommand extends Command {
     }
 
     @Override
-    protected Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return Mono.fromRunnable(() -> SimplifiedApi.getRepositoryOf(GuildModel.class)
             .matchAll(GuildModel::isEmojiServer)
             .sort(GuildModel::getId)
