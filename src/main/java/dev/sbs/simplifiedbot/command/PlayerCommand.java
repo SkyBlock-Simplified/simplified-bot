@@ -8,7 +8,6 @@ import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.accessory_enrichments.AccessoryEnrichmentModel;
 import dev.sbs.api.data.model.skyblock.collection_items.CollectionItemModel;
 import dev.sbs.api.data.model.skyblock.dungeon_classes.DungeonClassModel;
-import dev.sbs.api.data.model.skyblock.dungeon_floors.DungeonFloorModel;
 import dev.sbs.api.data.model.skyblock.dungeons.DungeonModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.minion_uniques.MinionUniqueModel;
@@ -31,7 +30,6 @@ import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.action.SelectMenu;
-import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.PageItem;
@@ -44,7 +42,6 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 @CommandInfo(
@@ -52,8 +49,6 @@ import java.util.function.Function;
     name = "player"
 )
 public class PlayerCommand extends SkyBlockUserCommand {
-
-    private static final ConcurrentList<String> PAGE_IDENTIFIERS = Concurrent.newUnmodifiableList("stats", "skills", "skills", "slayers", "dungeons", "dungeon_classes", "weight", "jacobs_farming");
 
     protected PlayerCommand(DiscordBot discordBot) {
         super(discordBot);
@@ -67,7 +62,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .replyMention()
                 .withReference(commandContext)
                 .withPages(
-                    getPages(
+                    buildPages(
                         skyBlockUser,
                         "stats"
                     )
@@ -76,21 +71,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
         );
     }
 
-    public static @NotNull ConcurrentList<Page> getPages(@NotNull SkyBlockUser skyBlockUser, @NotNull String requestingIdentifier) {
-        ConcurrentList<String> remainingIdentifiers = Concurrent.newList(PAGE_IDENTIFIERS);
-        remainingIdentifiers.remove(requestingIdentifier);
-        ConcurrentList<Page> pages = Concurrent.newList(buildPage(skyBlockUser, requestingIdentifier, requestingIdentifier));
-
-        pages.addAll(
-            remainingIdentifiers.stream()
-                .map(identifier -> buildPage(skyBlockUser, identifier, requestingIdentifier))
-                .collect(Concurrent.toList())
-        );
-
-        return pages;
-    }
-
-    public static @NotNull Page buildPage(@NotNull SkyBlockUser skyBlockUser, @NotNull String identifier, @NotNull String requestingIdentifier) {
+    public static @NotNull ConcurrentList<Page> buildPages(@NotNull SkyBlockUser skyBlockUser, @NotNull String requestingIdentifier) {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
@@ -108,14 +89,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
         ConcurrentMap<SkyBlockIsland.Dungeon, SkyBlockIsland.Experience.Weight> dungeonWeight = member.getDungeonWeight();
         ConcurrentMap<SkyBlockIsland.Dungeon.Class, SkyBlockIsland.Experience.Weight> dungeonClassWeight = member.getDungeonClassWeight();
 
-        return switch (identifier.toLowerCase()) {
-            case "stats" -> Page.builder()
+        return Concurrent.newList(
+            Page.builder()
                 .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
+                    getOptionBuilder("stats", requestingIdentifier)
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifier, "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "stats", "Player Information")
                         .withFields(
                             Field.builder()
                                 .withEmoji(getEmoji("STATUS_INFO"))
@@ -191,14 +172,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .matchLast(minionUniqueModel -> uniqueMinions >= minionUniqueModel.getUniqueCrafts())
                                         .map(MinionUniqueModel::getPlaceable)
                                         .orElse(0) +
-                                    skyBlockIsland.getCommunityUpgrades()
-                                        .stream()
-                                        .mapToInt(communityUpgrades -> SimplifiedApi.getRepositoryOf(ShopProfileUpgradeModel.class)
-                                            .findFirst(ShopProfileUpgradeModel::getKey, "MINION_SLOTS")
-                                            .map(communityUpgrades::getHighestTier)
-                                            .orElse(0)
-                                        )
-                                        .sum(),
+                                        skyBlockIsland.getCommunityUpgrades()
+                                            .stream()
+                                            .mapToInt(communityUpgrades -> SimplifiedApi.getRepositoryOf(ShopProfileUpgradeModel.class)
+                                                .findFirst(ShopProfileUpgradeModel::getKey, "MINION_SLOTS")
+                                                .map(communityUpgrades::getHighestTier)
+                                                .orElse(0)
+                                            )
+                                            .sum(),
                                     uniqueMinions
                                 )
                                 .isInline()
@@ -207,17 +188,17 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .build()
                 )
-                .build();
-            case "skills" -> Page.builder()
+                .build(),
+            Page.builder()
                 .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
+                    getOptionBuilder("skills", requestingIdentifier)
                         .build()
                 )
                 .withEmbeds(
                     getSkillEmbed(
                         mojangProfile,
                         skyBlockIsland,
-                        identifier,
+                        "skills",
                         member.getSkills(),
                         member.getSkillAverage(),
                         member.getSkillExperience(),
@@ -225,17 +206,17 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         skill -> skill.getType().getName()
                     )
                 )
-                .build();
-            case "slayers" -> Page.builder()
+                .build(),
+            Page.builder()
                 .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
+                    getOptionBuilder("slayers", requestingIdentifier)
                         .build()
                 )
                 .withEmbeds(
                     getSkillEmbed(
                         mojangProfile,
                         skyBlockIsland,
-                        identifier,
+                        "slayers",
                         member.getSlayers(),
                         member.getSlayerAverage(),
                         member.getSlayerExperience(),
@@ -243,102 +224,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         slayer -> slayer.getType().getName()
                     )
                 )
-                .build();
-            case "dungeons" -> Page.builder()
+                .build(),
+            Page.builder()
                 .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
+                    getOptionBuilder("weight", requestingIdentifier)
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifier, "Player Information")
-                        .withField(
-                            "Details",
-                            FormatUtil.format(
-                                """
-                                {0}Select Class: {2}
-                                {0}Average Class Level: {3,number,#.##}
-                                {0}Total Class Experience: {4,number,#.##}
-                                {1}Total Class Progress: {5,number,#.##}%
-                                """,
-                                emojiReplyStem,
-                                emojiReplyEnd,
-                                member.getDungeons().getSelectedClassModel().map(DungeonClassModel::getName).orElse(getEmojiAsFormat("TEXT_NULL", "*<null>*")),
-                                member.getDungeonClassAverage(),
-                                member.getDungeonClassExperience(),
-                                member.getDungeonClassProgressPercentage()
-                            )
-                        )
-                        .withFields(
-                            Field.builder()
-                                .withName("Floor")
-                                .withValue(
-                                    StringUtil.join(
-                                        SimplifiedApi.getRepositoryOf(DungeonFloorModel.class)
-                                            .stream()
-                                            .map(dungeonFloorModel -> dungeonFloorModel.getFloor() > 0 ? FormatUtil.format("Floor {0}", dungeonFloorModel.getFloor()) : "Entrance")
-                                    )
-                                )
-                                .build(),
-                            Field.builder()
-                                .withName("Best Score")
-                                .withValue(
-                                    SimplifiedApi.getRepositoryOf(DungeonFloorModel.class)
-                                        .stream()
-                                        .map(dungeonFloorModel -> member.getDungeons()
-                                            .getDungeon(SimplifiedApi.getRepositoryOf(DungeonModel.class).findFirstOrNull(DungeonModel::getKey, "CATACOMBS"))
-                                            .getBestScore(dungeonFloorModel)
-                                        )
-                                        .map(value -> FormatUtil.format("{0}", value))
-                                        .collect(StreamUtil.toStringBuilder(true))
-                                        .build()
-                                )
-                                .build(),
-                            Field.builder()
-                                .withName("Best Time")
-                                .withValue(
-                                    SimplifiedApi.getRepositoryOf(DungeonFloorModel.class)
-                                        .stream()
-                                        .map(dungeonFloorModel -> Optional.ofNullable(
-                                            member.getDungeons()
-                                                .getDungeon(SimplifiedApi.getRepositoryOf(DungeonModel.class).findFirstOrNull(DungeonModel::getKey, "CATACOMBS"))
-                                                .getBestRuns(dungeonFloorModel)
-                                                .sort(SkyBlockIsland.Dungeon.Run::getElapsedTime)
-                                                .getOrDefault(0, null)
-                                        ).map(SkyBlockIsland.Dungeon.Run::getElapsedTime).orElse(0))
-                                        .map(value -> FormatUtil.format("{0}", value))
-                                        .collect(StreamUtil.toStringBuilder(true))
-                                        .build()
-                                )
-                                .build()
-                        )
-                        .build()
-                )
-                .build();
-            case "dungeon_classes" -> Page.builder()
-                .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
-                        .build()
-                )
-                .withEmbeds(
-                    getSkillEmbed(
-                        mojangProfile,
-                        skyBlockIsland,
-                        identifier,
-                        member.getDungeons().getClasses(),
-                        member.getDungeonClassAverage(),
-                        member.getDungeonClassExperience(),
-                        member.getDungeonClassProgressPercentage(),
-                        dungeonClass -> dungeonClass.getType().getName()
-                    )
-                )
-                .build();
-            case "weight" -> Page.builder()
-                .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
-                        .build()
-                )
-                .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifier, "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "weight", "Player Information")
                         .withDescription(
                             """
                                 {0}Total Weight: **{2}** (**{3}** with Overflow)
@@ -425,16 +318,16 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .build()
                 )
-                .build();
-            case "pets" -> Page.builder()
+                .build(),
+            Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
                 .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
+                    getOptionBuilder("pets", requestingIdentifier)
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifier, "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "pets", "Player Information")
                         .withDescription("Pet Score: **{0}**", member.getPetScore())
                         .build()
                 )
@@ -475,16 +368,16 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .collect(Concurrent.toList())
                 )
-                .build();
-            case "accessories" -> Page.builder()
+                .build(),
+            Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
                 .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
+                    getOptionBuilder("accessories", requestingIdentifier)
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifier, "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "accessories", "Player Information")
                         .withDescription("If you wish to see missing accessory information, use the **/missing** command.")
                         .build()
                 )
@@ -530,16 +423,16 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .collect(Concurrent.toList())
                 )
-                .build();
-            case "auction_house" -> Page.builder()
+                .build(),
+            Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
                 .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
+                    getOptionBuilder("auctions", requestingIdentifier)
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifier, "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "auctions", "Player Information")
                         .withDescription(
                             """
                                 {0}Unclaimed Auctions: **{2}**
@@ -565,10 +458,10 @@ public class PlayerCommand extends SkyBlockUserCommand {
                     skyBlockUser.getAuctions()
                         .stream()
                         .map(skyBlockAuction -> {
-                            CompoundTag auctionNbt = skyBlockAuction.getItemNbt().getNbtData();
-                            String itemId = auctionNbt.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue();
+                                 CompoundTag auctionNbt = skyBlockAuction.getItemNbt().getNbtData();
+                                 String itemId = auctionNbt.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue();
 
-                            return PageItem.builder()
+                                 return PageItem.builder()
                                      .withOption(
                                          SelectMenu.Option.builder()
                                              .withLabel(
@@ -616,14 +509,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .collect(Concurrent.toList())
                 )
-                .build();
-            case "jacobs_farming" -> Page.builder()
+                .build(),
+            Page.builder()
                 .withOption(
-                    getOptionBuilder(identifier, requestingIdentifier)
+                    getOptionBuilder("jacobs_farming", requestingIdentifier)
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifier, "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "jacobs_farming", "Player Information")
                         .withFields(
                             Field.builder()
                                 .withName("Medals")
@@ -732,9 +625,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .build()
                 )
-                .build();
-            default -> Page.builder().build(); // Will never create this
-        };
+                .build()
+        );
     }
 
     private static <T extends SkyBlockIsland.Experience> ConcurrentList<Field> getWeightFields(String title, ConcurrentMap<T, SkyBlockIsland.Experience.Weight> weightMap, Function<T, String> typeNameFunction) {
@@ -775,78 +667,6 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .isInline()
                 .build()
         );
-    }
-
-    private static <T extends SkyBlockIsland.Experience> Embed getSkillEmbed(
-        MojangProfileResponse mojangProfile,
-        SkyBlockIsland skyBlockIsland,
-        String value,
-        ConcurrentList<T> experienceObjects,
-        double average,
-        double experience,
-        double totalProgress,
-        Function<T, String> nameFunction
-    ) {
-        return getEmbedBuilder(mojangProfile, skyBlockIsland, value, "Player Information")
-                .withField(
-                    "Details",
-                    FormatUtil.format(
-                        """
-                        {0}Average Level: {2,number,#.##}
-                        {0}Total Experience: {3,number,#.##}
-                        {1}Total Progress: {4,number,#.##}%
-                        """,
-                        average,
-                        experience,
-                        totalProgress
-                    )
-                )
-                .withFields(
-                    Field.builder()
-                        .withName(WordUtil.capitalizeFully(value.replace("_", " ")))
-                        .withValue(
-                            StringUtil.join(
-                                experienceObjects.stream()
-                                    .map(nameFunction)
-                                    .collect(Concurrent.toList()),
-                                "\n"
-                            )
-                        )
-                        .isInline()
-                        .build(),
-                    Field.builder()
-                        .withName("Level (Progress)")
-                        .withValue(
-                            StringUtil.join(
-                                experienceObjects.stream()
-                                    .map(expObject -> FormatUtil.format(
-                                        "{0} ({1,number,#.##}%)",
-                                        expObject.getLevel(),
-                                        expObject.getTotalProgressPercentage()
-                                    ))
-                                    .collect(Concurrent.toList()),
-                                "\n"
-                            )
-                        )
-                        .isInline()
-                        .build(),
-                    Field.builder()
-                        .withName("Experience")
-                        .withValue(
-                            StringUtil.join(
-                                experienceObjects.stream()
-                                    .map(expObject -> FormatUtil.format(
-                                        "{0,number}",
-                                        expObject.getExperience()
-                                    ))
-                                    .collect(Concurrent.toList()),
-                                "\n"
-                            )
-                        )
-                        .isInline()
-                        .build()
-                )
-                .build();
     }
 
     private static SelectMenu.Option.OptionBuilder getOptionBuilder(String identifier, String requestingIdentifier) {

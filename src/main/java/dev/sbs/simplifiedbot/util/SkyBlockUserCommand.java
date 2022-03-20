@@ -5,7 +5,9 @@ import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
+import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
@@ -14,12 +16,14 @@ import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public abstract class SkyBlockUserCommand extends Command {
@@ -85,6 +89,83 @@ public abstract class SkyBlockUserCommand extends Command {
                 "https://api.sbs.dev/mojang/avatar/{0}",
                 mojangProfile.getUsername()
             );
+    }
+
+    protected static <T extends SkyBlockIsland.Experience> Embed getSkillEmbed(
+        MojangProfileResponse mojangProfile,
+        SkyBlockIsland skyBlockIsland,
+        String value,
+        ConcurrentList<T> experienceObjects,
+        double average,
+        double experience,
+        double totalProgress,
+        Function<T, String> nameFunction
+    ) {
+        String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
+        String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
+
+        return getEmbedBuilder(mojangProfile, skyBlockIsland, value, "Player Information")
+            .withField(
+                "Details",
+                FormatUtil.format(
+                    """
+                    {0}Average Level: {2,number,#.##}
+                    {0}Total Experience: {3}
+                    {1}Total Progress: {4,number,#.##}%
+                    """,
+                    emojiReplyStem,
+                    emojiReplyEnd,
+                    average,
+                    experience,
+                    totalProgress
+                )
+            )
+            .withFields(
+                Field.builder()
+                    .withName(WordUtil.capitalizeFully(value.replace("_", " ")))
+                    .withValue(
+                        StringUtil.join(
+                            experienceObjects.stream()
+                                .map(nameFunction)
+                                .collect(Concurrent.toList()),
+                            "\n"
+                        )
+                    )
+                    .isInline()
+                    .build(),
+                Field.builder()
+                    .withName("Level (Progress)")
+                    .withValue(
+                        StringUtil.join(
+                            experienceObjects.stream()
+                                .map(expObject -> FormatUtil.format(
+                                    "{0} ({1,number,#.##}%)",
+                                    expObject.getLevel(),
+                                    expObject.getTotalProgressPercentage()
+                                ))
+                                .collect(Concurrent.toList()),
+                            "\n"
+                        )
+                    )
+                    .isInline()
+                    .build(),
+                Field.builder()
+                    .withName("Experience")
+                    .withValue(
+                        StringUtil.join(
+                            experienceObjects.stream()
+                                .map(expObject -> FormatUtil.format(
+                                    "{0,number}",
+                                    expObject.getExperience()
+                                ))
+                                .collect(Concurrent.toList()),
+                            "\n"
+                        )
+                    )
+                    .isInline()
+                    .build()
+            )
+            .build();
     }
 
 }
