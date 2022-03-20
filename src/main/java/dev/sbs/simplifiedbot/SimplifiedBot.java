@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 public final class SimplifiedBot extends DiscordBot {
 
     @Getter private DiscordConfig config;
-    @Getter private final ItemCache itemCache = new ItemCache();
+    @Getter private ItemCache itemCache;
     @Getter private SkyBlockEmojisResponse skyBlockEmojis;
 
     public static void main(final String[] args) {
@@ -126,12 +126,18 @@ public final class SimplifiedBot extends DiscordBot {
             TimeUnit.MINUTES
         );
 
+        // Update Item Cache
+        this.itemCache = new ItemCache();
+        this.getItemCache().getAuctionHouse().update();
+        this.getItemCache().getBazaar().update();
+        this.getItemCache().getEndedAuctions().update();
+
         // Schedule Item Cache Updates
         this.getScheduler().scheduleAsync(() -> {
             this.getItemCache().getAuctionHouse().update();
             this.getItemCache().getBazaar().update();
             this.getItemCache().getEndedAuctions().update();
-        }, 0, 1, TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
 }
