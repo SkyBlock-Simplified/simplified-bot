@@ -138,4 +138,9 @@ public final class SimplifiedBot extends DiscordBot {
         }, 1, 1, TimeUnit.SECONDS);
     }
 
+    @Override
+    protected void onGatewayDisconnected() {
+        SimplifiedApi.disconnectDatabase();
+    }
+
 }
