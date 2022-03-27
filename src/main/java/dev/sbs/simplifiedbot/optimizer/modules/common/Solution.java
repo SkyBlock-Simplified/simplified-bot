@@ -90,9 +90,9 @@ public abstract class Solution<T extends ItemEntity> {
         // Handle Weapon
         this.getOptimizerRequest()
             .getWeapon()
-            .ifPresent(weapon -> availableItems.add(this.getOptimalReforges(
+            .ifPresent(weaponData -> availableItems.add(this.getOptimalReforges(
                 swordReforgeTypeModel,
-                weapon.getItemData()
+                weaponData
             )));
 
         return Pair.of(availableItems, availableItems.stream()
@@ -130,8 +130,8 @@ public abstract class Solution<T extends ItemEntity> {
         return total;
     }
 
-    public static double getConstSum(OptimizerRequest.Weapon weapon, StatModel statModel) {
-        return getDataSum(weapon.getItemData(), ObjectData.Type::isOptimizerConstant, statModel, ItemData.Type.values());
+    public static double getConstSum(OptimizerRequest.WeaponData weaponData, StatModel statModel) {
+        return getDataSum(weaponData, ObjectData.Type::isOptimizerConstant, statModel, ItemData.Type.values());
     }
 
     private static <T extends ObjectData.Type> double getDataSum(ObjectData<T> objectData, Function<ObjectData.Type, Boolean> comparator, StatModel statModel, T[] values) {

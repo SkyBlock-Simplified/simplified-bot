@@ -6,7 +6,6 @@ import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.PlayerStats;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ItemData;
-import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.PlayerDataHelper;
 import dev.sbs.api.client.sbs.implementation.MojangData;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
@@ -36,7 +35,7 @@ public final class OptimizerRequest {
     @Getter private final SkyBlockIsland.Member member;
     @Getter private final PlayerStats playerStats;
     @Getter private final ConcurrentMap<String, Double> expressionVariables;
-    @Getter private final Optional<Weapon> weapon;
+    @Getter private final Optional<WeaponData> weapon;
     @Getter private final ConcurrentList<ReforgeStatModel> allowedReforges;
     @Getter private final Type type;
     @Getter private final OptimizerMobTypeModel mobType;
@@ -58,7 +57,7 @@ public final class OptimizerRequest {
         this.mobType = optimizerRequestBuilder.mobType;
 
         // Load Weapon
-        Optional<Weapon> optionalWeapon = Optional.empty();
+        Optional<WeaponData> optionalWeapon = Optional.empty();
         if (optimizerRequestBuilder.weaponItemModel.isPresent()) {
             // Check Inventories
             for (SkyBlockIsland.Storage storage : weaponStorage) {
@@ -69,7 +68,7 @@ public final class OptimizerRequest {
                     .filter(CompoundTag::notEmpty)
                     .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
                     .findFirst()
-                    .map(itemTag -> new Weapon(itemTag, this.getExpressionVariables()));
+                    .map(itemTag -> new WeaponData(itemTag, this.getExpressionVariables()));
 
                 if (optionalWeapon.isPresent())
                     break;
@@ -86,7 +85,7 @@ public final class OptimizerRequest {
                     .filter(CompoundTag::notEmpty)
                     .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
                     .findFirst()
-                    .map(itemTag -> new Weapon(itemTag, this.getExpressionVariables()));
+                    .map(itemTag -> new WeaponData(itemTag, this.getExpressionVariables()));
             }
         }
         this.weapon = optionalWeapon;
@@ -160,20 +159,19 @@ public final class OptimizerRequest {
 
     }
 
-    public static class Weapon {
+    public static class WeaponData extends ItemData {
 
-        @Getter private final ItemData itemData;
-
-        private Weapon(@NotNull CompoundTag compoundTag, ConcurrentMap<String, Double> expressionVariables) {
-            ItemModel itemModel = SimplifiedApi.getRepositoryOf(ItemModel.class).findFirstOrNull(ItemModel::getItemId, compoundTag.<StringTag>getPath("tag.ExtraAttributes.id").getValue());
-
-            this.itemData = PlayerDataHelper.parseItemData(
-                itemModel,
+        private WeaponData(@NotNull CompoundTag compoundTag, ConcurrentMap<String, Double> expressionVariables) {
+            super(
+                SimplifiedApi.getRepositoryOf(ItemModel.class).findFirstOrNull(
+                    ItemModel::getItemId,
+                    compoundTag.<StringTag>getPath("tag.ExtraAttributes.id").getValue()
+                ),
                 compoundTag,
                 "SWORD"
             );
 
-            this.itemData.calculateBonus(expressionVariables);
+            this.calculateBonus(expressionVariables);
         }
 
     }

@@ -46,25 +46,29 @@ public final class Optimizer extends OptimizerHelper {
 
             // Damage Multiplier
             double combatBonus = optimizerRequest.getPlayerStats().getDamageMultiplier();
-            double enchantBonus = getEnchantBonus(optimizerRequest); // TODO: Requires Testing
-            //enchantBonus += 0.84; // TODO: Ender Slayer VII
-            //enchantBonus += 0.56; // TODO: Smite VII
+            double enchantBonus = getEnchantBonus(optimizerRequest);
             double weaponBonus = 0.0;
-            double damageMultiplier = 1.0 + combatBonus + enchantBonus + weaponBonus;
+            double damageMultiplier = 1.0 + (combatBonus + enchantBonus + weaponBonus);
 
             // Final Damage
             double armorBonus = 1.0 + getArmorBonus(optimizerRequest);
             double bonusDamage = meleeDamage * damageMultiplier * armorBonus;
             double finalDamage = score * bonusDamage / 10_000.0;
-            // TODO: Hyperion   : 33,624 (Withered)
-            // TODO: AOTD       : 9,707 (Withered) [No Enchants]
-            // TODO: Hyperion   : 21,462 (Withered) [No Potions]
-            // TODO: Hyperion   : 120,941 (Withered) [Accessories] [No Potions]
-            // TODO: Hyperion   : 146,284 (Withered) [Accessories] [Potions]
-            // TODO: Hyperion   : 254,034 (Withered) [Accessories] [Potions] [Necron Armor]
-            // TODO: Hyperion   : 280,208 (Withered) [Accessories] [Potions] [Necron Armor] [Golden Dragon Pet]
-            // TODO: Hyperion   : 404,452 (Withered) [Accessories] [Potions] [Necron Armor] [Ender Dragon Pet] [Zealot]
-            // TODO: Hyperion   : 282,849 (Withered) [Accessories] [Potions] [Necron Armor] [Ender Dragon Pet] [Zombie] (263,820)
+
+            // Weapon: Hyperion
+            // Accessories: None
+            // Potions: Yes
+            // Armor: None
+            // Pet: None
+            // Mob: Zombie
+            // Damage: 34,965
+            // Optimizer: 39,693
+
+            optimizerRequest.getWeapon().ifPresent(itemData -> itemData.getAllStats().forEach((statModel, statData) -> System.out.println(
+                "Weapon: " +
+                    statModel.getKey() + ": " +
+                    statData.getTotal()
+            )));
 
             return new OptimizerResponse(solution, getReforgeCount(solution), finalDamage, solverJob.getProblemId(), solverJob.getSolvingDuration());
         } catch (Exception exception) {
@@ -92,13 +96,12 @@ public final class Optimizer extends OptimizerHelper {
             // Damage Multiplier
             double combatBonus = calculatedPlayerStats.getDamageMultiplier();
             double enchantBonus = getEnchantBonus(optimizerRequest);
-            enchantBonus += 0.84; // TODO: Ender Slayer VII
             double weaponBonus = 0.0;
             double damageMultiplier = 1.0 + combatBonus + enchantBonus + weaponBonus;
 
             // Final Damage
-            double armorBonus = getArmorBonus(optimizerRequest);
-            double bonusDamage = meleeDamage * damageMultiplier * (1.0 + armorBonus);
+            double armorBonus = 1.0 + getArmorBonus(optimizerRequest);
+            double bonusDamage = meleeDamage * damageMultiplier * armorBonus;
             double finalDamage = 2 * score * bonusDamage / 10_000_000_000.0;
 
             return new OptimizerResponse(solution, getReforgeCount(solution), finalDamage, solverJob.getProblemId(), solverJob.getSolvingDuration());
