@@ -341,7 +341,9 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     .withLabel(
                                         "{0}{1}",
                                         petInfo.getPet().getName(),
-                                        getEmoji(FormatUtil.format("RARITY_{0}", petInfo.getRarity().getKey())).map(Emoji::asPreSpacedFormat).orElse("")
+                                        getEmoji(FormatUtil.format("RARITY_{0}", petInfo.getRarity().getKey()))
+                                            .map(Emoji::asPreSpacedFormat)
+                                            .orElse("")
                                     )
                                     .withEmoji(
                                         skyBlockUser.getSkyBlockEmojis()
