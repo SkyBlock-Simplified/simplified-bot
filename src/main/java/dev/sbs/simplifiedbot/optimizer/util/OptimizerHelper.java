@@ -19,6 +19,7 @@ import org.optaplanner.core.api.solver.SolverManager;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,7 @@ public abstract class OptimizerHelper {
         return optimizerRequest.getPlayerStats()
             .getArmor()
             .stream()
+            .flatMap(Optional::stream)
             .flatMapToDouble(armorData -> armorData
                 .getBonusItemStatModel()
                 .stream()
@@ -57,6 +59,7 @@ public abstract class OptimizerHelper {
         double enchantBonus = optimizerRequest.getPlayerStats()
             .getArmor()
             .stream()
+            .flatMap(Optional::stream)
             .flatMapToDouble(armorData -> armorData
                 .getEnchantments()
                 .stream()

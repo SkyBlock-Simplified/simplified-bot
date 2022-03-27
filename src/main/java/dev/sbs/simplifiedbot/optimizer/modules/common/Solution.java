@@ -80,6 +80,8 @@ public abstract class Solution<T extends ItemEntity> {
         this.getOptimizerRequest()
             .getPlayerStats()
             .getArmor()
+            .stream()
+            .flatMap(Optional::stream)
             .forEach(itemData -> availableItems.add(this.getOptimalReforges(
                 armorReforgeTypeModel,
                 itemData
@@ -115,6 +117,7 @@ public abstract class Solution<T extends ItemEntity> {
         // Armor Stats
         total += playerStats.getArmor()
             .stream()
+            .flatMap(Optional::stream)
             .mapToDouble(armorData -> getDataSum(armorData, ObjectData.Type::isOptimizerConstant, statModel, ItemData.Type.values()))
             .sum();
 
