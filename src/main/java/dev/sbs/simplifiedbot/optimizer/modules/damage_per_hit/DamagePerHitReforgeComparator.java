@@ -11,8 +11,9 @@ import java.util.Map;
 public class DamagePerHitReforgeComparator extends ReforgeComparator {
 
     static final ConcurrentMap<StatModel, Integer> importantStatWeights = Concurrent.newMap(
-        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "STRENGTH"), 1),
-        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "CRITICAL_DAMAGE"), 1)
+        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "DAMAGE"), 1),
+        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "STRENGTH"), 5),
+        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "CRITICAL_DAMAGE"), 5)
     );
 
     @Override
