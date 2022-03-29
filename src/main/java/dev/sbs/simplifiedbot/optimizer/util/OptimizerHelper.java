@@ -4,6 +4,7 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.Data;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.PlayerDataHelper;
 import dev.sbs.api.data.model.skyblock.bonus_item_stats.BonusItemStatModel;
+import dev.sbs.api.data.model.skyblock.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.enchantment_stats.EnchantmentStatModel;
 import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.data.model.skyblock.stats.StatModel;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 public abstract class OptimizerHelper {
 
-    protected static final StatModel damageStatModel = SimplifiedApi.getRepositoryOf(StatModel.class).findFirstOrNull(StatModel::getKey, "DAMAGE");
+    protected static final StatModel DAMAGE_STAT_MODEL = SimplifiedApi.getRepositoryOf(StatModel.class).findFirstOrNull(StatModel::getKey, "DAMAGE");
 
     public static <I extends ItemEntity, S extends Solution<I>, C extends Calculator<I, S>> SolverManager<S, UUID> buildSolver(Class<I> itemEntityClass, Class<S> solutionClass, Class<C> calculatorClass) {
         return OptimizerSolver.builder(itemEntityClass, solutionClass, calculatorClass)
@@ -44,13 +45,51 @@ public abstract class OptimizerHelper {
                 .stream()
                 .filter(BonusItemStatModel::isForStats)
                 .mapToDouble(bonusItemStatModel -> PlayerDataHelper.handleBonusEffects(
-                    damageStatModel,
-                    armorData.getAllData(damageStatModel).getTotal(),
+                    DAMAGE_STAT_MODEL,
+                    armorData.getAllData(DAMAGE_STAT_MODEL).getTotal(),
                     armorData.getCompoundTag(),
                     optimizerRequest.getExpressionVariables(),
                     bonusItemStatModel
                 ))
             )
+            .sum();
+    }
+
+    public static double getPetAbilityDamage(OptimizerRequest optimizerRequest) {
+        return optimizerRequest.getPlayerStats()
+            .getBonusPetAbilityStatModels()
+            .stream()
+            .filter(BonusPetAbilityStatModel::notPercentage)
+            .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredItem() ||
+                (optimizerRequest.getWeapon().isPresent() && optimizerRequest.getWeapon().get().getItem().equals(bonusPetAbilityStatModel.getRequiredItem()))
+            )
+            .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredMobType() || bonusPetAbilityStatModel.getRequiredMobType().equals(optimizerRequest.getMobType()))
+            .mapToDouble(bonusPetAbilityStatModel -> PlayerDataHelper.handleBonusEffects(
+                DAMAGE_STAT_MODEL,
+                0.0,
+                null,
+                optimizerRequest.getExpressionVariables(),
+                bonusPetAbilityStatModel
+            ))
+            .sum();
+    }
+
+    public static double getPetAbilityBonus(OptimizerRequest optimizerRequest) {
+        return optimizerRequest.getPlayerStats()
+            .getBonusPetAbilityStatModels()
+            .stream()
+            .filter(BonusPetAbilityStatModel::isPercentage)
+            .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredItem() ||
+                (optimizerRequest.getWeapon().isPresent() && optimizerRequest.getWeapon().get().getItem().equals(bonusPetAbilityStatModel.getRequiredItem()))
+            )
+            .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredMobType() || bonusPetAbilityStatModel.getRequiredMobType().equals(optimizerRequest.getMobType()))
+            .mapToDouble(bonusPetAbilityStatModel -> PlayerDataHelper.handleBonusEffects(
+                DAMAGE_STAT_MODEL,
+                0.0,
+                null,
+                optimizerRequest.getExpressionVariables(),
+                bonusPetAbilityStatModel
+            ))
             .sum();
     }
 
@@ -67,7 +106,7 @@ public abstract class OptimizerHelper {
                     .get(enchantmentEntry.getKey())
                     .stream()
                     .filter(EnchantmentStatModel::isPercentage) // Percentage Only
-                    .filter(enchantmentStatModel -> damageStatModel.equals(enchantmentStatModel.getStat())) // Damage Only
+                    .filter(enchantmentStatModel -> DAMAGE_STAT_MODEL.equals(enchantmentStatModel.getStat())) // Damage Only
                     .filter(enchantmentStatModel -> enchantmentStatModel.getLevels().stream().anyMatch(level -> enchantmentEntry.getValue() >= level)) // Contains Level
                     .mapToDouble(enchantmentStatModel -> (enchantmentStatModel.getBaseValue() + enchantmentStatModel.getLevels()
                         .stream()
@@ -89,14 +128,18 @@ public abstract class OptimizerHelper {
                     .get(enchantmentEntry.getKey())
                     .stream()
                     .filter(EnchantmentStatModel::isPercentage) // Percentage Only
-                    .filter(enchantmentStatModel -> damageStatModel.equals(enchantmentStatModel.getStat())) // Damage Only
+                    .filter(enchantmentStatModel -> DAMAGE_STAT_MODEL.equals(enchantmentStatModel.getStat())) // Damage Only
                     .filter(enchantmentStatModel -> enchantmentStatModel.getLevels().stream().anyMatch(level -> enchantmentEntry.getValue() >= level)) // Contains Level
-                    .mapToDouble(enchantmentStatModel -> (enchantmentStatModel.getBaseValue() + enchantmentStatModel.getLevels()
-                        .stream()
-                        .filter(level -> enchantmentEntry.getValue() >= level)
-                        .mapToDouble(__ -> enchantmentStatModel.getLevelBonus())
-                        .sum()) / 100.0
-                    )
+                    .mapToDouble(enchantmentStatModel -> {
+                        double value = (enchantmentStatModel.getBaseValue() + enchantmentStatModel.getLevels()
+                            .stream()
+                            .filter(level -> enchantmentEntry.getValue() >= level)
+                            .mapToDouble(__ -> enchantmentStatModel.getLevelBonus())
+                            .sum()) / 100.0;
+
+                        System.out.println("Weapon adding: " + enchantmentStatModel.getEnchantment().getKey() + ": " + value);
+                        return value;
+                    })
                 )
                 .sum();
         }
@@ -117,7 +160,10 @@ public abstract class OptimizerHelper {
     }
 
     public static double getWeaponDamage(OptimizerRequest optimizerRequest) {
-        return optimizerRequest.getWeapon().map(weaponData -> weaponData.getAllStats().get(damageStatModel)).map(Data::getTotal).orElse(0.0);
+        return optimizerRequest.getWeapon()
+            .map(weaponData -> weaponData.getAllStats().get(DAMAGE_STAT_MODEL))
+            .map(Data::getTotal)
+            .orElse(0.0);
     }
 
 }

@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 public final class Optimizer extends OptimizerHelper {
 
     //private static final SolverManager<DamagePerHitSolution, UUID> damagePerHitSolver = SolverManager.create(SolverConfig.createFromXmlResource("optaplanner/damagePerHitSolver.xml"));
-    private static final SolverManager<DamagePerHitSolution, UUID> damagePerHitSolver = OptimizerHelper.buildSolver(DamagePerHitItemEntity.class, DamagePerHitSolution.class, DamagePerHitCalculator.class);
+    private static final SolverManager<DamagePerHitSolution, UUID> damagePerHitSolver = buildSolver(DamagePerHitItemEntity.class, DamagePerHitSolution.class, DamagePerHitCalculator.class);
     private static final SolverManager<DamagePerSecondSolution, UUID> damagePerSecondSolver = SolverManager.create(SolverConfig.createFromXmlResource("optaplanner/damagePerSecondSolver.xml"));
 
     public static OptimizerResponse solve(@NotNull OptimizerRequest optimizerRequest) {
@@ -40,35 +40,42 @@ public final class Optimizer extends OptimizerHelper {
             double score = solution.getScore().getScore().doubleValue();
 
             // Melee Damage
-            double playerDamage = optimizerRequest.getPlayerStats().getCombinedStats().get(damageStatModel).getTotal();
+            double playerDamage = optimizerRequest.getPlayerStats().getCombinedStats().get(DAMAGE_STAT_MODEL).getTotal();
             double weaponDamage = getWeaponDamage(optimizerRequest);
-            double meleeDamage = playerDamage + weaponDamage;
+            double petAbilityDamage = getPetAbilityDamage(optimizerRequest);
+            double meleeDamage = playerDamage + weaponDamage + petAbilityDamage;
 
             // Damage Multiplier
             double combatBonus = optimizerRequest.getPlayerStats().getDamageMultiplier();
             double enchantBonus = getEnchantBonus(optimizerRequest);
+            //enchantBonus -= 0.6625; // TODO: Hyperion: Remove Execute and Giant Killer
+            enchantBonus -= 0.457; // TODO: Midas: Remove Prosecute and Giant Killer
             double weaponBonus = 0.0;
             double damageMultiplier = 1.0 + (combatBonus + enchantBonus + weaponBonus);
 
             // Final Damage
-            double armorBonus = 1.0 + getArmorBonus(optimizerRequest);
-            double bonusDamage = meleeDamage * damageMultiplier * armorBonus;
+            double armorBonus = getArmorBonus(optimizerRequest);
+            double petBonus = getPetAbilityBonus(optimizerRequest);
+            double bonusDamage = meleeDamage * damageMultiplier * (1.0 + armorBonus + petBonus);
             double finalDamage = score * bonusDamage / 10_000.0;
 
-            // Weapon: Hyperion
-            // Accessories: None
-            // Potions: Yes
-            // Armor: None
-            // Pet: None
-            // Mob: Zombie
-            // Damage: 34,965
-            // Optimizer: 39,693
+            // TODO: Weapon Stats Output
+            optimizerRequest.getWeapon()
+                .get()
+                .getAllStats()
+                .stream()
+                .filter(statEntry -> statEntry.getValue().getTotal() > 0)
+                .forEach(statEntry -> System.out.println("Weapon: " + statEntry.getKey().getKey() + ": " + statEntry.getValue().getTotal()));
 
-            optimizerRequest.getWeapon().ifPresent(itemData -> itemData.getAllStats().forEach((statModel, statData) -> System.out.println(
-                "Weapon: " +
-                    statModel.getKey() + ": " +
-                    statData.getTotal()
-            )));
+            // Potions: Yes
+            // Armor: Necron
+            // Accessories: Yes
+            // Pet: Ender Dragon
+
+            // Mob: Enderman
+            // Weapon: Midas
+            // Damage: 485,463
+            // Adjusted: 420,755.12 (86.67%)
 
             return new OptimizerResponse(solution, getReforgeCount(solution), finalDamage, solverJob.getProblemId(), solverJob.getSolvingDuration());
         } catch (Exception exception) {
@@ -89,7 +96,7 @@ public final class Optimizer extends OptimizerHelper {
             PlayerStats calculatedPlayerStats = optimizerRequest.getPlayerStats();
 
             // Melee Damage
-            double playerDamage = calculatedPlayerStats.getAllStats().get(damageStatModel).getTotal();
+            double playerDamage = calculatedPlayerStats.getAllStats().get(DAMAGE_STAT_MODEL).getTotal();
             double weaponDamage = getWeaponDamage(optimizerRequest);
             double meleeDamage = playerDamage + weaponDamage;
 
