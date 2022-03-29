@@ -46,11 +46,32 @@ public abstract class Solution<T extends ItemEntity> {
         this.playerStats = optimizerRequest.getPlayerStats();
 
         // Handle Constant Stats
-        this.getImportantStats().forEach(stat -> {
+        this.getImportantStats().forEach(statModel -> {
             MutableDouble value = new MutableDouble();
-            value.add(getConstSum(this.getPlayerStats(), stat)); // Add Player, Accessory and Item Stats
-            this.getOptimizerRequest().getWeapon().ifPresent(weaponData -> value.add(getConstSum(weaponData, stat))); // Add Weapon Stats
-            this.computedStats.put(stat.getKey(), value.get());
+            value.add(getConstSum(this.getPlayerStats(), statModel)); // Add Player, Accessory and Item Stats
+
+            // Add Weapon Stats
+            this.getOptimizerRequest().getWeapon().ifPresent(weaponData -> value.add(getConstSum(weaponData, statModel)));
+
+            // Add Pet Ability Stats
+            this.getPlayerStats()
+                .getBonusPetAbilityStatModels()
+                .stream()
+                .filter(BonusPetAbilityStatModel::notPercentage)
+                .filter(BonusPetAbilityStatModel::hasRequiredItem)
+                .filter(bonusPetAbilityStatModel -> this.getOptimizerRequest().getWeapon().map(weaponData -> weaponData.getItem().equals(bonusPetAbilityStatModel.getRequiredItem())).orElse(false))
+                .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredMobType() || bonusPetAbilityStatModel.getRequiredMobType().equals(optimizerRequest.getMobType()))
+                .forEach(bonusPetAbilityStatModel -> value.set(
+                    PlayerDataHelper.handleBonusEffects(
+                        statModel,
+                        value.get(),
+                        null,
+                        this.getOptimizerRequest().getExpressionVariables(),
+                        bonusPetAbilityStatModel
+                    )
+                ));
+
+            this.computedStats.put(statModel.getKey(), value.get());
         });
     }
 
@@ -181,7 +202,14 @@ public abstract class Solution<T extends ItemEntity> {
 
                     if (optionalThatBonusReforgeStatModel.isPresent()) {
                         BonusReforgeStatModel thatBonusReforgeStatModel = optionalThatBonusReforgeStatModel.get();
-                        thatStat = PlayerDataHelper.handleBonusEffects(statModel, thatStat, objectData.getCompoundTag(), this.getOptimizerRequest().getExpressionVariables(), thatBonusReforgeStatModel);
+
+                        thatStat = PlayerDataHelper.handleBonusEffects(
+                            statModel,
+                            thatStat,
+                            objectData.getCompoundTag(),
+                            this.getOptimizerRequest().getExpressionVariables(),
+                            thatBonusReforgeStatModel
+                        );
                     }
 
                     // Handle Bonus Item Effects
@@ -189,16 +217,44 @@ public abstract class Solution<T extends ItemEntity> {
                         BonusItemStatModel bonusItemStatModel = objectData.getBonusItemStatModel().get();
 
                         if (bonusItemStatModel.isForReforges()) {
-                            thisStat = PlayerDataHelper.handleBonusEffects(statModel, thisStat, objectData.getCompoundTag(), this.getOptimizerRequest().getExpressionVariables(), bonusItemStatModel);
-                            thatStat = PlayerDataHelper.handleBonusEffects(statModel, thatStat, objectData.getCompoundTag(), this.getOptimizerRequest().getExpressionVariables(), bonusItemStatModel);
+                            thisStat = PlayerDataHelper.handleBonusEffects(
+                                statModel,
+                                thisStat,
+                                objectData.getCompoundTag(),
+                                this.getOptimizerRequest().getExpressionVariables(),
+                                bonusItemStatModel
+                            );
+
+                            thatStat = PlayerDataHelper.handleBonusEffects(
+                                statModel,
+                                thatStat,
+                                objectData.getCompoundTag(),
+                                this.getOptimizerRequest().getExpressionVariables(),
+                                bonusItemStatModel
+                            );
                         }
                     }
 
                     // Handle Bonus Pet Ability Effects
                     for (BonusPetAbilityStatModel bonusPetAbilityStatModel : this.getPlayerStats().getBonusPetAbilityStatModels()) {
                         if (bonusPetAbilityStatModel.isPercentage()) {
-                            thisStat = PlayerDataHelper.handleBonusEffects(statModel, thisStat, objectData.getCompoundTag(), this.getOptimizerRequest().getExpressionVariables(), bonusPetAbilityStatModel);
-                            thatStat = PlayerDataHelper.handleBonusEffects(statModel, thatStat, objectData.getCompoundTag(), this.getOptimizerRequest().getExpressionVariables(), bonusPetAbilityStatModel);
+                            if (bonusPetAbilityStatModel.noRequiredItem() && bonusPetAbilityStatModel.noRequiredMobType()) {
+                                thisStat = PlayerDataHelper.handleBonusEffects(
+                                    statModel,
+                                    thisStat,
+                                    objectData.getCompoundTag(),
+                                    this.getOptimizerRequest().getExpressionVariables(),
+                                    bonusPetAbilityStatModel
+                                );
+
+                                thatStat = PlayerDataHelper.handleBonusEffects(
+                                    statModel,
+                                    thatStat,
+                                    objectData.getCompoundTag(),
+                                    this.getOptimizerRequest().getExpressionVariables(),
+                                    bonusPetAbilityStatModel
+                                );
+                            }
                         }
                     }
 
@@ -251,12 +307,14 @@ public abstract class Solution<T extends ItemEntity> {
                     .getBonusPetAbilityStatModels()
                     .stream()
                     .filter(BonusPetAbilityStatModel::isPercentage)
+                    .filter(BonusPetAbilityStatModel::noRequiredItem)
+                    .filter(BonusPetAbilityStatModel::noRequiredMobType)
                     .forEach(bonusPetAbilityStatModel -> this.getImportantStats().forEach(statModel -> effects.put(
                         statModel.getKey(),
                         PlayerDataHelper.handleBonusEffects(
                             statModel,
                             effects.getOrDefault(statModel.getKey(), 0.0),
-                            objectData.getCompoundTag(),
+                            null,
                             this.getOptimizerRequest().getExpressionVariables(),
                             bonusPetAbilityStatModel
                         )
