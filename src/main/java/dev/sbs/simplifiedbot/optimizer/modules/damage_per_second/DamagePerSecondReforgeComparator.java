@@ -11,11 +11,12 @@ import java.util.Map;
 public final class DamagePerSecondReforgeComparator extends ReforgeComparator {
 
     static final ConcurrentMap<StatModel, Integer> importantStatWeights = Concurrent.newMap(
-        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "STRENGTH"), 1),
-        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "CRITICAL_DAMAGE"), 1),
-        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "CRIT_CHANCE"), 5),
-        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "ATTACK_SPEED"), 10),
-        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "FEROCITY"), 10)
+        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "DAMAGE"), 1),
+        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "STRENGTH"), 5),
+        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "CRITICAL_DAMAGE"), 5),
+        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "CRIT_CHANCE"), 10),
+        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "ATTACK_SPEED"), 15),
+        Pair.of(statRepository.findFirstOrNull(StatModel::getKey, "FEROCITY"), 15)
     );
 
     @Override

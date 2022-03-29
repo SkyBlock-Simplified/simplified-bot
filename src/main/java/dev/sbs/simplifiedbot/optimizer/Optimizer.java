@@ -2,6 +2,9 @@ package dev.sbs.simplifiedbot.optimizer;
 
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.PlayerStats;
 import dev.sbs.api.util.SimplifiedException;
+import dev.sbs.api.util.collection.concurrent.Concurrent;
+import dev.sbs.api.util.collection.concurrent.linked.ConcurrentLinkedMap;
+import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.simplifiedbot.optimizer.exception.OptimizerException;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitCalculator;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitItemEntity;
@@ -39,33 +42,79 @@ public final class Optimizer extends OptimizerHelper {
             DamagePerHitSolution solution = solverJob.getFinalBestSolution();
             double score = solution.getScore().getScore().doubleValue();
 
-            // Melee Damage
-            double playerDamage = optimizerRequest.getPlayerStats().getCombinedStats().get(DAMAGE_STAT_MODEL).getTotal();
-            double weaponDamage = getWeaponDamage(optimizerRequest);
-            double petAbilityDamage = getPetAbilityDamage(optimizerRequest);
-            double meleeDamage = playerDamage + weaponDamage + petAbilityDamage;
-
             // Damage Multiplier
             double combatBonus = optimizerRequest.getPlayerStats().getDamageMultiplier();
             double enchantBonus = getEnchantBonus(optimizerRequest);
             //enchantBonus -= 0.6625; // TODO: Hyperion: Remove Execute and Giant Killer
-            enchantBonus -= 0.457; // TODO: Midas: Remove Prosecute and Giant Killer
+            //enchantBonus -= 0.457; // TODO: Midas: Remove Prosecute and Giant Killer
+            enchantBonus -= 0.3; // TODO: AOTD: Remove Giant Killer
             double weaponBonus = 0.0;
             double damageMultiplier = 1.0 + (combatBonus + enchantBonus + weaponBonus);
 
             // Final Damage
             double armorBonus = getArmorBonus(optimizerRequest);
             double petBonus = getPetAbilityBonus(optimizerRequest);
-            double bonusDamage = meleeDamage * damageMultiplier * (1.0 + armorBonus + petBonus);
+            double bonusDamage = damageMultiplier * (1.0 + armorBonus + petBonus);
             double finalDamage = score * bonusDamage / 10_000.0;
 
-            // TODO: Weapon Stats Output
-            optimizerRequest.getWeapon()
+            // TODO: --- KNOWN PLAYER AND WEAPON STATS ---
+            ConcurrentLinkedMap<String, Double> playerStats = optimizerRequest.getPlayerStats()
+                .getCombinedStats()
+                .stream()
+                .filter(entry -> entry.getKey().getOrdinal() <= 6)
+                .map(entry -> Pair.of(entry.getKey().getKey(), entry.getValue().getTotal()))
+                .collect(Concurrent.toLinkedMap());
+
+            playerStats.forEach((key, value) -> System.out.println("Player: " + key + ": " + value));
+
+            ConcurrentLinkedMap<String, Double> weaponStats = optimizerRequest.getWeapon()
                 .get()
                 .getAllStats()
                 .stream()
-                .filter(statEntry -> statEntry.getValue().getTotal() > 0)
-                .forEach(statEntry -> System.out.println("Weapon: " + statEntry.getKey().getKey() + ": " + statEntry.getValue().getTotal()));
+                .filter(entry -> entry.getKey().getOrdinal() <= 6)
+                .map(entry -> Pair.of(entry.getKey().getKey(), entry.getValue().getTotal()))
+                .collect(Concurrent.toLinkedMap());
+
+            weaponStats.forEach((key, value) -> System.out.println("Weapon: " + key + ": " + value));
+            weaponStats.forEach(statEntry -> playerStats.put(statEntry.getKey(), playerStats.getOrDefault(statEntry.getKey(), 0.0) + statEntry.getValue()));
+            playerStats.forEach((key, value) -> System.out.println("Player & Weapon: " + key + ": " + value));
+            // TODO: --- KNOWN PLAYER AND WEAPON STATS ---
+
+            // TODO: --- OPTIMIZER PLAYER STATS ---
+            ConcurrentLinkedMap<String, Double> stats = optimizerRequest.getPlayerStats()
+                .getCombinedStats(true)
+                .stream()
+                .filter(entry -> entry.getKey().getOrdinal() <= 6)
+                .map(entry -> Pair.of(entry.getKey().getKey(), entry.getValue().getTotal()))
+                .collect(Concurrent.toLinkedMap(Double::sum));
+
+            optimizerRequest.getWeapon()
+                .get()
+                .getStats()
+                .stream()
+                .filter(entry -> entry.getKey().isOptimizerConstant())
+                .flatMap(entry -> entry.getValue()
+                    .stream()
+                    .filter(subentry -> subentry.getKey().getOrdinal() <= 6)
+                    .map(subentry -> Pair.of(subentry.getKey().getKey(), subentry.getValue().getTotal()))
+                )
+                .collect(Concurrent.toLinkedMap(Double::sum))
+                .stream()
+                .map(entry -> Pair.of((String)entry.getKey(), entry.getValue()))
+                .forEach(statEntry -> stats.put(statEntry.getKey(), stats.getOrDefault(statEntry.getKey(), 0.0) + statEntry.getValue()));
+
+            solution.getAvailableItems()
+                .stream()
+                .map(DamagePerHitItemEntity::getReforgeFact)
+                .forEach(reforgeFact -> reforgeFact.getEffects()
+                    .stream()
+                    .filter(entry -> stats.containsKey(entry.getKey()))
+                    .forEach(entry -> stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0) + entry.getValue()))
+                );
+
+            stats.forEach(statEntry -> System.out.println("Calculated: " + statEntry.getKey() + ": " + statEntry.getValue()));
+            // TODO: --- OPTIMIZER PLAYER STATS ---
+
 
             // Potions: Yes
             // Armor: Necron
@@ -73,9 +122,19 @@ public final class Optimizer extends OptimizerHelper {
             // Pet: Ender Dragon
 
             // Mob: Enderman
+            // Weapon: Hyperion
+            // Damage: 428,717
+            // Adjusted: 424,406.83 (98.99%)
+
+            // Mob: Enderman
             // Weapon: Midas
-            // Damage: 485,463
-            // Adjusted: 420,755.12 (86.67%)
+            // Damage: 581,175
+            // Adjusted: 511,042.23 (87.93%)
+
+            // Mob: Enderman
+            // Weapon: AOTD
+            // Damage: 209,420
+            // Adjusted: 243,955.67 (116.49%)
 
             return new OptimizerResponse(solution, getReforgeCount(solution), finalDamage, solverJob.getProblemId(), solverJob.getSolvingDuration());
         } catch (Exception exception) {

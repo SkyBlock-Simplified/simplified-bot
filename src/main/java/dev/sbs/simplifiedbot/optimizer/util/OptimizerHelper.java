@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 public abstract class OptimizerHelper {
 
-    protected static final StatModel DAMAGE_STAT_MODEL = SimplifiedApi.getRepositoryOf(StatModel.class).findFirstOrNull(StatModel::getKey, "DAMAGE");
+    public static final StatModel DAMAGE_STAT_MODEL = SimplifiedApi.getRepositoryOf(StatModel.class).findFirstOrNull(StatModel::getKey, "DAMAGE");
 
     public static <I extends ItemEntity, S extends Solution<I>, C extends Calculator<I, S>> SolverManager<S, UUID> buildSolver(Class<I> itemEntityClass, Class<S> solutionClass, Class<C> calculatorClass) {
         return OptimizerSolver.builder(itemEntityClass, solutionClass, calculatorClass)
@@ -161,9 +161,13 @@ public abstract class OptimizerHelper {
 
     public static double getWeaponDamage(OptimizerRequest optimizerRequest) {
         return optimizerRequest.getWeapon()
-            .map(weaponData -> weaponData.getAllStats().get(DAMAGE_STAT_MODEL))
-            .map(Data::getTotal)
-            .orElse(0.0);
+            .stream()
+            .flatMap(weaponData -> weaponData.getStats().stream())
+            .filter(entry -> entry.getKey().isOptimizerConstant())
+            .map(Map.Entry::getValue)
+            .map(map -> map.get(DAMAGE_STAT_MODEL))
+            .mapToDouble(Data::getTotal)
+            .sum();
     }
 
 }

@@ -6,9 +6,11 @@ import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.PlayerStats;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ItemData;
+import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.PlayerDataHelper;
 import dev.sbs.api.client.sbs.implementation.MojangData;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
+import dev.sbs.api.data.model.skyblock.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
@@ -31,7 +33,7 @@ import java.util.UUID;
 
 public final class OptimizerRequest {
 
-    private static final ConcurrentList<SkyBlockIsland.Storage> weaponStorage = Concurrent.newList(SkyBlockIsland.Storage.INVENTORY, SkyBlockIsland.Storage.ENDER_CHEST);
+    private static final ConcurrentList<SkyBlockIsland.Storage> WEAPON_STORAGE = Concurrent.newList(SkyBlockIsland.Storage.INVENTORY, SkyBlockIsland.Storage.ENDER_CHEST);
     @Getter private final SkyBlockIsland.Member member;
     @Getter private final PlayerStats playerStats;
     @Getter private final ConcurrentMap<String, Double> expressionVariables;
@@ -39,6 +41,9 @@ public final class OptimizerRequest {
     @Getter private final ConcurrentList<ReforgeStatModel> allowedReforges;
     @Getter private final Type type;
     @Getter private final OptimizerMobTypeModel mobType;
+    @Getter private final double playerDamage;
+    @Getter private final double weaponDamage;
+    @Getter private final double petAbilityDamage;
 
     private OptimizerRequest(OptimizerRequestBuilder optimizerRequestBuilder) {
         SkyBlockIsland island = optimizerRequestBuilder.skyBlockProfilesResponse.getIslands().get(optimizerRequestBuilder.islandIndex);
@@ -58,9 +63,10 @@ public final class OptimizerRequest {
 
         // Load Weapon
         Optional<WeaponData> optionalWeapon = Optional.empty();
+
         if (optimizerRequestBuilder.weaponItemModel.isPresent()) {
             // Check Inventories
-            for (SkyBlockIsland.Storage storage : weaponStorage) {
+            for (SkyBlockIsland.Storage storage : WEAPON_STORAGE) {
                 optionalWeapon = member.getStorage(storage)
                     .getNbtData()
                     .<CompoundTag>getList("i")
@@ -68,7 +74,7 @@ public final class OptimizerRequest {
                     .filter(CompoundTag::notEmpty)
                     .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
                     .findFirst()
-                    .map(itemTag -> new WeaponData(itemTag, this.getExpressionVariables()));
+                    .map(itemTag -> new WeaponData(itemTag, this));
 
                 if (optionalWeapon.isPresent())
                     break;
@@ -85,10 +91,14 @@ public final class OptimizerRequest {
                     .filter(CompoundTag::notEmpty)
                     .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
                     .findFirst()
-                    .map(itemTag -> new WeaponData(itemTag, this.getExpressionVariables()));
+                    .map(itemTag -> new WeaponData(itemTag, this));
             }
         }
+
         this.weapon = optionalWeapon;
+        this.playerDamage = this.getPlayerStats().getCombinedStats().get(OptimizerHelper.DAMAGE_STAT_MODEL).getTotal();
+        this.weaponDamage = OptimizerHelper.getWeaponDamage(this);
+        this.petAbilityDamage = OptimizerHelper.getPetAbilityDamage(this);
     }
 
     public static OptimizerRequestBuilder of(String username) {
@@ -161,7 +171,10 @@ public final class OptimizerRequest {
 
     public static class WeaponData extends ItemData {
 
-        private WeaponData(@NotNull CompoundTag compoundTag, ConcurrentMap<String, Double> expressionVariables) {
+        @Getter(AccessLevel.PROTECTED)
+        private final OptimizerRequest optimizerRequest;
+
+        private WeaponData(@NotNull CompoundTag compoundTag, OptimizerRequest optimizerRequest) {
             super(
                 SimplifiedApi.getRepositoryOf(ItemModel.class).findFirstOrNull(
                     ItemModel::getItemId,
@@ -170,8 +183,70 @@ public final class OptimizerRequest {
                 compoundTag,
                 "SWORD"
             );
+            this.optimizerRequest = optimizerRequest;
 
-            this.calculateBonus(expressionVariables);
+            // Add Pet Ability Stats
+            this.getOptimizerRequest()
+                .getPlayerStats()
+                .getBonusPetAbilityStatModels()
+                .stream()
+                .filter(BonusPetAbilityStatModel::notPercentage)
+                .filter(BonusPetAbilityStatModel::hasRequiredItem)
+                .filter(bonusPetAbilityStatModel -> this.getItem().equals(bonusPetAbilityStatModel.getRequiredItem()))
+                .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredMobType() || bonusPetAbilityStatModel.getRequiredMobType().equals(optimizerRequest.getMobType()))
+                .forEach(bonusPetAbilityStatModel -> this.getStats(Type.STATS)
+                    .forEach((statModel, statData) -> this.setBonus(
+                        statData,
+                        PlayerDataHelper.handleBonusEffects(
+                            statModel,
+                            statData.getBonus(),
+                            this.getCompoundTag(),
+                            optimizerRequest.getExpressionVariables(),
+                            bonusPetAbilityStatModel
+                        ))
+                    )
+                );
+
+            this.calculateBonus(this.getOptimizerRequest().getExpressionVariables());
+        }
+
+
+        @Override
+        public WeaponData calculateBonus(ConcurrentMap<String, Double> expressionVariables) {
+            super.calculateBonus(expressionVariables);
+
+            this.getOptimizerRequest()
+                .getPlayerStats()
+                .getBonusPetAbilityStatModels()
+                .stream()
+                .filter(BonusPetAbilityStatModel::isPercentage)
+                .filter(BonusPetAbilityStatModel::noRequiredItem)
+                .filter(BonusPetAbilityStatModel::noRequiredMobType)
+                .forEach(bonusPetAbilityStatModel -> this.getStats().forEach((type, statEntries) -> statEntries.forEach((statModel, statData) -> {
+                    this.setBase(
+                        statData,
+                        PlayerDataHelper.handleBonusEffects(
+                            statModel,
+                            statData.getBase(),
+                            this.getCompoundTag(),
+                            this.getOptimizerRequest().getExpressionVariables(),
+                            bonusPetAbilityStatModel
+                        )
+                    );
+
+                    this.setBonus(
+                        statData,
+                        PlayerDataHelper.handleBonusEffects(
+                            statModel,
+                            statData.getBonus(),
+                            this.getCompoundTag(),
+                            this.getOptimizerRequest().getExpressionVariables(),
+                            bonusPetAbilityStatModel
+                        )
+                    );
+                })));
+
+            return this;
         }
 
     }

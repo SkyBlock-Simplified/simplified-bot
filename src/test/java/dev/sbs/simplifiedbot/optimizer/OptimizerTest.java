@@ -41,7 +41,7 @@ public class OptimizerTest {
     private static final String profileName = "PINEAPPLE";
     private static final String playerName = "CraftedFury"; // CraftedFury TheNewJavaman AspectOfTheUwU
     private static final String mobType = "ENDERMAN";
-    private static final String weapon = "MIDAS_SWORD"; // HYPERION, ASPECT_OF_THE_DRAGON, MIDAS_SWORD
+    private static final String weapon = "ASPECT_OF_THE_DRAGON"; // HYPERION, ASPECT_OF_THE_DRAGON, MIDAS_SWORD
 
     private OptimizerRequest buildRequest(OptimizerRequest.Type type) {
         return OptimizerRequest.of(playerName)

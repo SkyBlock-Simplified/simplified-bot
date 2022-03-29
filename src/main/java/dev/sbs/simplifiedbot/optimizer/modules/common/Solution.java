@@ -49,28 +49,7 @@ public abstract class Solution<T extends ItemEntity> {
         this.getImportantStats().forEach(statModel -> {
             MutableDouble value = new MutableDouble();
             value.add(getConstSum(this.getPlayerStats(), statModel)); // Add Player, Accessory and Item Stats
-
-            // Add Weapon Stats
-            this.getOptimizerRequest().getWeapon().ifPresent(weaponData -> value.add(getConstSum(weaponData, statModel)));
-
-            // Add Pet Ability Stats
-            this.getPlayerStats()
-                .getBonusPetAbilityStatModels()
-                .stream()
-                .filter(BonusPetAbilityStatModel::notPercentage)
-                .filter(BonusPetAbilityStatModel::hasRequiredItem)
-                .filter(bonusPetAbilityStatModel -> this.getOptimizerRequest().getWeapon().map(weaponData -> weaponData.getItem().equals(bonusPetAbilityStatModel.getRequiredItem())).orElse(false))
-                .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredMobType() || bonusPetAbilityStatModel.getRequiredMobType().equals(optimizerRequest.getMobType()))
-                .forEach(bonusPetAbilityStatModel -> value.set(
-                    PlayerDataHelper.handleBonusEffects(
-                        statModel,
-                        value.get(),
-                        null,
-                        this.getOptimizerRequest().getExpressionVariables(),
-                        bonusPetAbilityStatModel
-                    )
-                ));
-
+            this.getOptimizerRequest().getWeapon().ifPresent(weaponData -> value.add(getConstSum(weaponData, statModel))); // Add Weapon Stats
             this.computedStats.put(statModel.getKey(), value.get());
         });
     }
