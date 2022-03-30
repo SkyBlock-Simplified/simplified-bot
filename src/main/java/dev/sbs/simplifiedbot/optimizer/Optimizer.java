@@ -46,8 +46,8 @@ public final class Optimizer extends OptimizerHelper {
             double combatBonus = optimizerRequest.getPlayerStats().getDamageMultiplier();
             double enchantBonus = getEnchantBonus(optimizerRequest);
             //enchantBonus -= 0.6625; // TODO: Hyperion: Remove Execute and Giant Killer
-            //enchantBonus -= 0.457; // TODO: Midas: Remove Prosecute and Giant Killer
-            enchantBonus -= 0.3; // TODO: AOTD: Remove Giant Killer
+            enchantBonus -= 0.457; // TODO: Midas: Remove Prosecute and Giant Killer
+            //enchantBonus -= 0.3; // TODO: AOTD: Remove Giant Killer
             double weaponBonus = 0.0;
             double damageMultiplier = 1.0 + (combatBonus + enchantBonus + weaponBonus);
 
@@ -115,26 +115,28 @@ public final class Optimizer extends OptimizerHelper {
             stats.forEach(statEntry -> System.out.println("Calculated: " + statEntry.getKey() + ": " + statEntry.getValue()));
             // TODO: --- OPTIMIZER PLAYER STATS ---
 
-
-            // Potions: Yes
-            // Armor: Necron
-            // Accessories: Yes
-            // Pet: Ender Dragon
-
-            // Mob: Enderman
-            // Weapon: Hyperion
-            // Damage: 428,717
-            // Adjusted: 424,406.83 (98.99%)
-
-            // Mob: Enderman
             // Weapon: Midas
             // Damage: 581,175
             // Adjusted: 511,042.23 (87.93%)
 
-            // Mob: Enderman
-            // Weapon: AOTD
-            // Damage: 209,420
-            // Adjusted: 243,955.67 (116.49%)
+            // Weapon: Midas
+            // Pet: None
+            // Damage: 359,946
+            // Adjusted: 315,868.97 (87.76%)
+
+            // Weapon: Midas
+            // Pet: None
+            // Armor: None
+            // Damage: 197,659
+            // Adjusted: 173,255.44 (87.65%)
+
+            // TODO: Working On This
+            // Weapon: Midas
+            // Pet: None
+            // Armor: None
+            // Accessories: None
+            // Damage: 41,524
+            // Adjusted: 35,846.69 (86.33%)
 
             return new OptimizerResponse(solution, getReforgeCount(solution), finalDamage, solverJob.getProblemId(), solverJob.getSolvingDuration());
         } catch (Exception exception) {

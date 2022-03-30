@@ -14,7 +14,7 @@ public final class DamagePerHitCalculator extends Calculator<DamagePerHitItemEnt
         OptimizerRequest optimizerRequest = solution.getOptimizerRequest();
         Map<String, Double> computedStats = solution.getComputedStats();
         double strSum = this.getReforgeSum(solution, "STRENGTH") + computedStats.get("STRENGTH");
-        double cdSum = this.getReforgeSum(solution, "CRITICAL_DAMAGE") + computedStats.get("CRITICAL_DAMAGE");;
+        double cdSum = this.getReforgeSum(solution, "CRITICAL_DAMAGE") + computedStats.get("CRITICAL_DAMAGE");
 
         // Melee Damage
         double meleeDamage = optimizerRequest.getPlayerDamage() +

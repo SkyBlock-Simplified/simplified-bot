@@ -52,6 +52,8 @@ public abstract class Solution<T extends ItemEntity> {
             this.getOptimizerRequest().getWeapon().ifPresent(weaponData -> value.add(getConstSum(weaponData, statModel))); // Add Weapon Stats
             this.computedStats.put(statModel.getKey(), value.get());
         });
+
+        String stop = "here";
     }
 
     protected abstract T createItemEntity(ReforgeTypeModel reforgeTypeModel, ObjectData<?> objectData, ConcurrentList<ReforgeFact> optimalReforges);
@@ -96,7 +98,7 @@ public abstract class Solution<T extends ItemEntity> {
             )));
 
         return Pair.of(availableItems, availableItems.stream()
-            .flatMap(damagePerSecondItemEntity -> damagePerSecondItemEntity.getAvailableReforges().stream())
+            .flatMap(itemEntity -> itemEntity.getAvailableReforges().stream())
             .collect(Concurrent.toList())
         );
     }
@@ -136,7 +138,7 @@ public abstract class Solution<T extends ItemEntity> {
 
     private static <T extends ObjectData.Type> double getDataSum(ObjectData<T> objectData, Function<ObjectData.Type, Boolean> comparator, StatModel statModel, T[] values) {
         return Arrays.stream(values)
-            .filter(comparator::apply)
+            .filter(ObjectData.Type::isOptimizerConstant)
             .mapToDouble(type -> objectData.getData(statModel, type).getTotal())
             .sum();
     }
@@ -176,7 +178,14 @@ public abstract class Solution<T extends ItemEntity> {
                     // Handle Bonus Reforge Effects
                     if (optionalThisBonusReforgeStatModel.isPresent()) {
                         BonusReforgeStatModel thisBonusReforgeStatModel = optionalThisBonusReforgeStatModel.get();
-                        thisStat = PlayerDataHelper.handleBonusEffects(statModel, thisStat, objectData.getCompoundTag(), this.getOptimizerRequest().getExpressionVariables(), thisBonusReforgeStatModel);
+
+                        thisStat = PlayerDataHelper.handleBonusEffects(
+                            statModel,
+                            thisStat,
+                            objectData.getCompoundTag(),
+                            this.getOptimizerRequest().getExpressionVariables(),
+                            thisBonusReforgeStatModel
+                        );
                     }
 
                     if (optionalThatBonusReforgeStatModel.isPresent()) {
