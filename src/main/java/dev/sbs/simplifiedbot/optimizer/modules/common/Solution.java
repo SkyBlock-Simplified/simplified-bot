@@ -9,7 +9,6 @@ import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.Play
 import dev.sbs.api.data.model.skyblock.bonus_item_stats.BonusItemStatModel;
 import dev.sbs.api.data.model.skyblock.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.bonus_reforge_stats.BonusReforgeStatModel;
-import dev.sbs.api.data.model.skyblock.reforge_conditions.ReforgeConditionModel;
 import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.data.model.skyblock.reforge_types.ReforgeTypeModel;
 import dev.sbs.api.data.model.skyblock.stats.StatModel;
@@ -18,15 +17,16 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.data.mutable.MutableDouble;
 import dev.sbs.api.util.data.tuple.Pair;
+import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.optaplanner.core.api.score.buildin.simplebigdecimal.SimpleBigDecimalScore;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 public abstract class Solution<T extends ItemEntity> {
 
@@ -40,7 +40,7 @@ public abstract class Solution<T extends ItemEntity> {
 
     } // Optimizer Cloning
 
-    protected Solution(OptimizerRequest optimizerRequest, ConcurrentList<StatModel> importantStats) {
+    protected Solution(@NotNull OptimizerRequest optimizerRequest, @NotNull ConcurrentList<StatModel> importantStats) {
         this.optimizerRequest = optimizerRequest;
         this.importantStats = importantStats;
         this.playerStats = optimizerRequest.getPlayerStats();
@@ -52,18 +52,16 @@ public abstract class Solution<T extends ItemEntity> {
             this.getOptimizerRequest().getWeapon().ifPresent(weaponData -> value.add(getConstSum(weaponData, statModel))); // Add Weapon Stats
             this.computedStats.put(statModel.getKey(), value.get());
         });
-
-        String stop = "here";
     }
 
-    protected abstract T createItemEntity(ReforgeTypeModel reforgeTypeModel, ObjectData<?> objectData, ConcurrentList<ReforgeFact> optimalReforges);
+    protected abstract @NotNull T createItemEntity(@NotNull ReforgeTypeModel reforgeTypeModel, @NotNull ObjectData<?> objectData, @NotNull ConcurrentList<ReforgeFact> optimalReforges);
 
     /**
      * Finds the applicable {@link ReforgeFact}s for each {@link ItemEntity}.
      *
      * @return {@link Pair} holding lists of all the {@link ItemEntity ItemEntities} and {@link ReforgeFact ReforgeFacts}.
      */
-    protected Pair<ConcurrentList<T>, ConcurrentList<ReforgeFact>> generateAvailableItems() {
+    protected @NotNull Pair<ConcurrentList<T>, ConcurrentList<ReforgeFact>> generateAvailableItems() {
         ConcurrentList<T> availableItems = Concurrent.newList();
         ReforgeTypeModel accessoryReforgeTypeModel = SimplifiedApi.getRepositoryOf(ReforgeTypeModel.class).findFirstOrNull(ReforgeTypeModel::getKey, "ACCESSORY");
         ReforgeTypeModel armorReforgeTypeModel = SimplifiedApi.getRepositoryOf(ReforgeTypeModel.class).findFirstOrNull(ReforgeTypeModel::getKey, "ARMOR");
@@ -103,11 +101,11 @@ public abstract class Solution<T extends ItemEntity> {
         );
     }
 
-    public abstract List<ReforgeFact> getAllReforges();
+    public abstract @NotNull List<ReforgeFact> getAllReforges();
 
-    public abstract List<T> getAvailableItems();
+    public abstract @NotNull List<T> getAvailableItems();
 
-    public static double getConstSum(PlayerStats playerStats, StatModel statModel) {
+    private static double getConstSum(@NotNull PlayerStats playerStats, @NotNull StatModel statModel) {
         double total = 0.0;
 
         // Player Stats
@@ -120,44 +118,42 @@ public abstract class Solution<T extends ItemEntity> {
         total += playerStats.getArmor()
             .stream()
             .flatMap(Optional::stream)
-            .mapToDouble(armorData -> getDataSum(armorData, ObjectData.Type::isOptimizerConstant, statModel, ItemData.Type.values()))
+            .mapToDouble(armorData -> getDataSum(armorData, statModel, ItemData.Type.values()))
             .sum();
 
         // Accessory Stats
         total += playerStats.getFilteredAccessories()
             .stream()
-            .mapToDouble(accessoryData -> getDataSum(accessoryData, ObjectData.Type::isOptimizerConstant, statModel, AccessoryData.Type.values()))
+            .mapToDouble(accessoryData -> getDataSum(accessoryData, statModel, AccessoryData.Type.values()))
             .sum();
 
         return total;
     }
 
-    public static double getConstSum(OptimizerRequest.WeaponData weaponData, StatModel statModel) {
-        return getDataSum(weaponData, ObjectData.Type::isOptimizerConstant, statModel, ItemData.Type.values());
+    private static double getConstSum(@NotNull OptimizerRequest.WeaponData weaponData, @NotNull StatModel statModel) {
+        return getDataSum(weaponData, statModel, ItemData.Type.values());
     }
 
-    private static <T extends ObjectData.Type> double getDataSum(ObjectData<T> objectData, Function<ObjectData.Type, Boolean> comparator, StatModel statModel, T[] values) {
+    private static <T extends ObjectData.Type> double getDataSum(@NotNull ObjectData<T> objectData, @NotNull StatModel statModel, @NotNull T[] values) {
         return Arrays.stream(values)
             .filter(ObjectData.Type::isOptimizerConstant)
             .mapToDouble(type -> objectData.getData(statModel, type).getTotal())
             .sum();
     }
 
-    private T getOptimalReforges(ReforgeTypeModel reforgeTypeModel, ObjectData<?> objectData) {
+    private T getOptimalReforges(@NotNull ReforgeTypeModel reforgeTypeModel, @NotNull ObjectData<?> objectData) {
         // Filter by Rarity and Allowed Reforge Stones
         ConcurrentMap<ReforgeStatModel, Boolean> optimalReforges = this.getAllReforgeStatModels()
             .stream()
             .filter(reforgeStatModel -> reforgeStatModel.getReforge().getType().equals(reforgeTypeModel))
             .filter(reforgeStatModel -> reforgeStatModel.getRarity().equals(objectData.getRarity()))
             .filter(reforgeStatModel -> this.getOptimizerRequest().getAllowedReforges().contains(reforgeStatModel))
-            .filter(reforgeStatModel -> {
-                for (ReforgeConditionModel reforgeConditionModel : reforgeStatModel.getReforge().getConditions()) {
-                    if (!reforgeConditionModel.getItem().equals(objectData.getItem()))
-                        return false;
-                }
-
-                return true;
-            })
+            .filter(reforgeStatModel -> ListUtil.isEmpty(reforgeStatModel.getReforge().getConditions()) ||
+                reforgeStatModel.getReforge()
+                    .getConditions()
+                    .stream()
+                    .anyMatch(reforgeConditionModel -> reforgeConditionModel.getItem().equals(objectData.getItem()))
+            )
             .map(reforgeStatModel -> Pair.of(reforgeStatModel, false))
             .collect(Concurrent.toMap());
 
@@ -314,6 +310,6 @@ public abstract class Solution<T extends ItemEntity> {
         );
     }
 
-    public abstract SimpleBigDecimalScore getScore();
+    public abstract @NotNull SimpleBigDecimalScore getScore();
 
 }
