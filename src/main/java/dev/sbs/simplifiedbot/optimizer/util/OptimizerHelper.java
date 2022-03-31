@@ -10,6 +10,8 @@ import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.data.model.skyblock.stats.StatModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
+import dev.sbs.api.util.collection.concurrent.linked.ConcurrentLinkedMap;
+import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Calculator;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ItemEntity;
@@ -35,6 +37,65 @@ public abstract class OptimizerHelper {
             .getManager();
     }
 
+    protected static void debugRequest(Solution<?> solution, OptimizerRequest optimizerRequest) {
+        // --- KNOWN PLAYER AND WEAPON STATS ---
+        ConcurrentLinkedMap<String, Double> playerStats = optimizerRequest.getPlayerStats()
+            .getCombinedStats()
+            .stream()
+            .filter(entry -> entry.getKey().getOrdinal() <= 6)
+            .map(entry -> Pair.of(entry.getKey().getKey(), entry.getValue().getTotal()))
+            .collect(Concurrent.toLinkedMap());
+
+        playerStats.forEach((key, value) -> System.out.println("Player: " + key + ": " + value));
+
+        ConcurrentLinkedMap<String, Double> weaponStats = optimizerRequest.getWeapon()
+            .map(weaponData -> weaponData.getAllStats()
+                .stream()
+                .filter(entry -> entry.getKey().getOrdinal() <= 6)
+                .map(entry -> Pair.of(entry.getKey().getKey(), entry.getValue().getTotal()))
+                .collect(Concurrent.toLinkedMap(Pair::getKey, Pair::getValue))
+            )
+            .orElse(Concurrent.newLinkedMap());
+
+        weaponStats.forEach((key, value) -> System.out.println("Weapon: " + key + ": " + value));
+        weaponStats.forEach(statEntry -> playerStats.put(statEntry.getKey(), playerStats.getOrDefault(statEntry.getKey(), 0.0) + statEntry.getValue()));
+        playerStats.forEach((key, value) -> System.out.println("Player & Weapon: " + key + ": " + value));
+
+        // --- OPTIMIZER PLAYER STATS ---
+        ConcurrentLinkedMap<String, Double> stats = optimizerRequest.getPlayerStats()
+            .getCombinedStats(true)
+            .stream()
+            .filter(entry -> entry.getKey().getOrdinal() <= 6)
+            .map(entry -> Pair.of(entry.getKey().getKey(), entry.getValue().getTotal()))
+            .collect(Concurrent.toLinkedMap(Double::sum));
+
+
+        optimizerRequest.getWeapon().ifPresent(weaponData -> weaponData.getStats()
+            .stream()
+            .filter(entry -> entry.getKey().isOptimizerConstant())
+            .flatMap(entry -> entry.getValue()
+                .stream()
+                .filter(subentry -> subentry.getKey().getOrdinal() <= 6)
+                .map(subentry -> Pair.of(subentry.getKey().getKey(), subentry.getValue().getTotal()))
+            )
+            .collect(Concurrent.toLinkedMap(Double::sum))
+            .stream()
+            .map(entry -> Pair.of((String)entry.getKey(), entry.getValue()))
+            .forEach(statEntry -> stats.put(statEntry.getKey(), stats.getOrDefault(statEntry.getKey(), 0.0) + statEntry.getValue()))
+        );
+
+        solution.getAvailableItems()
+            .stream()
+            .map(ItemEntity::getReforgeFact)
+            .forEach(reforgeFact -> reforgeFact.getEffects()
+                .stream()
+                .filter(entry -> stats.containsKey(entry.getKey()))
+                .forEach(entry -> stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0) + entry.getValue()))
+            );
+
+        stats.forEach(statEntry -> System.out.println("Calculated: " + statEntry.getKey() + ": " + statEntry.getValue()));
+    }
+
     public static double getArmorBonus(OptimizerRequest optimizerRequest) {
         return optimizerRequest.getPlayerStats()
             .getArmor()
@@ -52,25 +113,6 @@ public abstract class OptimizerHelper {
                     bonusItemStatModel
                 ))
             )
-            .sum();
-    }
-
-    public static double getPetAbilityDamage(OptimizerRequest optimizerRequest) {
-        return optimizerRequest.getPlayerStats()
-            .getBonusPetAbilityStatModels()
-            .stream()
-            .filter(BonusPetAbilityStatModel::notPercentage)
-            .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredItem() ||
-                (optimizerRequest.getWeapon().isPresent() && optimizerRequest.getWeapon().get().getItem().equals(bonusPetAbilityStatModel.getRequiredItem()))
-            )
-            .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredMobType() || bonusPetAbilityStatModel.getRequiredMobType().equals(optimizerRequest.getMobType()))
-            .mapToDouble(bonusPetAbilityStatModel -> PlayerDataHelper.handleBonusEffects(
-                DAMAGE_STAT_MODEL,
-                0.0,
-                null,
-                optimizerRequest.getExpressionVariables(),
-                bonusPetAbilityStatModel
-            ))
             .sum();
     }
 
