@@ -15,14 +15,10 @@ public final class DamagePerHitCalculator extends Calculator<DamagePerHitItemEnt
         Map<String, Double> computedStats = solution.getComputedStats();
         double strSum = this.getReforgeSum(solution, "STRENGTH") + computedStats.get("STRENGTH");
         double cdSum = this.getReforgeSum(solution, "CRITICAL_DAMAGE") + computedStats.get("CRITICAL_DAMAGE");
-
-        // Melee Damage
-        double meleeDamage = optimizerRequest.getPlayerDamage() +
-            optimizerRequest.getWeaponDamage() +
-            optimizerRequest.getPetAbilityDamage() +
-            this.getReforgeSum(solution, "DAMAGE");
-
-        double intermediateValue = (100 + strSum) * (100 + cdSum) * meleeDamage;
+        double dmgSum = this.getReforgeSum(solution, "DAMAGE");
+        double playerDamage = optimizerRequest.getPlayerDamage();
+        double weaponDamage = optimizerRequest.getWeaponDamage();
+        double intermediateValue = (100 + strSum) * (100 + cdSum) * (playerDamage + weaponDamage + dmgSum);
         return SimpleBigDecimalScore.of(BigDecimal.valueOf(intermediateValue));
     }
 

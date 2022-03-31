@@ -18,15 +18,12 @@ public final class DamagePerSecondCalculator extends Calculator<DamagePerSecondI
         double ferSum = this.getReforgeSum(solution, "FEROCITY") + computedStats.get("FEROCITY");
         double cdSum = this.getReforgeSum(solution, "CRITICAL_DAMAGE") + computedStats.get("CRITICAL_DAMAGE");
         double ccSum = Math.min(this.getReforgeSum(solution, "CRIT_CHANCE") + computedStats.get("CRIT_CHANCE"), 100);
-
-        // Melee Damage
-        double meleeDamage = optimizerRequest.getPlayerDamage() +
-            optimizerRequest.getWeaponDamage() +
-            optimizerRequest.getPetAbilityDamage() +
-            this.getReforgeSum(solution, "DAMAGE");
+        double dmgSum = this.getReforgeSum(solution, "DAMAGE");
+        double playerDamage = optimizerRequest.getPlayerDamage();
+        double weaponDamage = optimizerRequest.getWeaponDamage();
 
         double intermediateValue = (100 + strSum) * (100 + ccSum) * (100 + asSum) * (100 + ferSum) * (100 + cdSum)
-                - (100 + strSum) * (100 + ccSum) * (100 + asSum) * (100 + ferSum) * 100 * meleeDamage;
+                - (100 + strSum) * (100 + ccSum) * (100 + asSum) * (100 + ferSum) * 100 * (playerDamage + weaponDamage + dmgSum);
 
         return SimpleBigDecimalScore.of(BigDecimal.valueOf(intermediateValue));
     }
