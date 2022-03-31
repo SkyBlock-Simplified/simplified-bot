@@ -9,6 +9,7 @@ import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
 import org.optaplanner.core.api.domain.solution.PlanningScore;
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
@@ -49,7 +50,7 @@ public class DamagePerSecondSolution extends Solution<DamagePerSecondItemEntity>
     }
 
     @Override
-    protected DamagePerSecondItemEntity createItemEntity(ReforgeTypeModel reforgeTypeModel, ObjectData<?> objectData, ConcurrentList<ReforgeFact> optimalReforges) {
+    protected @NotNull DamagePerSecondItemEntity createItemEntity(@NotNull ReforgeTypeModel reforgeTypeModel, @NotNull ObjectData<?> objectData, @NotNull ConcurrentList<ReforgeFact> optimalReforges) {
         return new DamagePerSecondItemEntity(
             reforgeTypeModel,
             objectData,
