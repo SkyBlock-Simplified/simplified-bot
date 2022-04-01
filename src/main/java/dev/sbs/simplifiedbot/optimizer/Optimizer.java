@@ -41,8 +41,8 @@ public final class Optimizer extends OptimizerHelper {
             // Damage Multiplier
             double combatBonus = optimizerRequest.getPlayerStats().getDamageMultiplier();
             double enchantBonus = getEnchantBonus(optimizerRequest);
-            double weaponBonus = 0.0;
-            double damageMultiplier = 1.0 + (combatBonus + enchantBonus + weaponBonus);
+            double abilityBonus = 0.0;
+            double damageMultiplier = 1.0 + (combatBonus + enchantBonus + abilityBonus);
 
             // Final Damage
             double armorBonus = getArmorBonus(optimizerRequest);
@@ -50,12 +50,12 @@ public final class Optimizer extends OptimizerHelper {
             double bonusDamage = damageMultiplier * (1.0 + armorBonus + petBonus);
             double finalDamage = score * bonusDamage / 10_000.0;
 
-            // hyperion - 428,221 / 425489.50 / 99.36%
-            // midas - 483,179 / 469,698.45 / 97.21%
-            // aotd - 208,955 / 206,992.69 / 99.06%
-            // aotv - 228,802 / 226,406.65 / 98.95%
-            // atomsplit (ofa) - 3,033,099 /
-            // atomsplit - 1,982,977 /
+            // hyperion -
+            // midas -
+            // aotd -
+            // aotv -
+            // atomsplit -
+            // atomsplit (ofa) -
 
             debugRequest(solution, optimizerRequest);
 

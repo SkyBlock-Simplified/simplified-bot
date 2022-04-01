@@ -41,7 +41,7 @@ public class OptimizerTest {
     private static final String profileName = "PINEAPPLE";
     private static final String playerName = "CraftedFury"; // CraftedFury TheNewJavaman AspectOfTheUwU
     private static final String mobType = "ENDERMAN";
-    private static final String weapon = "MIDAS_SWORD"; // HYPERION, ASPECT_OF_THE_DRAGON, MIDAS_SWORD, ASPECT_OF_THE_VOID
+    private static final String weapon = "ATOMSPLIT_KATANA"; // HYPERION, ASPECT_OF_THE_DRAGON, MIDAS_SWORD, ASPECT_OF_THE_VOID, ATOMSPLIT_KATANA
 
     private OptimizerRequest buildRequest(OptimizerRequest.Type type) {
         return OptimizerRequest.of(playerName)
@@ -59,7 +59,7 @@ public class OptimizerTest {
         OptimizerRequest request = this.buildRequest(OptimizerRequest.Type.DAMAGE_PER_HIT);
         OptimizerResponse response = Optimizer.solve(request);
         System.out.println("Final damage: " + response.getFinalDamage());
-        System.out.println("Time spent: " + response.getDuration().toString());
+        System.out.println("Time spent: " + response.getDuration().toMillis() + "ms");
         response.getReforgeCount().forEach((reforge, value) -> System.out.println(reforge.getReforge().getType().getName() + " " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
     }
 
@@ -69,6 +69,7 @@ public class OptimizerTest {
         OptimizerRequest request = this.buildRequest(OptimizerRequest.Type.DAMAGE_PER_SECOND);
         OptimizerResponse response = Optimizer.solveDamagePerSecond(request);
         System.out.println("Final damage: " + response.getFinalDamage());
+        System.out.println("Time spent: " + response.getDuration().toMillis() + "ms");
         response.getReforgeCount().forEach((reforge, value) -> System.out.println(reforge.getReforge().getType().getName() + " " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
     }
 
