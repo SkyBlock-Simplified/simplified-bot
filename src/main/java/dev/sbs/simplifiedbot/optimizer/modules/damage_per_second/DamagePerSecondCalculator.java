@@ -21,9 +21,10 @@ public final class DamagePerSecondCalculator extends Calculator<DamagePerSecondI
         double dmgSum = this.getReforgeSum(solution, "DAMAGE");
         double playerDamage = optimizerRequest.getPlayerDamage();
         double weaponDamage = optimizerRequest.getWeaponDamage();
+        double weaponBonus = 1.0 + optimizerRequest.getWeaponBonus();
 
         double intermediateValue = (100 + strSum) * (100 + ccSum) * (100 + asSum) * (100 + ferSum) * (100 + cdSum)
-                - (100 + strSum) * (100 + ccSum) * (100 + asSum) * (100 + ferSum) * 100 * (playerDamage + weaponDamage + dmgSum);
+                - (100 + strSum) * (100 + ccSum) * (100 + asSum) * (100 + ferSum) * 100 * ((playerDamage + weaponDamage + dmgSum) * weaponBonus);
 
         return SimpleBigDecimalScore.of(BigDecimal.valueOf(intermediateValue));
     }

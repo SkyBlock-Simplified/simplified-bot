@@ -18,7 +18,8 @@ public final class DamagePerHitCalculator extends Calculator<DamagePerHitItemEnt
         double dmgSum = this.getReforgeSum(solution, "DAMAGE");
         double playerDamage = optimizerRequest.getPlayerDamage();
         double weaponDamage = optimizerRequest.getWeaponDamage();
-        double intermediateValue = (100 + strSum) * (100 + cdSum) * (playerDamage + weaponDamage + dmgSum);
+        double weaponBonus = 1.0 + optimizerRequest.getWeaponBonus();
+        double intermediateValue = (100 + strSum) * (100 + cdSum) * ((playerDamage + weaponDamage + dmgSum) * weaponBonus);
         return SimpleBigDecimalScore.of(BigDecimal.valueOf(intermediateValue));
     }
 

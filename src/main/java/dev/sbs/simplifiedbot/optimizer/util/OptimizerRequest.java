@@ -43,6 +43,7 @@ public final class OptimizerRequest {
     @Getter private final OptimizerMobTypeModel mobType;
     @Getter private final double playerDamage;
     @Getter private final double weaponDamage;
+    @Getter private final double weaponBonus;
 
     private OptimizerRequest(OptimizerRequestBuilder optimizerRequestBuilder) {
         SkyBlockIsland island = optimizerRequestBuilder.skyBlockProfilesResponse.getIslands().get(optimizerRequestBuilder.islandIndex);
@@ -97,6 +98,7 @@ public final class OptimizerRequest {
         this.weapon = optionalWeapon;
         this.playerDamage = this.getPlayerStats().getCombinedStats().get(OptimizerHelper.DAMAGE_STAT_MODEL).getTotal();
         this.weaponDamage = OptimizerHelper.getWeaponDamage(this);
+        this.weaponBonus = OptimizerHelper.getWeaponBonus(this);
     }
 
     public static OptimizerRequestBuilder of(String username) {

@@ -17,6 +17,7 @@ import dev.sbs.simplifiedbot.optimizer.modules.common.Calculator;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ItemEntity;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
+import org.jetbrains.annotations.NotNull;
 import org.optaplanner.core.api.solver.SolverManager;
 
 import java.util.Map;
@@ -29,7 +30,7 @@ public abstract class OptimizerHelper {
 
     public static final StatModel DAMAGE_STAT_MODEL = SimplifiedApi.getRepositoryOf(StatModel.class).findFirstOrNull(StatModel::getKey, "DAMAGE");
 
-    public static <I extends ItemEntity, S extends Solution<I>, C extends Calculator<I, S>> SolverManager<S, UUID> buildSolver(Class<I> itemEntityClass, Class<S> solutionClass, Class<C> calculatorClass) {
+    public static <I extends ItemEntity, S extends Solution<I>, C extends Calculator<I, S>> SolverManager<S, UUID> buildSolver(@NotNull Class<I> itemEntityClass, @NotNull Class<S> solutionClass, @NotNull Class<C> calculatorClass) {
         return OptimizerSolver.builder(itemEntityClass, solutionClass, calculatorClass)
             .withTerminationAfterSecondsUnimproved(3L)
             .withTerminationAfterSecondsSpent(10L)
@@ -37,7 +38,7 @@ public abstract class OptimizerHelper {
             .getManager();
     }
 
-    protected static void debugRequest(Solution<?> solution, OptimizerRequest optimizerRequest) {
+    protected static void debugRequest(@NotNull Solution<?> solution, @NotNull OptimizerRequest optimizerRequest) {
         // --- KNOWN PLAYER AND WEAPON STATS ---
         ConcurrentLinkedMap<String, Double> playerStats = optimizerRequest.getPlayerStats()
             .getCombinedStats()
@@ -96,15 +97,16 @@ public abstract class OptimizerHelper {
         stats.forEach(statEntry -> System.out.println("Calculated: " + statEntry.getKey() + ": " + statEntry.getValue()));
     }
 
-    public static double getArmorBonus(OptimizerRequest optimizerRequest) {
+    public static double getArmorBonus(@NotNull OptimizerRequest optimizerRequest) {
         return optimizerRequest.getPlayerStats()
             .getArmor()
             .stream()
             .flatMap(Optional::stream)
             .flatMapToDouble(armorData -> armorData
-                .getBonusItemStatModel()
+                .getBonusItemStatModels()
                 .stream()
                 .filter(BonusItemStatModel::isForStats)
+                .filter(bonusItemStatModel -> bonusItemStatModel.noRequiredMobType() || optimizerRequest.getMobType().equals(bonusItemStatModel.getRequiredMobType()))
                 .mapToDouble(bonusItemStatModel -> PlayerDataHelper.handleBonusEffects(
                     DAMAGE_STAT_MODEL,
                     armorData.getAllData(DAMAGE_STAT_MODEL).getTotal(),
@@ -116,7 +118,7 @@ public abstract class OptimizerHelper {
             .sum();
     }
 
-    public static double getPetAbilityBonus(OptimizerRequest optimizerRequest) {
+    public static double getPetAbilityBonus(@NotNull OptimizerRequest optimizerRequest) {
         return optimizerRequest.getPlayerStats()
             .getBonusPetAbilityStatModels()
             .stream()
@@ -135,7 +137,7 @@ public abstract class OptimizerHelper {
             .sum();
     }
 
-    public static double getEnchantBonus(OptimizerRequest optimizerRequest) {
+    public static double getEnchantBonus(@NotNull OptimizerRequest optimizerRequest) {
         double enchantBonus = optimizerRequest.getPlayerStats()
             .getArmor()
             .stream()
@@ -189,7 +191,7 @@ public abstract class OptimizerHelper {
         return enchantBonus;
     }
 
-    public static ConcurrentMap<ReforgeStatModel, Integer> getReforgeCount(Solution<?> solution) {
+    public static ConcurrentMap<ReforgeStatModel, Integer> getReforgeCount(@NotNull Solution<?> solution) {
         return solution.getAvailableItems()
             .stream()
             .map(ItemEntity::getReforgeFact)
@@ -201,7 +203,25 @@ public abstract class OptimizerHelper {
             .collect(Concurrent.toMap(Map.Entry::getKey, it -> it.getValue().size()));
     }
 
-    public static double getWeaponDamage(OptimizerRequest optimizerRequest) {
+    public static double getWeaponBonus(@NotNull OptimizerRequest optimizerRequest) {
+        return optimizerRequest.getWeapon()
+            .stream()
+            .flatMapToDouble(weaponData -> weaponData.getBonusItemStatModels()
+                .stream()
+                .filter(BonusItemStatModel::hasRequiredMobType)
+                .filter(bonusItemStatModel -> optimizerRequest.getMobType().equals(bonusItemStatModel.getRequiredMobType()))
+                .mapToDouble(bonusItemStatModel -> PlayerDataHelper.handleBonusEffects(
+                    DAMAGE_STAT_MODEL,
+                    1.0,
+                    weaponData.getCompoundTag(),
+                    optimizerRequest.getExpressionVariables(),
+                    bonusItemStatModel
+                ))
+            )
+            .sum();
+    }
+
+    public static double getWeaponDamage(@NotNull OptimizerRequest optimizerRequest) {
         return optimizerRequest.getWeapon()
             .stream()
             .flatMap(weaponData -> weaponData.getStats().stream())
