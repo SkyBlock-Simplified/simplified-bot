@@ -197,25 +197,27 @@ public abstract class Solution<T extends ItemEntity> {
                     }
 
                     // Handle Bonus Item Effects
-                    if (objectData.getBonusItemStatModel().isPresent()) {
-                        BonusItemStatModel bonusItemStatModel = objectData.getBonusItemStatModel().get();
+                    if (ListUtil.notEmpty(objectData.getBonusItemStatModels())) {
+                        for (BonusItemStatModel bonusItemStatModel : objectData.getBonusItemStatModels()) {
+                            if (bonusItemStatModel.noRequiredMobType() || this.getOptimizerRequest().getMobType().equals(bonusItemStatModel.getRequiredMobType())) {
+                                if (bonusItemStatModel.isForReforges()) {
+                                    thisStat = PlayerDataHelper.handleBonusEffects(
+                                        statModel,
+                                        thisStat,
+                                        objectData.getCompoundTag(),
+                                        this.getOptimizerRequest().getExpressionVariables(),
+                                        bonusItemStatModel
+                                    );
 
-                        if (bonusItemStatModel.isForReforges()) {
-                            thisStat = PlayerDataHelper.handleBonusEffects(
-                                statModel,
-                                thisStat,
-                                objectData.getCompoundTag(),
-                                this.getOptimizerRequest().getExpressionVariables(),
-                                bonusItemStatModel
-                            );
-
-                            thatStat = PlayerDataHelper.handleBonusEffects(
-                                statModel,
-                                thatStat,
-                                objectData.getCompoundTag(),
-                                this.getOptimizerRequest().getExpressionVariables(),
-                                bonusItemStatModel
-                            );
+                                    thatStat = PlayerDataHelper.handleBonusEffects(
+                                        statModel,
+                                        thatStat,
+                                        objectData.getCompoundTag(),
+                                        this.getOptimizerRequest().getExpressionVariables(),
+                                        bonusItemStatModel
+                                    );
+                                }
+                            }
                         }
                     }
 
@@ -273,9 +275,11 @@ public abstract class Solution<T extends ItemEntity> {
                     )));
 
                 // Handle Bonus Item Effects
-                objectData.getBonusItemStatModel()
+                objectData.getBonusItemStatModels()
+                    .stream()
                     .filter(BonusItemStatModel::isForReforges)
-                    .ifPresent(bonusItemStatModel -> this.getImportantStats().forEach(statModel -> effects.put(
+                    .filter(bonusItemStatModel -> bonusItemStatModel.noRequiredMobType() || optimizerRequest.getMobType().equals(bonusItemStatModel.getRequiredMobType()))
+                    .forEach(bonusItemStatModel -> this.getImportantStats().forEach(statModel -> effects.put(
                         statModel.getKey(),
                         PlayerDataHelper.handleBonusEffects(
                             statModel,
