@@ -50,12 +50,7 @@ public final class Optimizer extends OptimizerHelper {
             double bonusDamage = damageMultiplier * (1.0 + armorBonus + petBonus);
             double finalDamage = score * bonusDamage / 10_000.0;
 
-            // hyperion -
-            // midas -
-            // aotd -
-            // aotv -
-            // atomsplit -
-            // atomsplit (ofa) -
+            // daedalus - 305,325 /
 
             debugRequest(solution, optimizerRequest);
 
