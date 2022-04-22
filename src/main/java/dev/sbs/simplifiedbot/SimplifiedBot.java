@@ -116,19 +116,20 @@ public final class SimplifiedBot extends DiscordBot {
 
     @Override
     protected void onDatabaseConnected() {
-        // Schedule SkyBlock Emoji Cache Updates
-        this.getScheduler().scheduleAsync(
-            () -> this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockData.class).getEmojis(),
-            0,
-            10,
-            TimeUnit.MINUTES
-        );
-
-        // Update Item Cache
+        // Update Caches
+        this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockData.class).getEmojis();
         this.itemCache = new ItemCache();
         this.getItemCache().getAuctionHouse().update();
         this.getItemCache().getBazaar().update();
         this.getItemCache().getEndedAuctions().update();
+
+        // Schedule SkyBlock Emoji Cache Updates
+        this.getScheduler().scheduleAsync(
+            () -> this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockData.class).getEmojis(),
+            10,
+            10,
+            TimeUnit.MINUTES
+        );
 
         // Schedule Item Cache Updates
         this.getScheduler().scheduleAsync(() -> {
