@@ -77,7 +77,7 @@ public class DevTestCommand extends Command {
                             ActionRow.of(
                                 SelectMenu.builder()
                                     .withPlaceholder("Derpy menu")
-                                    .placeholderUsesSelectedOption()
+                                    .withPlaceholderUsesSelectedOption()
                                     .withOptions(
                                         SelectMenu.Option.builder()
                                             .withLabel("Neigh")
