@@ -40,7 +40,8 @@ public class MissingCommand extends SkyBlockUserCommand {
 
         ConcurrentList<PageItem> missingAccessories = allAccessories.stream()
             .filter(AccessoryModel::isAttainable)
-            .filter(accessoryModel -> playerStats.getAccessories()
+            .filter(accessoryModel -> playerStats.getAccessoryBag()
+                .getAccessories()
                 .stream()
                 .noneMatch(accessoryData -> accessoryData.getAccessory().equals(accessoryModel))
             )
@@ -48,7 +49,8 @@ public class MissingCommand extends SkyBlockUserCommand {
                 if (Objects.isNull(accessoryModel.getFamily()))
                     return true;
 
-                return playerStats.getAccessories()
+                return playerStats.getAccessoryBag()
+                    .getAccessories()
                     .stream()
                     .map(AccessoryData::getAccessory)
                     .filter(playerAccessoryModel -> Objects.nonNull(playerAccessoryModel.getFamily()))
@@ -66,6 +68,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     .allMatch(compareAccessoryModel -> accessoryModel.getFamilyRank() >= compareAccessoryModel.getFamilyRank());
             })
             .map(accessoryModel -> PageItem.builder()
+                // TODO: Accessory Icon
                 .withValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
@@ -73,9 +76,10 @@ public class MissingCommand extends SkyBlockUserCommand {
             .collect(Concurrent.toList())
             .sort(pageItem -> pageItem.getOption().getLabel());
 
-        ConcurrentList<PageItem> unwantedAccessories = playerStats.getAccessories()
+        ConcurrentList<PageItem> unwantedAccessories = playerStats.getAccessoryBag()
+            .getAccessories()
             .stream()
-            .filter(accessoryData -> !playerStats.getFilteredAccessories().contains(accessoryData))
+            .filter(accessoryData -> !playerStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData))
             .map(AccessoryData::getAccessory)
             .map(accessoryModel -> PageItem.builder()
                 .withValue(accessoryModel.getItem().getItemId())
@@ -90,7 +94,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                 accessoryModel -> accessoryModel.getFamily().isReforgesStackable()
             )
             .stream()
-            .filter(accessoryModel -> !playerStats.getFilteredAccessories().contains(accessoryData -> accessoryData.getAccessory().equals(accessoryModel), true))
+            .filter(accessoryModel -> !playerStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData -> accessoryData.getAccessory().equals(accessoryModel), true))
             .collect(Concurrent.toList())
             .sort(accessoryModel -> accessoryModel.getFamily().getKey(), AccessoryModel::getFamilyRank)
             .stream()
@@ -101,18 +105,8 @@ public class MissingCommand extends SkyBlockUserCommand {
             )
             .collect(Concurrent.toList());
 
-        ConcurrentList<PageItem> missingReforges = playerStats.getFilteredAccessories()
-            .stream()
-            .filter(accessoryData -> accessoryData.getReforge().isEmpty())
-            .map(AccessoryData::getAccessory)
-            .map(accessoryModel -> PageItem.builder()
-                .withValue(accessoryModel.getItem().getItemId())
-                .withLabel(accessoryModel.getName())
-                .build()
-            )
-            .collect(Concurrent.toList());
-
-        ConcurrentList<PageItem> missingRecombobulators = playerStats.getFilteredAccessories()
+        ConcurrentList<PageItem> missingRecombobulators = playerStats.getAccessoryBag()
+            .getFilteredAccessories()
             .stream()
             .filter(ObjectData::notRecombobulated)
             .map(AccessoryData::getAccessory)
@@ -123,7 +117,8 @@ public class MissingCommand extends SkyBlockUserCommand {
             )
             .collect(Concurrent.toList());
 
-        ConcurrentList<PageItem> missingEnrichments = playerStats.getFilteredAccessories()
+        ConcurrentList<PageItem> missingEnrichments = playerStats.getAccessoryBag()
+            .getFilteredAccessories()
             .stream()
             .filter(AccessoryData::isMissingEnrichment)
             .map(AccessoryData::getAccessory)
@@ -185,22 +180,6 @@ public class MissingCommand extends SkyBlockUserCommand {
                         .withEmbeds(
                             getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "stackable", "Accessory Information")
                                 .withDescription(FormatUtil.format("You are missing {0} stackable accessories.", stackableAccessories.size()))
-                                .build()
-                        )
-                        .build(),
-                    Page.builder()
-                        .withItems(missingReforges)
-                        .withItemsPerPage(10)
-                        .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
-                        .withOption(
-                            SelectMenu.Option.builder()
-                                .withValue("reforges")
-                                .withLabel("Missing Reforges")
-                                .build()
-                        )
-                        .withEmbeds(
-                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "reforges", "Accessory Information")
-                                .withDescription(FormatUtil.format("You are missing reforges on {0} accessories.", missingReforges.size()))
                                 .build()
                         )
                         .build(),
