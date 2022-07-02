@@ -2,17 +2,22 @@ package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
+import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuction;
 import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
+import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.AccessoryData;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.accessory_enrichments.AccessoryEnrichmentModel;
 import dev.sbs.api.data.model.skyblock.collection_items.CollectionItemModel;
 import dev.sbs.api.data.model.skyblock.dungeon_classes.DungeonClassModel;
 import dev.sbs.api.data.model.skyblock.dungeons.DungeonModel;
+import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.minion_uniques.MinionUniqueModel;
 import dev.sbs.api.data.model.skyblock.pets.PetModel;
 import dev.sbs.api.data.model.skyblock.shop_profile_upgrades.ShopProfileUpgradeModel;
 import dev.sbs.api.data.model.skyblock.skills.SkillModel;
 import dev.sbs.api.data.model.skyblock.slayers.SlayerModel;
+import dev.sbs.api.minecraft.nbt.tags.collection.CompoundTag;
+import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
@@ -30,6 +35,7 @@ import dev.sbs.discordapi.response.component.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.PageItem;
+import dev.sbs.discordapi.util.DiscordDate;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
@@ -74,15 +80,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         SkyBlockIsland.Member member = skyBlockUser.getMember();
-        ConcurrentList<SkyBlockIsland.PetInfo> petInfos = member.getPets();
-        petInfos.sort((o1, o2) -> Comparator.comparing(SkyBlockIsland.PetInfo::getRarityOrdinal)
-            .thenComparingInt(SkyBlockIsland.PetInfo::getLevel)
-            .reversed()
-            .thenComparing(SkyBlockIsland.PetInfo::getName)
-            .compare(o1, o2)
-        );
-        ConcurrentList<SkyBlockIsland.Minion> minions = member.getMinions();
-        int uniqueMinions = minions.stream()
+        int uniqueMinions = member.getMinions()
+            .stream()
             .mapToInt(minion -> minion.getUnlocked().size())
             .sum();
 
@@ -336,7 +335,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withItems(
-                    petInfos.stream()
+                    member.getPets()
+                        .sorted((o1, o2) -> Comparator.comparing(SkyBlockIsland.PetInfo::getRarityOrdinal)
+                            .thenComparingInt(SkyBlockIsland.PetInfo::getLevel)
+                            .reversed()
+                            .thenComparing(SkyBlockIsland.PetInfo::getName)
+                            .compare(o1, o2)
+                        )
+                        .stream()
                         .map(petInfo -> PageItem.builder()
                             .withOption(
                                 SelectMenu.Option.builder()
@@ -389,7 +395,11 @@ public class PlayerCommand extends SkyBlockUserCommand {
                     skyBlockIsland.getPlayerStats(member)
                         .getAccessoryBag()
                         .getFilteredAccessories()
-                        .sort(accessoryData -> accessoryData.getRarity().getOrdinal(), accessoryData -> accessoryData.getAccessory().getName())
+                        .sorted((o1, o2) -> Comparator.comparing(AccessoryData::getRarity)
+                            .reversed()
+                            .thenComparing(accessoryData -> accessoryData.getAccessory().getName())
+                            .compare(o1, o2)
+                        )
                         .stream()
                         .map(accessoryData -> PageItem.builder()
                             .withOption(
@@ -429,7 +439,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .collect(Concurrent.toList())
                 )
                 .build(),
-            /*Page.builder()
+            Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
                 .withOption(
@@ -506,7 +516,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         )
                                         .map(SkyBlockAuction::getHighestBid)
                                         .collect(Concurrent.toList())
-                                        .sort()
+                                        .sorted()
                                         .getOrDefault(0, 0L)
                                 ))
                                 .build();
@@ -514,7 +524,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .collect(Concurrent.toList())
                 )
-                .build(),*/
+                .build(),
             Page.builder()
                 .withOption(
                     getOptionBuilder("jacobs_farming", requestingIdentifier)
