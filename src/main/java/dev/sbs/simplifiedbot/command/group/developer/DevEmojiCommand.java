@@ -34,7 +34,7 @@ public class DevEmojiCommand extends Command {
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         return Mono.fromRunnable(() -> SimplifiedApi.getRepositoryOf(GuildModel.class)
             .matchAll(GuildModel::isEmojiServer)
-            .sort(GuildModel::getId)
+            .sorted(GuildModel::getId)
             .forEach(guildModel -> this.getDiscordBot()
                 .getGateway()
                 .getGuildById(Snowflake.of(guildModel.getGuildId()))

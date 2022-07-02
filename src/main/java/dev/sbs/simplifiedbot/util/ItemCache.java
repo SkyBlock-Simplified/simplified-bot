@@ -60,7 +60,7 @@ public class ItemCache {
                                 .getValue()
                     ))
                     .collect(Concurrent.toList())
-                    .sort(endedAuction -> endedAuction.getTimestamp().getRealTime());
+                    .sorted(endedAuction -> endedAuction.getTimestamp().getRealTime());
 
                 // Calculate Recent Price
                 double totalPrice = IntStream.range(0, averageWith)
@@ -78,7 +78,7 @@ public class ItemCache {
                             .getValue()
                     ))
                     .collect(Concurrent.toList())
-                    .sort(activeAuction -> activeAuction.getEndsAt().getRealTime());
+                    .sorted(activeAuction -> activeAuction.getEndsAt().getRealTime());
 
                 // Calculate Current Price
                 double totalPrice = IntStream.range(0, averageWith)

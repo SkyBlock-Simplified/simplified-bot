@@ -74,7 +74,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                 .build()
             )
             .collect(Concurrent.toList())
-            .sort(pageItem -> pageItem.getOption().getLabel());
+            .sorted(pageItem -> pageItem.getOption().getLabel());
 
         ConcurrentList<PageItem> unwantedAccessories = playerStats.getAccessoryBag()
             .getAccessories()
@@ -96,7 +96,7 @@ public class MissingCommand extends SkyBlockUserCommand {
             .stream()
             .filter(accessoryModel -> !playerStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData -> accessoryData.getAccessory().equals(accessoryModel), true))
             .collect(Concurrent.toList())
-            .sort(accessoryModel -> accessoryModel.getFamily().getKey(), AccessoryModel::getFamilyRank)
+            .sorted(accessoryModel -> accessoryModel.getFamily().getKey(), AccessoryModel::getFamilyRank)
             .stream()
             .map(accessoryModel -> PageItem.builder()
                 .withValue(accessoryModel.getItem().getItemId())
