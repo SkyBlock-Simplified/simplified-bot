@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit;
 
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ObjectData;
-import dev.sbs.api.data.model.skyblock.reforge_types.ReforgeTypeModel;
+import dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.data.tuple.Pair;
@@ -46,13 +46,13 @@ public class DamagePerHitSolution extends Solution<DamagePerHitItemEntity> {
         // Generate Reforge Stats
         Pair<ConcurrentList<DamagePerHitItemEntity>, ConcurrentList<ReforgeFact>> availableContent = this.generateAvailableItems();
         this.availableItems = availableContent.getLeft();
-        this.allReforges =availableContent.getRight();
+        this.allReforges = availableContent.getRight();
     }
 
     @Override
-    protected @NotNull DamagePerHitItemEntity createItemEntity(@NotNull ReforgeTypeModel reforgeTypeModel, @NotNull ObjectData<?> objectData, @NotNull ConcurrentList<ReforgeFact> optimalReforges) {
+    protected @NotNull DamagePerHitItemEntity createItemEntity(@NotNull ItemTypeModel itemTypeModel, @NotNull ObjectData<?> objectData, @NotNull ConcurrentList<ReforgeFact> optimalReforges) {
         return new DamagePerHitItemEntity(
-            reforgeTypeModel,
+            itemTypeModel,
             objectData,
             optimalReforges
         );

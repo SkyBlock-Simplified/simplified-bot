@@ -9,8 +9,8 @@ import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.Play
 import dev.sbs.api.data.model.skyblock.bonus_item_stats.BonusItemStatModel;
 import dev.sbs.api.data.model.skyblock.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.bonus_reforge_stats.BonusReforgeStatModel;
+import dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel;
 import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
-import dev.sbs.api.data.model.skyblock.reforge_types.ReforgeTypeModel;
 import dev.sbs.api.data.model.skyblock.stats.StatModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
@@ -54,7 +54,7 @@ public abstract class Solution<T extends ItemEntity> {
         });
     }
 
-    protected abstract @NotNull T createItemEntity(@NotNull ReforgeTypeModel reforgeTypeModel, @NotNull ObjectData<?> objectData, @NotNull ConcurrentList<ReforgeFact> optimalReforges);
+    protected abstract @NotNull T createItemEntity(@NotNull ItemTypeModel reforgeTypeModel, @NotNull ObjectData<?> objectData, @NotNull ConcurrentList<ReforgeFact> optimalReforges);
 
     /**
      * Finds the applicable {@link ReforgeFact}s for each {@link ItemEntity}.
@@ -63,18 +63,16 @@ public abstract class Solution<T extends ItemEntity> {
      */
     protected @NotNull Pair<ConcurrentList<T>, ConcurrentList<ReforgeFact>> generateAvailableItems() {
         ConcurrentList<T> availableItems = Concurrent.newList();
-        ReforgeTypeModel accessoryReforgeTypeModel = SimplifiedApi.getRepositoryOf(ReforgeTypeModel.class).findFirstOrNull(ReforgeTypeModel::getKey, "ACCESSORY");
-        ReforgeTypeModel armorReforgeTypeModel = SimplifiedApi.getRepositoryOf(ReforgeTypeModel.class).findFirstOrNull(ReforgeTypeModel::getKey, "ARMOR");
-        ReforgeTypeModel swordReforgeTypeModel = SimplifiedApi.getRepositoryOf(ReforgeTypeModel.class).findFirstOrNull(ReforgeTypeModel::getKey, "SWORD");
 
         // Handle Accessories
-        this.getOptimizerRequest()
+        /*this.getOptimizerRequest()
             .getPlayerStats()
+            .getAccessoryBag()
             .getFilteredAccessories()
             .forEach(accessoryData -> availableItems.add(this.getOptimalReforges(
                 accessoryReforgeTypeModel,
                 accessoryData
-            )));
+            )));*/
 
         // Handle Armor
         this.getOptimizerRequest()
@@ -83,7 +81,7 @@ public abstract class Solution<T extends ItemEntity> {
             .stream()
             .flatMap(Optional::stream)
             .forEach(itemData -> availableItems.add(this.getOptimalReforges(
-                armorReforgeTypeModel,
+                itemData.getItem().getItemType(),
                 itemData
             )));
 
@@ -91,7 +89,7 @@ public abstract class Solution<T extends ItemEntity> {
         this.getOptimizerRequest()
             .getWeapon()
             .ifPresent(weaponData -> availableItems.add(this.getOptimalReforges(
-                swordReforgeTypeModel,
+                weaponData.getItem().getItemType(),
                 weaponData
             )));
 
@@ -122,7 +120,8 @@ public abstract class Solution<T extends ItemEntity> {
             .sum();
 
         // Accessory Stats
-        total += playerStats.getFilteredAccessories()
+        total += playerStats.getAccessoryBag()
+            .getFilteredAccessories()
             .stream()
             .mapToDouble(accessoryData -> getDataSum(accessoryData, statModel, AccessoryData.Type.values()))
             .sum();
@@ -141,11 +140,11 @@ public abstract class Solution<T extends ItemEntity> {
             .sum();
     }
 
-    private T getOptimalReforges(@NotNull ReforgeTypeModel reforgeTypeModel, @NotNull ObjectData<?> objectData) {
+    private T getOptimalReforges(@NotNull dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel itemTypeModel, @NotNull ObjectData<?> objectData) {
         // Filter by Rarity and Allowed Reforge Stones
         ConcurrentMap<ReforgeStatModel, Boolean> optimalReforges = this.getAllReforgeStatModels()
             .stream()
-            .filter(reforgeStatModel -> reforgeStatModel.getReforge().getType().equals(reforgeTypeModel))
+            .filter(reforgeStatModel -> reforgeStatModel.getReforge().getItemTypes().contains(itemTypeModel.getKey()))
             .filter(reforgeStatModel -> reforgeStatModel.getRarity().equals(objectData.getRarity()))
             .filter(reforgeStatModel -> this.getOptimizerRequest().getAllowedReforges().contains(reforgeStatModel))
             .filter(reforgeStatModel -> ListUtil.isEmpty(reforgeStatModel.getReforge().getConditions()) ||
@@ -252,7 +251,7 @@ public abstract class Solution<T extends ItemEntity> {
         }
 
         // Build Item Entity
-        return this.createItemEntity(reforgeTypeModel, objectData, optimalReforges
+        return this.createItemEntity(itemTypeModel, objectData, optimalReforges
             .stream()
             .filter(Map.Entry::getValue)
             .map(Map.Entry::getKey)

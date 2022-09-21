@@ -5,6 +5,7 @@ import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
+import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.util.DiscordConfig;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitSolution;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_second.DamagePerSecondSolution;
@@ -60,7 +61,7 @@ public class OptimizerTest {
         OptimizerResponse response = Optimizer.solve(request);
         System.out.println("Final damage: " + response.getFinalDamage());
         System.out.println("Time spent: " + response.getDuration().toMillis() + "ms");
-        response.getReforgeCount().forEach((reforge, value) -> System.out.println(reforge.getReforge().getType().getName() + " " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
+        response.getReforgeCount().forEach((reforge, value) -> System.out.println("[" + StringUtil.join(reforge.getReforge().getItemTypes(), ", ") + "] " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
     }
 
     @Test
@@ -70,7 +71,7 @@ public class OptimizerTest {
         OptimizerResponse response = Optimizer.solveDamagePerSecond(request);
         System.out.println("Final damage: " + response.getFinalDamage());
         System.out.println("Time spent: " + response.getDuration().toMillis() + "ms");
-        response.getReforgeCount().forEach((reforge, value) -> System.out.println(reforge.getReforge().getType().getName() + " " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
+        response.getReforgeCount().forEach((reforge, value) -> System.out.println("[" + StringUtil.join(reforge.getReforge().getItemTypes(), ", ") + "] " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
     }
 
     @Test

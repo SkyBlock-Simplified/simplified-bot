@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.optimizer.modules.damage_per_second;
 
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ObjectData;
-import dev.sbs.api.data.model.skyblock.reforge_types.ReforgeTypeModel;
+import dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ItemEntity;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import lombok.Getter;
@@ -24,7 +24,7 @@ public final class DamagePerSecondItemEntity implements ItemEntity {
 
     @PlanningId
     @Getter private UUID uniqueId;
-    @Getter private ReforgeTypeModel type;
+    @Getter private ItemTypeModel type;
     @Getter private ObjectData<?> objectData;
 
     @Getter
@@ -44,7 +44,7 @@ public final class DamagePerSecondItemEntity implements ItemEntity {
 
     } // Optimizer Cloning
 
-    public DamagePerSecondItemEntity(ReforgeTypeModel type, ObjectData<?> objectData, List<ReforgeFact> availableReforges) {
+    public DamagePerSecondItemEntity(ItemTypeModel type, ObjectData<?> objectData, List<ReforgeFact> availableReforges) {
         this.uniqueId = UUID.randomUUID();
         this.type = type;
         this.objectData = objectData;

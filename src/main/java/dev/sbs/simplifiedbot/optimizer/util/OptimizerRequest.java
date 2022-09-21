@@ -180,8 +180,7 @@ public final class OptimizerRequest {
                     ItemModel::getItemId,
                     compoundTag.<StringTag>getPath("tag.ExtraAttributes.id").getValue()
                 ),
-                compoundTag,
-                "SWORD"
+                compoundTag
             );
             this.optimizerRequest = optimizerRequest;
 
