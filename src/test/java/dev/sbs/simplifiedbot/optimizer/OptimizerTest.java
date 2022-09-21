@@ -4,7 +4,7 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
-import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
+import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.util.DiscordConfig;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitSolution;
