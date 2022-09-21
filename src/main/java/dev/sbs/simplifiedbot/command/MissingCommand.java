@@ -39,7 +39,7 @@ public class MissingCommand extends SkyBlockUserCommand {
         ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).findAll();
 
         ConcurrentList<PageItem> missingAccessories = allAccessories.stream()
-            .filter(AccessoryModel::isAttainable)
+            .filter(accessoryModel -> accessoryModel.getItem().isObtainable())
             .filter(accessoryModel -> playerStats.getAccessoryBag()
                 .getAccessories()
                 .stream()
@@ -62,7 +62,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     return true;
 
                 return allAccessories.stream()
-                    .filter(AccessoryModel::isAttainable)
+                    .filter(compareAccessoryModel -> compareAccessoryModel.getItem().isObtainable())
                     .filter(compareAccessoryModel -> Objects.nonNull(compareAccessoryModel.getFamily()))
                     .filter(compareAccessoryModel -> compareAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
                     .allMatch(compareAccessoryModel -> accessoryModel.getFamilyRank() >= compareAccessoryModel.getFamilyRank());
