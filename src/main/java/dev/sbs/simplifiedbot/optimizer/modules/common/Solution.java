@@ -81,7 +81,7 @@ public abstract class Solution<T extends ItemEntity> {
             .stream()
             .flatMap(Optional::stream)
             .forEach(itemData -> availableItems.add(this.getOptimalReforges(
-                itemData.getItem().getItemType(),
+                itemData.getItem().getType(),
                 itemData
             )));
 
@@ -89,7 +89,7 @@ public abstract class Solution<T extends ItemEntity> {
         this.getOptimizerRequest()
             .getWeapon()
             .ifPresent(weaponData -> availableItems.add(this.getOptimalReforges(
-                weaponData.getItem().getItemType(),
+                weaponData.getItem().getType(),
                 weaponData
             )));
 
