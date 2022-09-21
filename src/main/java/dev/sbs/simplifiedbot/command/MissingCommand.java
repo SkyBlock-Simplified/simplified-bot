@@ -4,7 +4,7 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.PlayerStats;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.AccessoryData;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ObjectData;
-import dev.sbs.api.data.model.skyblock.accessories.AccessoryModel;
+import dev.sbs.api.data.model.skyblock.accessory_data.accessories.AccessoryModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.search.function.SearchFunction;

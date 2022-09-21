@@ -10,10 +10,10 @@ import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.Play
 import dev.sbs.api.client.sbs.implementation.MojangData;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
-import dev.sbs.api.data.model.skyblock.bonus_pet_ability_stats.BonusPetAbilityStatModel;
+import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
-import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
+import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.minecraft.nbt.tags.collection.CompoundTag;
 import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
 import dev.sbs.api.util.SimplifiedException;

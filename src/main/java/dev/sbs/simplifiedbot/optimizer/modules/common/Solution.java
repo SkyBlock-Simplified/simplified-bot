@@ -6,11 +6,11 @@ import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.Acce
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ItemData;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ObjectData;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.PlayerDataHelper;
-import dev.sbs.api.data.model.skyblock.bonus_item_stats.BonusItemStatModel;
-import dev.sbs.api.data.model.skyblock.bonus_pet_ability_stats.BonusPetAbilityStatModel;
-import dev.sbs.api.data.model.skyblock.bonus_reforge_stats.BonusReforgeStatModel;
+import dev.sbs.api.data.model.skyblock.bonus_data.bonus_item_stats.BonusItemStatModel;
+import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
+import dev.sbs.api.data.model.skyblock.bonus_data.bonus_reforge_stats.BonusReforgeStatModel;
 import dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel;
-import dev.sbs.api.data.model.skyblock.reforge_stats.ReforgeStatModel;
+import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.data.model.skyblock.stats.StatModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
