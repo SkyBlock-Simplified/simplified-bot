@@ -90,7 +90,7 @@ public final class SkyBlockUser {
             optionalSkyBlockIsland = this.profiles.getIsland(profileModel);
         }
 
-        this.selectedIsland = optionalSkyBlockIsland.orElse(this.profiles.getLastPlayed(this.getMojangProfile().getUniqueId()));
+        this.selectedIsland = optionalSkyBlockIsland.orElse(this.profiles.getLastPlayed());
     }
 
     public ConcurrentList<SkyBlockIsland> getIslands() {
@@ -101,8 +101,8 @@ public final class SkyBlockUser {
         return this.profiles.getIsland(profileModel);
     }
 
-    public SkyBlockIsland getLastPlayed(UUID uniqueId) {
-        return this.profiles.getLastPlayed(uniqueId);
+    public SkyBlockIsland getLastPlayed() {
+        return this.profiles.getLastPlayed();
     }
 
     public SkyBlockIsland.Member getMember() {
