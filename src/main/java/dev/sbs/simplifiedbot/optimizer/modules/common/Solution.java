@@ -140,7 +140,7 @@ public abstract class Solution<T extends ItemEntity> {
             .sum();
     }
 
-    private T getOptimalReforges(@NotNull dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel itemTypeModel, @NotNull ObjectData<?> objectData) {
+    private T getOptimalReforges(@NotNull ItemTypeModel itemTypeModel, @NotNull ObjectData<?> objectData) {
         // Filter by Rarity and Allowed Reforge Stones
         ConcurrentMap<ReforgeStatModel, Boolean> optimalReforges = this.getAllReforgeStatModels()
             .stream()

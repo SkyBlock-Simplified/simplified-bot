@@ -4,6 +4,8 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.command.CommandContext;
+import dev.sbs.discordapi.response.menu.Menu;
+import dev.sbs.discordapi.response.menu.item.MenuItem;
 import dev.sbs.simplifiedbot.command.EmbedCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -21,6 +23,18 @@ public class EmbedCreateCommand extends Command {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
+        Menu.builder()
+            .withItems(
+                MenuItem.stringBuilder()
+                    .build()
+            )
+            .build();
+
+        // TODO: Add support to show Field somewhere else,
+        //  possibly by building an alternate MenuItem like
+        //  TitleMenuItem, HeaderMenuItem, FooterMenuItem, DescriptionMenuItem, etc.
+        //  The menu builder should accept those separately from .withItems
+
         return Mono.empty();
     }
 
