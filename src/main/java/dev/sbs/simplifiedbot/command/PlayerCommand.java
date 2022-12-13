@@ -237,15 +237,19 @@ public class PlayerCommand extends SkyBlockUserCommand {
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "weight", "Player Information")
                         .withDescription(
                             """
-                                {0}Total Weight: **{2}** (**{3}** with Overflow)
-                                {0}Total Skill Weight: **{4}** (**{5}** with Overflow)
-                                {0}Total Slayer Weight: **{6}** (**{7}** with Overflow)
-                                {0}Total Dungeon Weight: **{8}** (**{9}** with Overflow)
-                                {1}Total Dungeon Class Weight: **{10}** (**{11}** with Overflow)""",
+                                {0}Total Weight: **{2}** (**{3}** + **{4}**)
+                                {0}Total Skill Weight: **{5}** (**{6}** + **{7}**)
+                                {0}Total Slayer Weight: **{8}** (**{9}** + **{10}**)
+                                {0}Total Dungeon Weight: **{11}** (**{12}** + **{13}**)
+                                {1}Total Dungeon Class Weight: **{14}** (**{15}** + **{16}**)""",
                             emojiReplyStem,
                             emojiReplyEnd,
+                            totalWeight.getTotal(),
                             totalWeight.getValue(),
-                            totalWeight.getOverflow(),
+                            skillWeight.stream()
+                                .map(Map.Entry::getValue)
+                                .mapToDouble(SkyBlockIsland.Experience.Weight::getTotal)
+                                .sum(),
                             skillWeight.stream()
                                 .map(Map.Entry::getValue)
                                 .mapToDouble(SkyBlockIsland.Experience.Weight::getValue)
@@ -253,6 +257,10 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             skillWeight.stream()
                                 .map(Map.Entry::getValue)
                                 .mapToDouble(SkyBlockIsland.Experience.Weight::getOverflow)
+                                .sum(),
+                            slayerWeight.stream()
+                                .map(Map.Entry::getValue)
+                                .mapToDouble(SkyBlockIsland.Experience.Weight::getTotal)
                                 .sum(),
                             slayerWeight.stream()
                                 .map(Map.Entry::getValue)
@@ -264,11 +272,19 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .sum(),
                             dungeonWeight.stream()
                                 .map(Map.Entry::getValue)
+                                .mapToDouble(SkyBlockIsland.Experience.Weight::getTotal)
+                                .sum(),
+                            dungeonWeight.stream()
+                                .map(Map.Entry::getValue)
                                 .mapToDouble(SkyBlockIsland.Experience.Weight::getValue)
                                 .sum(),
                             dungeonWeight.stream()
                                 .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getOverflow)
+                                .mapToDouble(SkyBlockIsland.Experience.Weight::getValue)
+                                .sum(),
+                            dungeonClassWeight.stream()
+                                .map(Map.Entry::getValue)
+                                .mapToDouble(SkyBlockIsland.Experience.Weight::getTotal)
                                 .sum(),
                             dungeonClassWeight.stream()
                                 .map(Map.Entry::getValue)
