@@ -70,7 +70,7 @@ public class GuildCommand extends Command {
                     Page.builder()
                         .withEmbeds(
                             Embed.builder()
-                                .withTitle("**Command Error**")
+                                .withTitle("Command Error")
                                 .withDescription("Invalid guild's name: " + guildName)
                                 .withColor(Color.RED)
                                 .build()
@@ -83,8 +83,7 @@ public class GuildCommand extends Command {
 
         HypixelGuildResponse.Guild guild = hypixelGuildResponse.getGuild().get();
 
-        ConcurrentMap<HypixelPlayerResponse.Player, SkyBlockIsland> guildMembers = guild.getMembers()
-            .stream()
+        ConcurrentMap<HypixelPlayerResponse.Player, SkyBlockIsland> guildMembers = guild.getMembers().stream()
             .map(member -> Pair.of(
                 hypixelPlayerData.getPlayer(member.getUniqueId()).getPlayer(),
                 skyBlockData.getProfiles(member.getUniqueId()).getLastPlayed())
@@ -94,9 +93,14 @@ public class GuildCommand extends Command {
         ConcurrentMap<UUID, String> ignMap = guildMembers.keySet().stream()
             .map(key -> Pair.of(key.getUniqueId(), key.getDisplayName()))
             .collect(Concurrent.toMap());
+
         ConcurrentList<SkyBlockIsland.Member> guildMemberPlayers = guildMembers.keySet().stream()
             .map(hypixelPlayer -> guildMembers.get(hypixelPlayer).getMember(hypixelPlayer.getUniqueId()).orElseThrow())
             .collect(Concurrent.toList());
+
+        ConcurrentMap<SkyBlockIsland.Member, SkyBlockIsland.Experience.Weight> totalWeights = guildMemberPlayers.stream()
+            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getTotalWeight()))
+            .collect(Concurrent.toMap());
 
         String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
@@ -119,7 +123,7 @@ public class GuildCommand extends Command {
                     .build())
                 .withEmbeds(
                     Embed.builder()
-                        .withTitle("**" + guildName + "**")
+                        .withTitle(guildName)
                         .withDescription(FormatUtil.format("""
                             {0}
                             Tag: {1}
@@ -128,11 +132,11 @@ public class GuildCommand extends Command {
                             """,
                             guildDescription,
                             guildTag,
-                            guildMemberPlayers.stream().mapToInt(
-                                guildMember -> (int) guildMember.getTotalWeight().getTotal()
+                            (int) guildMemberPlayers.stream().mapToDouble(
+                                guildMember -> guildMember.getTotalWeight().getTotal()
                             ).sum() / guildMemberPlayers.size(),
-                            guildMemberPlayers.stream().mapToInt(
-                                guildMember -> (int) guildMember.getTotalWeight().getTotal() - (int) guildMember.getTotalWeight().getOverflow()
+                            (int) guildMemberPlayers.stream().mapToDouble(
+                                guildMember -> guildMember.getTotalWeight().getValue()
                             ).sum() / guildMemberPlayers.size(),
                             (long) guildMemberPlayers.stream().mapToDouble(
                                 guildMember -> guildMember.getPurse() //TODO: add networth query
@@ -264,10 +268,10 @@ public class GuildCommand extends Command {
                             Average Weight: **{0}** (Without Overflow: **{1}**)
                             """,
                             (int) (guildMemberPlayers.stream()
-                                .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getTotalWeight().getTotal()).sum()
+                                .mapToDouble(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal()).sum()
                                 / guildMemberPlayers.size()),
                             (int) (guildMemberPlayers.stream()
-                                .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getTotalWeight().getTotal() - guildMemberPlayer.getTotalWeight().getOverflow()).sum()
+                                .mapToDouble(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getValue()).sum()
                                 / guildMemberPlayers.size())
                             )
                         )
@@ -275,15 +279,15 @@ public class GuildCommand extends Command {
                 )
                 .withItems(
                     StreamUtil.mapWithIndex(
-                        guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getTotalWeight().getTotal()).stream(),
+                        guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal()).stream(),
                         (guildMemberPlayer, index, size) -> PageItem.builder()
                             .withValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                             .withLabel(FormatUtil.format(
                                 " #{0} `{1}` >  **{2} [{3}]**",
                                 index + 1,
                                 ignMap.get(guildMemberPlayer.getUniqueId()),
-                                (int) guildMemberPlayer.getTotalWeight().getTotal(),
-                                (int) guildMemberPlayer.getTotalWeight().getTotal() - guildMemberPlayer.getTotalWeight().getOverflow()
+                                (int) totalWeights.get(guildMemberPlayer).getTotal(),
+                                (int) totalWeights.get(guildMemberPlayer).getValue()
                             ))
                             .build()
                         )
