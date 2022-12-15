@@ -4,9 +4,8 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.implementation.HypixelPlayerData;
 import dev.sbs.api.client.hypixel.implementation.HypixelSkyBlockData;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
+import dev.sbs.api.client.hypixel.response.hypixel.HypixelPlayerResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
-import dev.sbs.api.client.sbs.implementation.MojangData;
-import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.Model;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_classes.DungeonClassModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
@@ -59,9 +58,9 @@ public class GuildCommand extends Command {
         ConcurrentList<SlayerModel> slayerModels = SimplifiedApi.getRepositoryOf(SlayerModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
         DungeonModel catacombs = SimplifiedApi.getRepositoryOf(DungeonModel.class).findFirstOrNull(DungeonModel::getKey, "CATACOMBS");
         ConcurrentList<DungeonClassModel> dungeonClassModels = SimplifiedApi.getRepositoryOf(DungeonClassModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
-        MojangData mojangData = SimplifiedApi.getWebApi(MojangData.class);
         HypixelSkyBlockData skyBlockData = SimplifiedApi.getWebApi(HypixelSkyBlockData.class);
         HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getWebApi(HypixelPlayerData.class).getGuildByName(guildName);
+        HypixelPlayerData hypixelPlayerData = SimplifiedApi.getWebApi(HypixelPlayerData.class);
 
         if (hypixelGuildResponse.getGuild().isEmpty()) {
             return commandContext.reply(
@@ -83,19 +82,19 @@ public class GuildCommand extends Command {
 
         HypixelGuildResponse.Guild guild = hypixelGuildResponse.getGuild().get();
 
-        ConcurrentMap<MojangProfileResponse, SkyBlockIsland> guildMembers = guild.getMembers()
+        ConcurrentMap<HypixelPlayerResponse.Player, SkyBlockIsland> guildMembers = guild.getMembers()
             .stream()
             .map(member -> Pair.of(
-                mojangData.getProfileFromUniqueId(member.getUniqueId()),
+                hypixelPlayerData.getPlayer(member.getUniqueId()).getPlayer(),
                 skyBlockData.getProfiles(member.getUniqueId()).getLastPlayed())
             )
             .collect(Concurrent.toMap());
 
         ConcurrentMap<UUID, String> ignMap = guildMembers.keySet().stream()
-            .map(key -> Pair.of(key.getUniqueId(), key.getUsername()))
+            .map(key -> Pair.of(key.getUniqueId(), key.getDisplayName()))
             .collect(Concurrent.toMap());
         ConcurrentList<SkyBlockIsland.Member> guildMemberPlayers = guildMembers.keySet().stream()
-            .map(mojangProfileResponse -> guildMembers.get(mojangProfileResponse).getMember(mojangProfileResponse.getUniqueId()).orElseThrow())
+            .map(hypixelPlayer -> guildMembers.get(hypixelPlayer).getMember(hypixelPlayer.getUniqueId()).orElseThrow())
             .collect(Concurrent.toList());
 
         String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
