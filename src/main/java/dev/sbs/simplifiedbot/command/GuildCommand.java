@@ -11,6 +11,7 @@ import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_classes.DungeonClass
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.api.data.model.skyblock.skills.SkillModel;
 import dev.sbs.api.data.model.skyblock.slayers.SlayerModel;
+import dev.sbs.api.minecraft.text.MinecraftChatFormatting;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
@@ -100,24 +101,9 @@ public class GuildCommand extends Command {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
 
-        Color tagColor;
-        if (guild.getTagColor() == null) {
-            tagColor = Color.YELLOW;
-        } else {
-            tagColor = guild.getTagColor().getColor();
-        }
-        String guildDescription;
-        if (guild.getDescription() == null) {
-            guildDescription = guildName + " doesn't have a description set.";
-        } else {
-            guildDescription = guild.getDescription();
-        }
-        String guildTag;
-        if (guild.getTag() == null) {
-            guildTag = "Tag was not found.";
-        } else {
-            guildTag = guild.getTag();
-        }
+        Color tagColor = guild.getTagColor().orElse(MinecraftChatFormatting.YELLOW).getColor();
+        String guildDescription = guild.getDescription().orElse(guildName + " doesn't have a description set.");
+        String guildTag = guild.getTag().orElse("Tag was not found.");
 
         Response response = Response.builder()
             .withReference(commandContext)
