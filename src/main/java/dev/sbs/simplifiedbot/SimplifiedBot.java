@@ -143,7 +143,7 @@ public final class SimplifiedBot extends DiscordBot {
                 EmojiSqlModel emojiSqlModel = new EmojiSqlModel();
                 emojiSqlModel.setGuild(guildEmoji.getKey());
                 emojiSqlModel.setEmojiId(guildEmoji.getRight().getId().asLong());
-                emojiSqlModel.setKey(guildEmoji.getRight().getName());
+                emojiSqlModel.setKey(guildEmoji.getRight().getName().replace(" ", "_").toUpperCase());
                 emojiSqlModel.setName(WordUtil.capitalizeFully(guildEmoji.getRight().getName().replace("_", " ")));
                 emojiSqlModel.setAnimated(guildEmoji.getRight().isAnimated());
                 emojiSqlModel.save();
