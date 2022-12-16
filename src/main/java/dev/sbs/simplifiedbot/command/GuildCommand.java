@@ -55,13 +55,8 @@ public class GuildCommand extends Command {
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
         String guildName = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow();
-        ConcurrentList<SkillModel> skillModels = SimplifiedApi.getRepositoryOf(SkillModel.class).findAll();
-        ConcurrentList<SlayerModel> slayerModels = SimplifiedApi.getRepositoryOf(SlayerModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
-        DungeonModel catacombs = SimplifiedApi.getRepositoryOf(DungeonModel.class).findFirstOrNull(DungeonModel::getKey, "CATACOMBS");
-        ConcurrentList<DungeonClassModel> dungeonClassModels = SimplifiedApi.getRepositoryOf(DungeonClassModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
-        HypixelSkyBlockData skyBlockData = SimplifiedApi.getWebApi(HypixelSkyBlockData.class);
+
         HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getWebApi(HypixelPlayerData.class).getGuildByName(guildName);
-        HypixelPlayerData hypixelPlayerData = SimplifiedApi.getWebApi(HypixelPlayerData.class);
 
         if (hypixelGuildResponse.getGuild().isEmpty()) {
             return commandContext.reply(
@@ -81,7 +76,13 @@ public class GuildCommand extends Command {
             );
         }
 
+        ConcurrentList<SkillModel> skillModels = SimplifiedApi.getRepositoryOf(SkillModel.class).findAll();
+        ConcurrentList<SlayerModel> slayerModels = SimplifiedApi.getRepositoryOf(SlayerModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
+        DungeonModel catacombs = SimplifiedApi.getRepositoryOf(DungeonModel.class).findFirstOrNull(DungeonModel::getKey, "CATACOMBS");
+        ConcurrentList<DungeonClassModel> dungeonClassModels = SimplifiedApi.getRepositoryOf(DungeonClassModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
+        HypixelSkyBlockData skyBlockData = SimplifiedApi.getWebApi(HypixelSkyBlockData.class);
         HypixelGuildResponse.Guild guild = hypixelGuildResponse.getGuild().get();
+        HypixelPlayerData hypixelPlayerData = SimplifiedApi.getWebApi(HypixelPlayerData.class);
 
         ConcurrentMap<HypixelPlayerResponse.Player, SkyBlockIsland> guildMembers = guild.getMembers().stream()
             .map(member -> Pair.of(
@@ -102,6 +103,10 @@ public class GuildCommand extends Command {
             .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getTotalWeight()))
             .collect(Concurrent.toMap());
 
+        ConcurrentMap<SkyBlockIsland.Member, Long> networths = guildMemberPlayers.stream()
+            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getPurse())) //TODO: networth query
+            .collect(Concurrent.toMap());
+
         String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
 
@@ -117,9 +122,10 @@ public class GuildCommand extends Command {
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(20)
                 .withOption(SelectMenu.Option.builder()
-                    .withLabel("General Information")
+                    .withLabel("General Information") //TODO: seperate into general info for each section: skills, slayers dungeons - also add minion slots to main page?
                     .withDescription("Guild Averages and Totals")
                     .withValue("General Information")
+                    .withEmoji(getEmoji("SKILLS"))
                     .build())
                 .withEmbeds(
                     Embed.builder()
@@ -139,7 +145,7 @@ public class GuildCommand extends Command {
                                 guildMember -> guildMember.getTotalWeight().getValue()
                             ).sum() / guildMemberPlayers.size(),
                             (long) guildMemberPlayers.stream().mapToDouble(
-                                guildMember -> guildMember.getPurse() //TODO: add networth query
+                                networths::get
                             ).sum() / guildMemberPlayers.size()
                             )
                         )
@@ -165,6 +171,7 @@ public class GuildCommand extends Command {
                             SelectMenu.Option.builder()
                                 .withLabel("**All Skills**")
                                 .withValue("All Skills")
+                                .withEmoji(getEmoji("SKILLS"))
                                 .build()
                         )
                         .build()
@@ -252,13 +259,13 @@ public class GuildCommand extends Command {
                 .build()
             )
             .withPages(Page.builder()
-                .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(20)
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Weight Leaderboard")
                     .withDescription("Guild Weight Leaderboard")
                     .withValue("Weight Leaderboard")
-                    //.withEmoji(Emoji.of())
+                    .withEmoji(Emoji.of("MUSCLE"))
                     .build())
                 .withEmbeds(
                     Embed.builder()
@@ -283,7 +290,7 @@ public class GuildCommand extends Command {
                         (guildMemberPlayer, index, size) -> PageItem.builder()
                             .withValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                             .withLabel(FormatUtil.format(
-                                " #{0} `{1}` >  **{2} [{3}]**",
+                                " #{0} `{1}` >  **{2} [{3}]**\n",
                                 index + 1,
                                 ignMap.get(guildMemberPlayer.getUniqueId()),
                                 (int) totalWeights.get(guildMemberPlayer).getTotal(),
@@ -302,7 +309,7 @@ public class GuildCommand extends Command {
                     .withLabel("Networth Leaderboard")
                     .withDescription("Guild Networth Leaderboard")
                     .withValue("Networth Leaderboard")
-                    //.withEmoji(Emoji.of())
+                    .withEmoji(getEmoji("TRADING_COIN"))
                     .build())
                 .withEmbeds(
                     Embed.builder()
@@ -313,16 +320,16 @@ public class GuildCommand extends Command {
                                 Total Networth: **{1}**
                             """,
                             (long) (guildMemberPlayers.stream()
-                            .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getPurse()).sum() //TODO: networth query
+                            .mapToDouble(networths::get).sum()
                             / guildMemberPlayers.size()),
                             (long) (guildMemberPlayers.stream()
-                                .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getPurse()).sum()))
+                                .mapToDouble(networths::get).sum()))
                         )
                         .build()
                 )
                 .withItems(
                 StreamUtil.mapWithIndex(
-                        guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getPurse()).stream(),
+                        guildMemberPlayers.sorted(SortOrder.DESCENDING, networths::get).stream(),
                         (guildMemberPlayer, index, size) -> PageItem.builder()
                             .withValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                             .withLabel(FormatUtil.format(
@@ -402,7 +409,7 @@ public class GuildCommand extends Command {
                                 """,
                                 slayerModel.getName(),
                                 df.format(guildMemberPlayers.stream()
-                                    .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getLevel()).sum() //TODO: check if slayer is null if isn't started?
+                                    .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getLevel()).sum()
                                     / guildMemberPlayers.size()),
                                 9
                                 )
