@@ -152,13 +152,10 @@ public class VerifyCommand extends Command {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            new Parameter(
-                "name",
-                "Minecraft Username or UUID",
-                Parameter.Type.WORD,
-                true,
-                (argument, commandContext) -> StringUtil.isUUID(argument) || PlayerCommand.MOJANG_NAME.matcher(argument).matches()
-            )
+            Parameter.builder("name", "Minecraft Username or UUID", Parameter.Type.WORD)
+                .withValidator((argument, commandContext) -> StringUtil.isUUID(argument) || PlayerCommand.MOJANG_NAME.matcher(argument).matches())
+                .isRequired()
+                .build()
         );
     }
 

@@ -31,17 +31,10 @@ public class DevDisableCommand extends Command {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            new Parameter(
-                "command",
-                "The command to disable.",
-                Parameter.Type.WORD,
-                true
-            ),
-            new Parameter(
-                "reason",
-                "The reason the command is being disabled.",
-                Parameter.Type.TEXT
-            )
+            Parameter.builder("command", "The command to disable.", Parameter.Type.WORD)
+                .isRequired()
+                .build(),
+            Parameter.builder("reason", "The reason the command is being disabled.", Parameter.Type.TEXT).build()
         );
     }
 

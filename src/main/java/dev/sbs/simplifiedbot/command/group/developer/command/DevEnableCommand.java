@@ -31,12 +31,9 @@ public class DevEnableCommand extends Command {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            new Parameter(
-                "command",
-                "The command to enable.",
-                Parameter.Type.WORD,
-                true
-            )
+            Parameter.builder("command", "The command to enable.", Parameter.Type.WORD)
+                .isRequired()
+                .build()
         );
     }
 

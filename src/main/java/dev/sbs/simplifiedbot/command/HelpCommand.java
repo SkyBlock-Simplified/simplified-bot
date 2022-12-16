@@ -141,12 +141,8 @@ public class HelpCommand extends Command {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            new Parameter(
-                "command",
-                "The command you want help with.",
-                Parameter.Type.WORD,
-                false
-            )
+            Parameter.builder("command", "The command you want help with.", Parameter.Type.WORD)
+                .build()
         );
     }
 
