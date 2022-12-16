@@ -1,8 +1,11 @@
 package dev.sbs.simplifiedbot.command.group.developer;
 
+import dev.sbs.api.util.collection.concurrent.Concurrent;
+import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.command.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -111,6 +114,14 @@ public class DevTestCommand extends Command {
                 )
                 .build()
             );
+    }
+
+    @Override
+    public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
+        return Concurrent.newUnmodifiableList(
+            Parameter.builder("test2", "test parameter", Parameter.Type.WORD)
+                .build()
+        );
     }
 
 }
