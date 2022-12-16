@@ -180,7 +180,7 @@ public class GuildCommand extends Command {
                             emojiReplyStem,
                             emojiReplyEnd,
                             df.format(guildMemberPlayers.stream()
-                                .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average()),
+                                .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
                             guildMemberPlayers.stream()
                                 .mapToLong(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().mapToLong(skill -> (long) skill.getExperience()).sum()).sum()
                         ))
@@ -241,7 +241,7 @@ public class GuildCommand extends Command {
                             emojiReplyStem,
                             emojiReplyEnd,
                             df.format(guildMemberPlayers.stream()
-                                .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average()),
+                                .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
                             guildMemberPlayers.stream()
                                 .mapToLong(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().mapToLong(skill -> (long) skill.getExperience()).sum()).sum()
                         ))
@@ -268,7 +268,7 @@ public class GuildCommand extends Command {
                             emojiReplyEnd,
                             df.format(guildMemberPlayers.stream()
                                 .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
-                                    .findFirst().orElseThrow().getLevel()).average()),
+                                    .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
                             (long) guildMemberPlayers.stream()
                                 .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
                                     .findFirst().orElseThrow().getExperience()).sum()
@@ -329,7 +329,7 @@ public class GuildCommand extends Command {
                             emojiReplyStem,
                             emojiReplyEnd,
                             df.format(guildMemberPlayers.stream()
-                                .mapToDouble(member -> member.getSlayer(slayerModel).getLevel()).average()),
+                                .mapToDouble(member -> member.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
                             (long) guildMemberPlayers.stream()
                                 .mapToDouble(member -> member.getSlayer(slayerModel).getExperience()).sum()
                             )
@@ -386,7 +386,7 @@ public class GuildCommand extends Command {
                         emojiReplyStem,
                         emojiReplyEnd,
                         df.format(guildMemberPlayers.stream()
-                            .mapToDouble(member -> member.getDungeons().getDungeon(catacombs).getLevel()).average()),
+                            .mapToDouble(member -> member.getDungeons().getDungeon(catacombs).getLevel()).average().orElseThrow()),
                         (long) guildMemberPlayers.stream()
                             .mapToDouble(member -> member.getDungeons().getDungeon(catacombs).getExperience()).sum()
                         )
@@ -411,7 +411,7 @@ public class GuildCommand extends Command {
                             emojiReplyStem,
                             emojiReplyEnd,
                             df.format(guildMemberPlayers.stream()
-                                .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getLevel()).average()),
+                                .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getLevel()).average().orElseThrow()),
                             (long) guildMemberPlayers.stream()
                                 .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getExperience()).sum()
                             )
@@ -536,7 +536,7 @@ public class GuildCommand extends Command {
                                 skillModel.getName(),
                                 df.format(guildMemberPlayers.stream()
                                     .mapToDouble(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().filter(skill -> skill.getType().equals(skillModel))
-                                        .findFirst().orElseThrow().getLevel()).average()),
+                                        .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
                                 skillModel.getMaxLevel()
                                 )
                             )
@@ -583,7 +583,7 @@ public class GuildCommand extends Command {
                                 """,
                                 slayerModel.getName(),
                                 df.format(guildMemberPlayers.stream()
-                                    .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getLevel()).average()),
+                                    .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
                                 9
                                 )
                             )
@@ -626,7 +626,7 @@ public class GuildCommand extends Command {
                             Catacombs Average: **{0}** / 50
                             """,
                             df.format(guildMemberPlayers.stream()
-                                .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()).average())
+                                .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()).average().orElseThrow())
                             )
                         )
                         .build()
@@ -668,7 +668,7 @@ public class GuildCommand extends Command {
                                 """,
                                 classModel.getName(),
                                 df.format(guildMemberPlayers.stream()
-                                    .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getLevel()).average()),
+                                    .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getLevel()).average().orElseThrow()),
                                 50
                                 )
                             )
