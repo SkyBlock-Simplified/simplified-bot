@@ -7,6 +7,7 @@ import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.api.util.helper.WordUtil;
@@ -52,20 +53,19 @@ public abstract class SkyBlockUserCommand extends Command {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            new Parameter(
-                "name",
-                "Minecraft Username or UUID",
-                Parameter.Type.WORD,
-                false,
-                (argument, commandContext) -> StringUtil.isUUID(argument) || MOJANG_NAME.matcher(argument).matches()
-            ),
-            new Parameter(
-                "profile",
-                "SkyBlock Profile Name",
-                Parameter.Type.WORD,
-                false,
-                (argument, commandContext) -> SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent()
-            )
+            Parameter.builder("name", "Minecraft Username or UUID", Parameter.Type.WORD)
+                .withValidator((argument, commandContext) -> StringUtil.isUUID(argument) || MOJANG_NAME.matcher(argument).matches())
+                .build(),
+            Parameter.builder("profile", "SkyBlock Profile Name", Parameter.Type.WORD)
+                .withValidator((argument, commandContext) -> SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent())
+                .withChoices(
+                    SimplifiedApi.getRepositoryOf(ProfileModel.class)
+                        .findAll()
+                        .stream()
+                        .map(profileModel -> Pair.of(profileModel.getName(), profileModel.getKey()))
+                        .collect(Concurrent.toMap())
+                )
+                .build()
         );
     }
 
