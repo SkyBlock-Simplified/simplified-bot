@@ -75,8 +75,9 @@ public class PlayerCommand extends SkyBlockUserCommand {
     }
 
     public static @NotNull ConcurrentList<Page> buildPages(@NotNull SkyBlockUser skyBlockUser, @NotNull String requestingIdentifier) {
-        String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
-        String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
+        String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyLine = getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asPreSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         SkyBlockIsland.Member member = skyBlockUser.getMember();
@@ -246,6 +247,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             emojiReplyEnd,
                             totalWeight.getTotal(),
                             totalWeight.getValue(),
+                            totalWeight.getOverflow(),
                             skillWeight.stream()
                                 .map(Map.Entry::getValue)
                                 .mapToDouble(SkyBlockIsland.Experience.Weight::getTotal)
@@ -379,11 +381,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             )
                             .withData(FormatUtil.format(
                                 """
-                                    {0}Level: **{2}** / **{3}**
-                                    {0}Experience: **{4}**
-                                    {1}Progress: **{5}%**
+                                    {0}Level: **{3}** / **{4}**
+                                    {0}Experience:
+                                    {1}**{5}**
+                                    {2}Progress: **{6}%**
                                     """,
                                 emojiReplyStem,
+                                emojiReplyLine,
                                 emojiReplyEnd,
                                 petInfo.getLevel(),
                                 petInfo.getMaxLevel(),
@@ -444,11 +448,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 getEmoji(accessoryData.isRecombobulated() ? "ACTION_ACCEPT" : "ACTION_DENY")
                                     .map(Emoji::asFormat)
                                     .orElse("?"),
-                                accessoryData.getEnrichment()
-                                    .map(AccessoryEnrichmentModel::getName)
-                                    .orElse("None")
-                                    .replace("Enrichment", "")
-                                    .trim()
+                                accessoryData.getRarity().isEnrichable() ?
+                                    accessoryData.getEnrichment()
+                                        .map(AccessoryEnrichmentModel::getName)
+                                        .orElse("None")
+                                        .replace("Enrichment", "")
+                                        .trim() :
+                                    getEmoji("TAG_NOT_APPLICABLE").map(Emoji::asFormat).orElse("N/A")
                             ))
                             .build()
                         )
