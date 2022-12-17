@@ -26,6 +26,7 @@ import dev.sbs.discordapi.command.data.Argument;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
@@ -37,7 +38,6 @@ import reactor.core.publisher.Mono;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.UUID;
-
 
 @CommandInfo(
     id = "b04d133d-3532-447b-8782-37d1036f3957",
