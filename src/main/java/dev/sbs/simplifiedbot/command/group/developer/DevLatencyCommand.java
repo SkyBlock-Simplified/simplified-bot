@@ -3,7 +3,7 @@ package dev.sbs.simplifiedbot.command.group.developer;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
-import dev.sbs.discordapi.context.command.CommandContext;
+import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.command.DevCommand;
 import org.jetbrains.annotations.NotNull;

@@ -21,7 +21,7 @@ import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.command.data.Argument;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
-import dev.sbs.discordapi.context.command.CommandContext;
+import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.simplifiedbot.SimplifiedBot;
 import discord4j.common.util.Snowflake;
 import lombok.Getter;

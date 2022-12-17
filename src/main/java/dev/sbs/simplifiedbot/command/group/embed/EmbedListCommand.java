@@ -3,7 +3,7 @@ package dev.sbs.simplifiedbot.command.group.embed;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
-import dev.sbs.discordapi.context.command.CommandContext;
+import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.simplifiedbot.command.EmbedCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
