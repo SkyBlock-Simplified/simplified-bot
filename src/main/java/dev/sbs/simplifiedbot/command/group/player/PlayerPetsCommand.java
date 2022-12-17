@@ -27,13 +27,10 @@ public class PlayerPetsCommand extends SkyBlockUserCommand {
                 .isInteractable()
                 .replyMention()
                 .withReference(commandContext)
-                .withPages(
-                    PlayerCommand.buildPages(
-                        skyBlockUser,
-                        "pets"
-                    )
-                )
+                .withTimeToLive(30)
+                .withPages(PlayerCommand.buildPages(skyBlockUser))
                 .build()
+                .gotoPage("pets")
         );
     }
 

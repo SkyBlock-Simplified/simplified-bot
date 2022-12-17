@@ -64,17 +64,12 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .replyMention()
                 .withReference(commandContext)
                 .withTimeToLive(30)
-                .withPages(
-                    buildPages(
-                        skyBlockUser,
-                        "stats"
-                    )
-                )
+                .withPages(buildPages(skyBlockUser))
                 .build()
         );
     }
 
-    public static @NotNull ConcurrentList<Page> buildPages(@NotNull SkyBlockUser skyBlockUser, @NotNull String requestingIdentifier) {
+    public static @NotNull ConcurrentList<Page> buildPages(@NotNull SkyBlockUser skyBlockUser) {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asPreSpacedFormat).orElse("");
         String emojiReplyLine = getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asPreSpacedFormat).orElse("");
@@ -95,10 +90,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
 
         return Concurrent.newList(
             Page.builder()
-                .withOption(
-                    getOptionBuilder("stats", requestingIdentifier)
-                        .build()
-                )
+                .withOption(getOptionBuilder("stats").build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "stats", "Player Information")
                         .withFields(
@@ -194,10 +186,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(
-                    getOptionBuilder("skills", requestingIdentifier)
-                        .build()
-                )
+                .withOption(getOptionBuilder("skills").build())
                 .withEmbeds(
                     getSkillEmbed(
                         mojangProfile,
@@ -212,10 +201,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(
-                    getOptionBuilder("slayers", requestingIdentifier)
-                        .build()
-                )
+                .withOption(getOptionBuilder("slayers").build())
                 .withEmbeds(
                     getSkillEmbed(
                         mojangProfile,
@@ -230,10 +216,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(
-                    getOptionBuilder("weight", requestingIdentifier)
-                        .build()
-                )
+                .withOption(getOptionBuilder("weight").build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "weight", "Player Information")
                         .withDescription(
@@ -343,10 +326,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
-                .withOption(
-                    getOptionBuilder("pets", requestingIdentifier)
-                        .build()
-                )
+                .withOption(getOptionBuilder("pets").build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "pets", "Player Information")
                         .withDescription("Pet Score: **{0}**", member.getPetScore())
@@ -402,10 +382,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
-                .withOption(
-                    getOptionBuilder("accessories", requestingIdentifier)
-                        .build()
-                )
+                .withOption(getOptionBuilder("accessories").build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "accessories", "Player Information")
                         .withDescription("If you wish to see missing accessory information, use the /missing command.")
@@ -464,10 +441,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
-                .withOption(
-                    getOptionBuilder("auctions", requestingIdentifier)
-                        .build()
-                )
+                .withOption(getOptionBuilder("auctions").build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "auctions", "Player Information")
                         .withDescription(
@@ -548,10 +522,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(
-                    getOptionBuilder("jacobs_farming", requestingIdentifier)
-                        .build()
-                )
+                .withOption(getOptionBuilder("jacobs_farming").build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "jacobs_farming", "Player Information")
                         .withFields(
@@ -698,11 +669,10 @@ public class PlayerCommand extends SkyBlockUserCommand {
         );
     }
 
-    private static SelectMenu.Option.OptionBuilder getOptionBuilder(String identifier, String requestingIdentifier) {
+    private static SelectMenu.Option.OptionBuilder getOptionBuilder(String identifier) {
         return SelectMenu.Option.builder()
             .withValue(identifier)
-            .withLabel(WordUtil.capitalizeFully(identifier.replace("_", " ")))
-            .isDefault(identifier.equals(requestingIdentifier));
+            .withLabel(WordUtil.capitalizeFully(identifier.replace("_", " ")));
     }
 
 }

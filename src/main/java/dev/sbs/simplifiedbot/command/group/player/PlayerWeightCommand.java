@@ -27,13 +27,9 @@ public class PlayerWeightCommand extends SkyBlockUserCommand {
                 .isInteractable()
                 .replyMention()
                 .withReference(commandContext)
-                .withPages(
-                    PlayerCommand.buildPages(
-                        skyBlockUser,
-                        "weight"
-                    )
-                )
+                .withPages(PlayerCommand.buildPages(skyBlockUser))
                 .build()
+                .gotoPage("weight")
         );
     }
 

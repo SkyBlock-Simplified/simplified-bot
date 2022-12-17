@@ -27,13 +27,9 @@ public class PlayerJacobsCommand extends SkyBlockUserCommand {
                 .isInteractable()
                 .replyMention()
                 .withReference(commandContext)
-                .withPages(
-                    PlayerCommand.buildPages(
-                        skyBlockUser,
-                        "jacobs_farming"
-                    )
-                )
+                .withPages(PlayerCommand.buildPages(skyBlockUser))
                 .build()
+                .gotoPage("jacobs_farming")
         );
     }
 

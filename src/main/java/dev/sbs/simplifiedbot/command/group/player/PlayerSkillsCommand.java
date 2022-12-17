@@ -27,13 +27,9 @@ public class PlayerSkillsCommand extends SkyBlockUserCommand {
                 .isInteractable()
                 .replyMention()
                 .withReference(commandContext)
-                .withPages(
-                    PlayerCommand.buildPages(
-                        skyBlockUser,
-                        "skills"
-                    )
-                )
+                .withPages(PlayerCommand.buildPages(skyBlockUser))
                 .build()
+                .gotoPage("skills")
         );
     }
 
