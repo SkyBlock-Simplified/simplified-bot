@@ -9,8 +9,10 @@ import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
+import dev.sbs.discordapi.response.component.interaction.Modal;
 import dev.sbs.discordapi.response.component.interaction.action.Button;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
+import dev.sbs.discordapi.response.component.interaction.action.TextInput;
 import dev.sbs.discordapi.response.component.layout.ActionRow;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
@@ -64,7 +66,29 @@ public class DevTestCommand extends Command {
                                     .build(),
                                 Button.builder()
                                     .withStyle(Button.Style.DANGER)
-                                    .withLabel("Danger!")
+                                    .withLabel("Open Modal!")
+                                    .onInteract(buttonContext -> buttonContext.presentModal(
+                                        Modal.builder()
+                                            .withTitle("Test title")
+                                            .withComponents(
+                                                ActionRow.of(
+                                                    TextInput.builder()
+                                                        .withStyle(TextInput.Style.SHORT)
+                                                        .withIdentifier("something")
+                                                        .withLabel("label")
+                                                        .withPlaceholder("placeholder")
+                                                        .withValue("value")
+                                                        .isRequired(false)
+                                                        .build()
+                                                )
+                                            )
+                                            .onInteract(modalContext -> modalContext.edit(pageBuilder -> pageBuilder.withContent("modal: " + modalContext.getComponent()
+                                                .findComponent(TextInput.class, "something")
+                                                .flatMap(TextInput::getValue)
+                                                .orElse("hurdur i'm a failure")
+                                            )))
+                                            .build()
+                                    ))
                                     .build(),
                                 Button.builder()
                                     .withStyle(Button.Style.SUCCESS)
