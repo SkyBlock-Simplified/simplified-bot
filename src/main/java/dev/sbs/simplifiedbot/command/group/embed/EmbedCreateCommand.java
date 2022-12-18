@@ -30,11 +30,6 @@ public class EmbedCreateCommand extends Command {
             )
             .build();
 
-        // TODO: Add support to show Field somewhere else,
-        //  possibly by building an alternate MenuItem like
-        //  TitleMenuItem, HeaderMenuItem, FooterMenuItem, DescriptionMenuItem, etc.
-        //  The menu builder should accept those separately from .withItems
-
         return Mono.empty();
     }
 
