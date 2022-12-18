@@ -13,6 +13,7 @@ import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.minion_data.minion_uniques.MinionUniqueModel;
 import dev.sbs.api.data.model.skyblock.pet_data.pets.PetModel;
+import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.shop_data.shop_profile_upgrades.ShopProfileUpgradeModel;
 import dev.sbs.api.data.model.skyblock.skills.SkillModel;
 import dev.sbs.api.data.model.skyblock.slayers.SlayerModel;
@@ -90,7 +91,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
 
         return Concurrent.newList(
             Page.builder()
-                .withOption(getOptionBuilder("stats").build())
+                .withOption(getOptionBuilder("stats").withEmoji(Emoji.of(skyBlockIsland.getProfileName().map(ProfileModel::getEmoji).get())).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "stats", "Player Information")
                         .withFields(
@@ -186,7 +187,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("skills").build())
+                .withOption(getOptionBuilder("skills").withEmoji(getEmoji("SKILLS")).build())
                 .withEmbeds(
                     getSkillEmbed(
                         mojangProfile,
@@ -196,12 +197,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         member.getSkillAverage(),
                         member.getSkillExperience(),
                         member.getSkillProgressPercentage(),
-                        skill -> skill.getType().getName()
+                        skill -> skill.getType().getName(),
+                        skill -> Emoji.of(skill.getType().getEmoji())
                     )
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("slayers").build())
+                .withOption(getOptionBuilder("slayers").withEmoji(getEmoji("SLAYER")).build())
                 .withEmbeds(
                     getSkillEmbed(
                         mojangProfile,
@@ -211,12 +213,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         member.getSlayerAverage(),
                         member.getSlayerExperience(),
                         member.getSlayerProgressPercentage(),
-                        slayer -> slayer.getType().getName()
+                        slayer -> slayer.getType().getName(),
+                        slayer -> Emoji.of(slayer.getType().getEmoji())
                     )
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("weight").build())
+                .withOption(getOptionBuilder("weight").withEmoji(getEmoji("WEIGHT")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "weight", "Player Information")
                         .withDescription(
@@ -326,7 +329,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
-                .withOption(getOptionBuilder("pets").build())
+                .withOption(getOptionBuilder("pets").withEmoji(getEmoji("PETS")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "pets", "Player Information")
                         .withDescription("Pet Score: **{0}**", member.getPetScore())
@@ -382,7 +385,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
-                .withOption(getOptionBuilder("accessories").build())
+                .withOption(getOptionBuilder("accessories").withEmoji(getEmoji("ACCESSORIES")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "accessories", "Player Information")
                         .withDescription("If you wish to see missing accessory information, use the /missing command.")
@@ -441,7 +444,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withPageItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
-                .withOption(getOptionBuilder("auctions").build())
+                .withOption(getOptionBuilder("auctions").withEmoji(getEmoji("AUCTIONS")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "auctions", "Player Information")
                         .withDescription(
@@ -522,7 +525,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("jacobs_farming").build())
+                .withOption(getOptionBuilder("jacobs_farming").withEmoji(getEmoji("SKILL_FARMING")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "jacobs_farming", "Player Information")
                         .withFields(

@@ -122,7 +122,7 @@ public class GuildCommand extends Command {
         emojis.put(catacombs.getKey(), Emoji.of(catacombs.getEmoji()).orElseThrow());
         dungeonClassModels.forEach(dungeonClassModel -> emojis.put(dungeonClassModel.getKey(), Emoji.of(dungeonClassModel.getEmoji()).orElseThrow()));
         emojis.put("skills", getEmoji("SKILLS").orElseThrow());
-        emojis.put("weight", getEmoji("MUSCLE").orElseThrow());
+        emojis.put("weight", getEmoji("WEIGHT").orElseThrow());
         emojis.put("networth", getEmoji("TRADING_COIN").orElseThrow());
         emojis.put("skyblock", getEmoji("SKYBLOCK").orElseThrow());
         emojis.put("slayer", getEmoji("SLAYER").orElseThrow());

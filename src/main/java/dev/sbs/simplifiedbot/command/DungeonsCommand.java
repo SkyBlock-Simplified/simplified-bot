@@ -68,7 +68,8 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 member.getDungeonClassAverage(),
                                 member.getDungeonClassExperience(),
                                 member.getDungeonClassProgressPercentage(),
-                                dungeonClass -> dungeonClass.getType().getName()
+                                dungeonClass -> dungeonClass.getType().getName(),
+                                dungeonClass -> Emoji.of(dungeonClass.getType().getEmoji())
                             )
                                 .mutate()
                                 .withDescription(

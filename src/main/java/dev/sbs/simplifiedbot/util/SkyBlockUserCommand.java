@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -99,19 +100,19 @@ public abstract class SkyBlockUserCommand extends Command {
         double average,
         double experience,
         double totalProgress,
-        Function<T, String> nameFunction
+        Function<T, String> nameFunction,
+        Function<T, Optional<Emoji>> emojiFunction
     ) {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
-
         return getEmbedBuilder(mojangProfile, skyBlockIsland, value, "Player Information")
             .withField(
                 "Details",
                 FormatUtil.format(
                     """
-                    {0}Average Level: {2,number,#.##}
-                    {0}Total Experience: {3}
-                    {1}Total Progress: {4,number,#.##}%
+                    {0}Average Level: **{2,number,#.##}**
+                    {0}Total Experience: **{3}**
+                    {1}Total Progress: **{4,number,#.##}%**
                     """,
                     emojiReplyStem,
                     emojiReplyEnd,
@@ -120,51 +121,27 @@ public abstract class SkyBlockUserCommand extends Command {
                     totalProgress
                 )
             )
-            .withFields(
-                Field.builder()
-                    .withName(WordUtil.capitalizeFully(value.replace("_", " ")))
-                    .withValue(
-                        StringUtil.join(
-                            experienceObjects.stream()
-                                .map(nameFunction)
-                                .collect(Concurrent.toList()),
-                            "\n"
+            .withFields(experienceObjects.stream()
+                .map(experienceObject -> Field.builder()
+                    .withName(WordUtil.capitalizeFully(nameFunction.apply(experienceObject).replace("_", " ")))
+                    .withValue(FormatUtil.format("""
+                        {0}Level: **{2,number,#.##}**
+                        {0}Experience:
+                        {1}**{3,number,#,###}**
+                        """,
+                        emojiReplyStem,
+                        emojiReplyEnd,
+                        experienceObject.getLevel(),
+                        (long) experienceObject.getExperience()
                         )
                     )
-                    .isInline()
-                    .build(),
-                Field.builder()
-                    .withName("Level (Progress)")
-                    .withValue(
-                        StringUtil.join(
-                            experienceObjects.stream()
-                                .map(expObject -> FormatUtil.format(
-                                    "{0} ({1,number,#.##}%)",
-                                    expObject.getLevel(),
-                                    expObject.getTotalProgressPercentage()
-                                ))
-                                .collect(Concurrent.toList()),
-                            "\n"
-                        )
-                    )
-                    .isInline()
-                    .build(),
-                Field.builder()
-                    .withName("Experience")
-                    .withValue(
-                        StringUtil.join(
-                            experienceObjects.stream()
-                                .map(expObject -> FormatUtil.format(
-                                    "{0,number}",
-                                    expObject.getExperience()
-                                ))
-                                .collect(Concurrent.toList()),
-                            "\n"
-                        )
-                    )
+                    .withEmoji(emojiFunction.apply(experienceObject))
                     .isInline()
                     .build()
+                )
+                .collect(Concurrent.toList())
             )
+            .withEmptyField(true)
             .build();
     }
 
