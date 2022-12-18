@@ -2,6 +2,7 @@ package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.sbs_developers.SbsDeveloperModel;
+import dev.sbs.api.data.model.discord.sbs_legacy_donors.SbsLegacyDonorModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
@@ -15,6 +16,7 @@ import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.discordapi.response.page.PageItem;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -100,10 +102,11 @@ public class AboutCommand extends Command {
                                         .build()
                                 )
                                 .withField(
-                                    "Patreon",
-                                    "Paying for Patreon comes with perks available on the SkyBlock Simplified Discord, Bot, Mod, Website and API. " +
-                                        "The full details of available perks can be seen on the Patreon page in the menu below.\n\n" +
-                                        "Sign up here: N/A"
+                                    "Premium",
+                                    """
+                                        Paying for Patreon comes with perks available on the SkyBlock Simplified Discord, Bot, Mod, Website and API.
+                                        The full details of available perks can be seen on the Patreon page in the menu below.
+                                        Sign up here: N/A"""
                                 )
                                 .build()
                         )
@@ -126,7 +129,15 @@ public class AboutCommand extends Command {
                                         .build()
                                 )
                                 .withItems(
-                                    // TODO
+                                    SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class)
+                                        .findAll()
+                                        .stream()
+                                        .map(legacyDonorModel -> PageItem.builder()
+                                            .withLabel(FormatUtil.format("<@{0}>", legacyDonorModel.getDiscordId()))
+                                            .withValue(FormatUtil.format("${0,number,#.##}", legacyDonorModel.getAmount()))
+                                            .build()
+                                        )
+                                        .collect(Concurrent.toList())
                                 )
                                 .build(),
                             Page.builder()
