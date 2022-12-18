@@ -12,6 +12,7 @@ import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.page.Page;
@@ -68,7 +69,11 @@ public class MissingCommand extends SkyBlockUserCommand {
                     .allMatch(compareAccessoryModel -> accessoryModel.getFamilyRank() >= compareAccessoryModel.getFamilyRank());
             })
             .map(accessoryModel -> PageItem.builder()
-                // TODO: Accessory Icon
+                .withEmoji(
+                    skyBlockUser.getSkyBlockEmojis()
+                        .getEmoji(accessoryModel.getItem().getItemId())
+                        .map(Emoji::of)
+                )
                 .withValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
@@ -82,6 +87,11 @@ public class MissingCommand extends SkyBlockUserCommand {
             .filter(accessoryData -> !playerStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData))
             .map(AccessoryData::getAccessory)
             .map(accessoryModel -> PageItem.builder()
+                .withEmoji(
+                    skyBlockUser.getSkyBlockEmojis()
+                        .getEmoji(accessoryModel.getItem().getItemId())
+                        .map(Emoji::of)
+                )
                 .withValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
@@ -99,6 +109,11 @@ public class MissingCommand extends SkyBlockUserCommand {
             .sorted(accessoryModel -> accessoryModel.getFamily().getKey(), AccessoryModel::getFamilyRank)
             .stream()
             .map(accessoryModel -> PageItem.builder()
+                .withEmoji(
+                    skyBlockUser.getSkyBlockEmojis()
+                        .getEmoji(accessoryModel.getItem().getItemId())
+                        .map(Emoji::of)
+                )
                 .withValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
@@ -111,6 +126,11 @@ public class MissingCommand extends SkyBlockUserCommand {
             .filter(ObjectData::notRecombobulated)
             .map(AccessoryData::getAccessory)
             .map(accessoryModel -> PageItem.builder()
+                .withEmoji(
+                    skyBlockUser.getSkyBlockEmojis()
+                        .getEmoji(accessoryModel.getItem().getItemId())
+                        .map(Emoji::of)
+                )
                 .withValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
@@ -123,6 +143,11 @@ public class MissingCommand extends SkyBlockUserCommand {
             .filter(AccessoryData::isMissingEnrichment)
             .map(AccessoryData::getAccessory)
             .map(accessoryModel -> PageItem.builder()
+                .withEmoji(
+                    skyBlockUser.getSkyBlockEmojis()
+                        .getEmoji(accessoryModel.getItem().getItemId())
+                        .map(Emoji::of)
+                )
                 .withValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
