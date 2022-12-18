@@ -46,6 +46,7 @@ public class DungeonsCommand extends SkyBlockUserCommand {
 
         return commandContext.reply(
             Response.builder()
+                .withTimeToLive(60)
                 .isInteractable()
                 .replyMention()
                 .withReference(commandContext)
@@ -64,12 +65,14 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 mojangProfile,
                                 skyBlockIsland,
                                 "dungeon_classes",
+                                "Classes Information",
                                 member.getDungeons().getClasses(),
                                 member.getDungeonClassAverage(),
                                 member.getDungeonClassExperience(),
                                 member.getDungeonClassProgressPercentage(),
                                 dungeonClass -> dungeonClass.getType().getName(),
-                                dungeonClass -> Emoji.of(dungeonClass.getType().getEmoji())
+                                dungeonClass -> Emoji.of(dungeonClass.getType().getEmoji()),
+                                false
                             )
                                 .mutate()
                                 .withDescription(
@@ -153,12 +156,17 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 .withValue(
                                     """
                                         {0}Level: **{2}** / **{3}**
-                                        {0}Experience: **{4}**
-                                        {1}Progress: **{5}**
+                                        {0}Experience: **{4,number,#,###}**
+                                        {0}Progress to next Level: **{5,number,#.##}%**
+                                        {1}Total Progress: **{6, number, #.##}%**
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
-                                    ""
+                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getLevel(),
+                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getMaxLevel(),
+                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getExperience(),
+                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getProgressPercentage(),
+                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getTotalProgressPercentage()
                                 )
                                 .build()
                         )
@@ -176,6 +184,8 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                             {0}Best S Tier: **{5}**
                                             {1}Best S+ Tier: **{6}**
                                             """,
+                                        emojiReplyStem,
+                                        emojiReplyEnd,
                                         member.getDungeons()
                                             .getDungeon(dungeonModel, masterMode)
                                             .getCompletions(dungeonFloorModel),
@@ -211,7 +221,9 @@ public class DungeonsCommand extends SkyBlockUserCommand {
     }
 
     private static String getFastestDate(long milliseconds) {
-        return FormatUtil.format("{0}:{1}", TimeUnit.MILLISECONDS.toMinutes(milliseconds), TimeUnit.MILLISECONDS.toSeconds(milliseconds));
+        if (milliseconds == 0)
+            return "N/A";
+        return String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(milliseconds), TimeUnit.MILLISECONDS.toSeconds(milliseconds) % 60);
     }
 
 }

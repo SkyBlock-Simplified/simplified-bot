@@ -96,22 +96,27 @@ public abstract class SkyBlockUserCommand extends Command {
         MojangProfileResponse mojangProfile,
         SkyBlockIsland skyBlockIsland,
         String value,
+        String title,
         ConcurrentList<T> experienceObjects,
         double average,
         double experience,
         double totalProgress,
         Function<T, String> nameFunction,
-        Function<T, Optional<Emoji>> emojiFunction
+        Function<T, Optional<Emoji>> emojiFunction,
+        boolean details
     ) {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
+        String emojiReplyLine = getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
-        return getEmbedBuilder(mojangProfile, skyBlockIsland, value, "Player Information")
+        Embed.EmbedBuilder startBuilder;
+        if (details) {
+            startBuilder = getEmbedBuilder(mojangProfile, skyBlockIsland, value, title)
             .withField(
                 "Details",
                 FormatUtil.format(
                     """
                     {0}Average Level: **{2,number,#.##}**
-                    {0}Total Experience: **{3}**
+                    {0}Total Experience: **{3,number,#,###}**
                     {1}Total Progress: **{4,number,#.##}%**
                     """,
                     emojiReplyStem,
@@ -120,19 +125,27 @@ public abstract class SkyBlockUserCommand extends Command {
                     experience,
                     totalProgress
                 )
-            )
+            );
+        }
+        else {
+            startBuilder = getEmbedBuilder(mojangProfile, skyBlockIsland, value, title);
+        }
+        return startBuilder
             .withFields(experienceObjects.stream()
                 .map(experienceObject -> Field.builder()
                     .withName(WordUtil.capitalizeFully(nameFunction.apply(experienceObject).replace("_", " ")))
                     .withValue(FormatUtil.format("""
-                        {0}Level: **{2,number,#.##}**
+                        {0}Level: **{3,number,#.##}**
                         {0}Experience:
-                        {1}**{3,number,#,###}**
+                        {1}**{4,number,#,###}**
+                        {2}Progress: **{5,number,#.##}%**
                         """,
                         emojiReplyStem,
+                        emojiReplyLine,
                         emojiReplyEnd,
                         experienceObject.getLevel(),
-                        (long) experienceObject.getExperience()
+                        (long) experienceObject.getExperience(),
+                        experienceObject.getTotalProgressPercentage()
                         )
                     )
                     .withEmoji(emojiFunction.apply(experienceObject))

@@ -720,6 +720,6 @@ public class GuildCommand extends Command {
     private static double getSkillAverage(ConcurrentList<SkyBlockIsland.Skill> skills) {
         return skills.stream()
             .filter(skill -> skill.getType().isCosmetic())
-            .mapToInt(SkyBlockIsland.Experience::getLevel).average().orElseThrow();
+            .mapToInt(SkyBlockIsland.Experience::getLevel).average().orElseThrow(); //TODO: fix performance lol
     }
 }

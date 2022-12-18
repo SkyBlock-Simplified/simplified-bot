@@ -193,12 +193,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         mojangProfile,
                         skyBlockIsland,
                         "skills",
+                        "Skill Information",
                         member.getSkills(),
                         member.getSkillAverage(),
                         member.getSkillExperience(),
                         member.getSkillProgressPercentage(),
                         skill -> skill.getType().getName(),
-                        skill -> Emoji.of(skill.getType().getEmoji())
+                        skill -> Emoji.of(skill.getType().getEmoji()),
+                        true
                     )
                 )
                 .build(),
@@ -209,12 +211,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         mojangProfile,
                         skyBlockIsland,
                         "slayers",
+                        "Slayer Information",
                         member.getSlayers().inverse(),
                         member.getSlayerAverage(),
                         member.getSlayerExperience(),
                         member.getSlayerProgressPercentage(),
                         slayer -> slayer.getType().getName(),
-                        slayer -> Emoji.of(slayer.getType().getEmoji())
+                        slayer -> Emoji.of(slayer.getType().getEmoji()),
+                        true
                     )
                 )
                 .build(),
