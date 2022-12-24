@@ -16,7 +16,8 @@ import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.PageItem;
+import dev.sbs.discordapi.response.page.item.FieldItem;
+import dev.sbs.discordapi.response.page.item.PageItem;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +40,7 @@ public class MissingCommand extends SkyBlockUserCommand {
         PlayerStats playerStats = skyBlockUser.getSelectedIsland().getPlayerStats(skyBlockUser.getMember());
         ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).findAll();
 
-        ConcurrentList<PageItem> missingAccessories = allAccessories.stream()
+        ConcurrentList<FieldItem> missingAccessories = allAccessories.stream()
             .filter(accessoryModel -> accessoryModel.getItem().isObtainable())
             .filter(accessoryModel -> playerStats.getAccessoryBag()
                 .getAccessories()
@@ -68,37 +69,37 @@ public class MissingCommand extends SkyBlockUserCommand {
                     .filter(compareAccessoryModel -> compareAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
                     .allMatch(compareAccessoryModel -> accessoryModel.getFamilyRank() >= compareAccessoryModel.getFamilyRank());
             })
-            .map(accessoryModel -> PageItem.builder()
+            .map(accessoryModel -> FieldItem.builder()
                 .withEmoji(
                     skyBlockUser.getSkyBlockEmojis()
                         .getEmoji(accessoryModel.getItem().getItemId())
                         .map(Emoji::of)
                 )
-                .withValue(accessoryModel.getItem().getItemId())
+                .withOptionValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
             )
             .collect(Concurrent.toList())
-            .sorted(pageItem -> pageItem.getOption().getLabel());
+            .sorted(pageItem -> pageItem.getOption().orElseThrow().getLabel());
 
-        ConcurrentList<PageItem> unwantedAccessories = playerStats.getAccessoryBag()
+        ConcurrentList<FieldItem> unwantedAccessories = playerStats.getAccessoryBag()
             .getAccessories()
             .stream()
             .filter(accessoryData -> !playerStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData))
             .map(AccessoryData::getAccessory)
-            .map(accessoryModel -> PageItem.builder()
+            .map(accessoryModel -> FieldItem.builder()
                 .withEmoji(
                     skyBlockUser.getSkyBlockEmojis()
                         .getEmoji(accessoryModel.getItem().getItemId())
                         .map(Emoji::of)
                 )
-                .withValue(accessoryModel.getItem().getItemId())
+                .withOptionValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
             )
             .collect(Concurrent.toList());
 
-        ConcurrentList<PageItem> stackableAccessories = allAccessories.matchAll(
+        ConcurrentList<FieldItem> stackableAccessories = allAccessories.matchAll(
                 SearchFunction.Match.ANY,
                 accessoryModel -> accessoryModel.getFamily().isStatsStackable(),
                 accessoryModel -> accessoryModel.getFamily().isReforgesStackable()
@@ -108,47 +109,47 @@ public class MissingCommand extends SkyBlockUserCommand {
             .collect(Concurrent.toList())
             .sorted(accessoryModel -> accessoryModel.getFamily().getKey(), AccessoryModel::getFamilyRank)
             .stream()
-            .map(accessoryModel -> PageItem.builder()
+            .map(accessoryModel -> FieldItem.builder()
                 .withEmoji(
                     skyBlockUser.getSkyBlockEmojis()
                         .getEmoji(accessoryModel.getItem().getItemId())
                         .map(Emoji::of)
                 )
-                .withValue(accessoryModel.getItem().getItemId())
+                .withOptionValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
             )
             .collect(Concurrent.toList());
 
-        ConcurrentList<PageItem> missingRecombobulators = playerStats.getAccessoryBag()
+        ConcurrentList<FieldItem> missingRecombobulators = playerStats.getAccessoryBag()
             .getFilteredAccessories()
             .stream()
             .filter(ObjectData::notRecombobulated)
             .map(AccessoryData::getAccessory)
-            .map(accessoryModel -> PageItem.builder()
+            .map(accessoryModel -> FieldItem.builder()
                 .withEmoji(
                     skyBlockUser.getSkyBlockEmojis()
                         .getEmoji(accessoryModel.getItem().getItemId())
                         .map(Emoji::of)
                 )
-                .withValue(accessoryModel.getItem().getItemId())
+                .withOptionValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
             )
             .collect(Concurrent.toList());
 
-        ConcurrentList<PageItem> missingEnrichments = playerStats.getAccessoryBag()
+        ConcurrentList<FieldItem> missingEnrichments = playerStats.getAccessoryBag()
             .getFilteredAccessories()
             .stream()
             .filter(AccessoryData::isMissingEnrichment)
             .map(AccessoryData::getAccessory)
-            .map(accessoryModel -> PageItem.builder()
+            .map(accessoryModel -> FieldItem.builder()
                 .withEmoji(
                     skyBlockUser.getSkyBlockEmojis()
                         .getEmoji(accessoryModel.getItem().getItemId())
                         .map(Emoji::of)
                 )
-                .withValue(accessoryModel.getItem().getItemId())
+                .withOptionValue(accessoryModel.getItem().getItemId())
                 .withLabel(accessoryModel.getName())
                 .build()
             )
@@ -163,7 +164,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItems(missingAccessories)
                         .withItemsPerPage(10)
-                        .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                        .withItemStyle(PageItem.Style.LIST_SINGLE)
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("missing")
@@ -179,7 +180,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItems(unwantedAccessories)
                         .withItemsPerPage(10)
-                        .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                        .withItemStyle(PageItem.Style.LIST_SINGLE)
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("unwanted")
@@ -195,7 +196,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItems(stackableAccessories)
                         .withItemsPerPage(10)
-                        .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                        .withItemStyle(PageItem.Style.LIST)
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("stackable")
@@ -211,7 +212,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItems(missingRecombobulators)
                         .withItemsPerPage(10)
-                        .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                        .withItemStyle(PageItem.Style.LIST)
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("recombobulators")
@@ -227,7 +228,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItems(missingEnrichments)
                         .withItemsPerPage(10)
-                        .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                        .withItemStyle(PageItem.Style.LIST)
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("enrichments")

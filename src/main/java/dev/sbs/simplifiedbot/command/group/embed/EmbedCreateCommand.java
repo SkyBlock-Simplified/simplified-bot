@@ -4,8 +4,8 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.context.CommandContext;
-import dev.sbs.discordapi.response.menu.Menu;
-import dev.sbs.discordapi.response.menu.item.MenuItem;
+import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.discordapi.response.page.item.FooterItem;
 import dev.sbs.simplifiedbot.command.EmbedCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -23,9 +23,11 @@ public class EmbedCreateCommand extends Command {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
-        Menu.builder()
+        Page.builder()
             .withItems(
-                MenuItem.stringBuilder()
+                FooterItem.builder()
+                    .isEditable()
+                    .withName("yee haw")
                     .build()
             )
             .build();

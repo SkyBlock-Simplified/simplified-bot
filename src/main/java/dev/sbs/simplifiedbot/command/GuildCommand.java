@@ -31,7 +31,8 @@ import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.PageItem;
+import dev.sbs.discordapi.response.page.item.FieldItem;
+import dev.sbs.discordapi.response.page.item.PageItem;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -139,7 +140,7 @@ public class GuildCommand extends Command {
             .isInteractable()
             .withTimeToLive(120)
             .withPages(Page.builder()
-                .withPageItemStyle(PageItem.Style.FIELD_INLINE)
+                .withItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("General Information") //TODO: add minion slots to main page?
@@ -172,7 +173,7 @@ public class GuildCommand extends Command {
                     .build()
                 )
                 .withItems(
-                    PageItem.builder()
+                    FieldItem.builder()
                         .withData(FormatUtil.format(
                             """
                                 {0}Average Level: **{2}**
@@ -189,7 +190,7 @@ public class GuildCommand extends Command {
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withLabel("All Skills")
-                                .withValue("All Skills")
+                                .withValue("ALL_SKILLS")
                                 .withEmoji(emojis.get("skills"))
                                 .build()
                         )
@@ -201,7 +202,7 @@ public class GuildCommand extends Command {
 
 
             .withPages(Page.builder()
-                .withPageItemStyle(PageItem.Style.FIELD_INLINE)
+                .withItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(20)
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Skill Averages")
@@ -230,7 +231,7 @@ public class GuildCommand extends Command {
                     .build()
                 )
                 .withItems(
-                    PageItem.builder()
+                    FieldItem.builder()
                         .withData(FormatUtil.format(
                             """
                                 {0}Average Level: **{2}**
@@ -247,7 +248,7 @@ public class GuildCommand extends Command {
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withLabel("All Skills")
-                                .withValue("All Skills")
+                                .withValue("ALL_SKILLS")
                                 .withEmoji(emojis.get("skills"))
                                 .build()
                         )
@@ -256,7 +257,7 @@ public class GuildCommand extends Command {
                 )
                 .withItems(skillModels
                     .stream()
-                    .map(skillModel -> PageItem.builder()
+                    .map(skillModel -> FieldItem.builder()
                         .withEmoji(emojis.get(skillModel.getKey()))
                         .withData(FormatUtil.format(
                             """
@@ -286,7 +287,7 @@ public class GuildCommand extends Command {
                 )
                 .withPages(skillModels.stream()
                     .map(skillModel -> Page.builder()
-                        .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                        .withItemStyle(PageItem.Style.LIST_SINGLE)
                         .withItemsPerPage(20)
                         .withOption(SelectMenu.Option.builder()
                             .withLabel(skillModel.getName() + " Leaderboard")
@@ -315,8 +316,8 @@ public class GuildCommand extends Command {
                                     guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> skills.get(guildMemberPlayer).stream()
                                         .filter(skill -> skill.getType().equals(skillModel))
                                         .findFirst().orElseThrow().getExperience()).stream(),
-                                    (guildMemberPlayer, index, size) -> PageItem.builder()
-                                        .withValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                    (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                        .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                         .withLabel(FormatUtil.format(
                                             " #{0} `{1}` >  **{2} [{3}]**",
                                             index + 1,
@@ -338,7 +339,7 @@ public class GuildCommand extends Command {
 
 
             .withPages(Page.builder()
-                .withPageItemStyle(PageItem.Style.FIELD_INLINE)
+                .withItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(20)
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Slayer Information")
@@ -369,9 +370,9 @@ public class GuildCommand extends Command {
                         .build()
                 )
                 .withItems(slayerModels.stream()
-                    .map(slayerModel -> PageItem.builder()
+                    .map(slayerModel -> FieldItem.builder()
                         .withEmoji(emojis.get(slayerModel.getKey()))
-                        .withValue(slayerModel.getKey())
+                        .withOptionValue(slayerModel.getKey())
                         .withLabel(FormatUtil.format(
                             """
                                 {0}Average Level: **{2}**
@@ -398,7 +399,7 @@ public class GuildCommand extends Command {
                 )
                 .withPages(slayerModels.stream()
                     .map(slayerModel -> Page.builder()
-                        .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                        .withItemStyle(PageItem.Style.LIST_SINGLE)
                         .withItemsPerPage(20)
                         .withOption(SelectMenu.Option.builder()
                             .withLabel(slayerModel.getName() + " Leaderboard")
@@ -424,8 +425,8 @@ public class GuildCommand extends Command {
                         .withItems(
                             StreamUtil.mapWithIndex(
                                     guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getExperience()).stream(),
-                                    (guildMemberPlayer, index, size) -> PageItem.builder()
-                                        .withValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                    (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                        .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                         .withLabel(FormatUtil.format(
                                             " #{0} `{1}` >  **{2} [{3}]**",
                                             index + 1,
@@ -447,7 +448,7 @@ public class GuildCommand extends Command {
 
 
             .withPages(Page.builder()
-                .withPageItemStyle(PageItem.Style.FIELD_INLINE)
+                .withItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(20)
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Dungeon Information")
@@ -475,7 +476,7 @@ public class GuildCommand extends Command {
                     .withColor(tagColor)
                     .build()
                 )
-                .withItems(PageItem.builder()
+                .withItems(FieldItem.builder()
                     .withEmoji(emojis.get(catacombs.getKey()))
                     .withLabel(FormatUtil.format(
                         """
@@ -500,7 +501,7 @@ public class GuildCommand extends Command {
                     .build()
                 )
                 .withItems(dungeonClassModels.stream()
-                    .map(dungeonClassModel -> PageItem.builder()
+                    .map(dungeonClassModel -> FieldItem.builder()
                         .withEmoji(emojis.get(dungeonClassModel.getKey()))
                         .withData(FormatUtil.format(
                             """
@@ -527,7 +528,7 @@ public class GuildCommand extends Command {
                     .collect(Concurrent.toList())
                 )
                 .withPages(Page.builder()
-                    .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                    .withItemStyle(PageItem.Style.LIST_SINGLE)
                     .withItemsPerPage(20)
                     .withOption(SelectMenu.Option.builder()
                         .withLabel("Catacombs Leaderboard")
@@ -551,8 +552,8 @@ public class GuildCommand extends Command {
                     .withItems(
                         StreamUtil.mapWithIndex(
                                 guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience()).stream(),
-                                (guildMemberPlayer, index, size) -> PageItem.builder()
-                                    .withValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                    .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                     .withLabel(FormatUtil.format(
                                         " #{0} `{1}` >  **{2} [{3}]**",
                                         index + 1,
@@ -568,7 +569,7 @@ public class GuildCommand extends Command {
                 )
                 .withPages(dungeonClassModels.stream()
                     .map(classModel -> Page.builder()
-                        .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                        .withItemStyle(PageItem.Style.LIST_SINGLE)
                         .withItemsPerPage(20)
                         .withOption(SelectMenu.Option.builder()
                             .withLabel(classModel.getName() + " Leaderboard")
@@ -594,8 +595,8 @@ public class GuildCommand extends Command {
                         .withItems(
                             StreamUtil.mapWithIndex(
                                     guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getExperience()).stream(),
-                                    (guildMemberPlayer, index, size) -> PageItem.builder()
-                                        .withValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                    (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                        .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                         .withLabel(FormatUtil.format(
                                             " #{0} `{1}` >  **{2} [{3}]**",
                                             index + 1,
@@ -617,7 +618,7 @@ public class GuildCommand extends Command {
 
 
             .withPages(Page.builder()
-                .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                .withItemStyle(PageItem.Style.LIST_SINGLE)
                 .withItemsPerPage(20)
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Weight Leaderboard")
@@ -643,8 +644,8 @@ public class GuildCommand extends Command {
                 .withItems(
                     StreamUtil.mapWithIndex(
                         guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal()).stream(),
-                        (guildMemberPlayer, index, size) -> PageItem.builder()
-                            .withValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                        (guildMemberPlayer, index, size) -> FieldItem.builder()
+                            .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                             .withLabel(FormatUtil.format(
                                 " #{0} `{1}` >  **{2} [{3}]**",
                                 index + 1,
@@ -662,7 +663,7 @@ public class GuildCommand extends Command {
 
 
             .withPages(Page.builder()
-                .withPageItemStyle(PageItem.Style.SINGLE_COLUMN)
+                .withItemStyle(PageItem.Style.LIST_SINGLE)
                 .withItemsPerPage(20)
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Networth Leaderboard")
@@ -688,8 +689,8 @@ public class GuildCommand extends Command {
                 .withItems(
                 StreamUtil.mapWithIndex(
                         guildMemberPlayers.sorted(SortOrder.DESCENDING, networths::get).stream(),
-                        (guildMemberPlayer, index, size) -> PageItem.builder()
-                            .withValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                        (guildMemberPlayer, index, size) -> FieldItem.builder()
+                            .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                             .withLabel(FormatUtil.format(
                                 " #{0} `{1}` >  **{2}**",
                                 index + 1,

@@ -16,7 +16,7 @@ import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.PageItem;
+import dev.sbs.discordapi.response.page.item.FieldItem;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -132,9 +132,9 @@ public class AboutCommand extends Command {
                                     SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class)
                                         .findAll()
                                         .stream()
-                                        .map(legacyDonorModel -> PageItem.builder()
+                                        .map(legacyDonorModel -> FieldItem.builder()
                                             .withLabel(FormatUtil.format("<@{0}>", legacyDonorModel.getDiscordId()))
-                                            .withValue(FormatUtil.format("${0,number,#.##}", legacyDonorModel.getAmount()))
+                                            .withOptionValue(FormatUtil.format("${0,number,#.##}", legacyDonorModel.getAmount()))
                                             .build()
                                         )
                                         .collect(Concurrent.toList())

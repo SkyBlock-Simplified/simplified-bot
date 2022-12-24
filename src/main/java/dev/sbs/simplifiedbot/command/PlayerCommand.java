@@ -35,7 +35,8 @@ import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.PageItem;
+import dev.sbs.discordapi.response.page.item.FieldItem;
+import dev.sbs.discordapi.response.page.item.PageItem;
 import dev.sbs.discordapi.util.DiscordDate;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
@@ -331,7 +332,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withPageItemStyle(PageItem.Style.FIELD_INLINE)
+                .withItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
                 .withOption(getOptionBuilder("pets").withEmoji(getEmoji("PETS")).build())
                 .withEmbeds(
@@ -348,7 +349,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             .compare(o1, o2)
                         )
                         .stream()
-                        .map(petInfo -> PageItem.builder()
+                        .map(petInfo -> FieldItem.builder()
                             .withOption(
                                 SelectMenu.Option.builder()
                                     .withLabel(
@@ -387,7 +388,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withPageItemStyle(PageItem.Style.FIELD_INLINE)
+                .withItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
                 .withOption(getOptionBuilder("accessories").withEmoji(getEmoji("ACCESSORIES")).build())
                 .withEmbeds(
@@ -405,7 +406,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             .compare(o1, o2)
                         )
                         .stream()
-                        .map(accessoryData -> PageItem.builder()
+                        .map(accessoryData -> FieldItem.builder()
                             .withOption(
                                 SelectMenu.Option.builder()
                                     .withLabel(
@@ -446,7 +447,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withPageItemStyle(PageItem.Style.FIELD_INLINE)
+                .withItemStyle(PageItem.Style.FIELD_INLINE)
                 .withItemsPerPage(12)
                 .withOption(getOptionBuilder("auctions").withEmoji(getEmoji("AUCTIONS")).build())
                 .withEmbeds(
@@ -479,7 +480,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             CompoundTag auctionNbt = skyBlockAuction.getItemNbt().getNbtData();
                             String itemId = auctionNbt.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue();
 
-                            return PageItem.builder()
+                            return FieldItem.builder()
                                 .withOption(
                                     SelectMenu.Option.builder()
                                         .withLabel(
