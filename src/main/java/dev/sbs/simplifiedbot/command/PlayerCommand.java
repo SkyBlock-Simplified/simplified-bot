@@ -17,6 +17,7 @@ import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.shop_data.shop_profile_upgrades.ShopProfileUpgradeModel;
 import dev.sbs.api.data.model.skyblock.skills.SkillModel;
 import dev.sbs.api.data.model.skyblock.slayers.SlayerModel;
+import dev.sbs.api.data.model.skyblock.stats.StatModel;
 import dev.sbs.api.minecraft.nbt.tags.collection.CompoundTag;
 import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
@@ -435,10 +436,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     .orElse("?"),
                                 accessoryData.getRarity().isEnrichable() ?
                                     accessoryData.getEnrichment()
-                                        .map(AccessoryEnrichmentModel::getName)
-                                        .orElse("None")
-                                        .replace("Enrichment", "")
-                                        .trim() :
+                                        .map(AccessoryEnrichmentModel::getStat)
+                                        .map(StatModel::getKey)
+                                        .map(statKey -> FormatUtil.format("TALISMAN_ENRICHMENT_{0}", statKey))
+                                        .flatMap(PlayerCommand::getEmoji)
+                                        .or(() -> getEmoji("TAG_NOT_APPLICABLE"))
+                                        .map(Emoji::asFormat)
+                                        .orElse("N/A") :
                                     getEmoji("TAG_NOT_APPLICABLE").map(Emoji::asFormat).orElse("N/A")
                             ))
                             .build()
