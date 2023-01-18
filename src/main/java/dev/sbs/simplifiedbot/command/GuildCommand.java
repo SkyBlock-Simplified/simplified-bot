@@ -134,6 +134,8 @@ public class GuildCommand extends Command {
         Color tagColor = guild.getTagColor().orElse(MinecraftChatFormatting.YELLOW).getColor();
         String guildDescription = guild.getDescription().orElse(guildName + " doesn't have a description set.");
         String guildTag = guild.getTag().orElse("Tag was not found.");
+        int guildLevel = 0; //TODO: add level query
+        String guildOwner = "IGN"; //TODO: add owner query? maybe, probably too annoying
 
         Response response = Response.builder()
             .withReference(commandContext)
@@ -153,11 +155,16 @@ public class GuildCommand extends Command {
                     .withDescription(FormatUtil.format("""
                         {0}
                         Tag: {1}
-                        Average Weight: **{2}** (Without Overflow: **{3}**)
-                        Average Networth: **{4}**
+                        Guild Level: {2}
+                        Guild Owner: {3}
+                        Average Weight: **{4}** (Without Overflow: **{5}**)
+                        Average Networth: **{6}**
+                        Average Skill Level: **{7}**
                         """,
                         guildDescription,
                         guildTag,
+                        guildLevel,
+                        guildOwner,
                         (int) guildMemberPlayers.stream().mapToDouble(
                             guildMember -> totalWeights.get(guildMember).getTotal()
                         ).average().orElseThrow(),
@@ -166,12 +173,38 @@ public class GuildCommand extends Command {
                         ).average().orElseThrow(),
                         (long) guildMemberPlayers.stream().mapToLong(
                             networths::get
-                        ).average().orElseThrow()
+                        ).average().orElseThrow(),
+                        df.format(guildMemberPlayers.stream()
+                            .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow())
                         )
                     )
                     .withColor(tagColor)
                     .build()
                 )
+//                .withItems(
+//                    FieldItem.builder()
+//                        .withData(FormatUtil.format(
+//                            """
+//                                {0}Average Level: **{2}**
+//                                {0}Total Experience:
+//                                {1}**{3}**
+//                                """,
+//                            emojiReplyStem,
+//                            emojiReplyEnd,
+//                            df.format(guildMemberPlayers.stream()
+//                                .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
+//                            guildMemberPlayers.stream()
+//                                .mapToLong(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().mapToLong(skill -> (long) skill.getExperience()).sum()).sum()
+//                        ))
+//                        .withOption(
+//                            SelectMenu.Option.builder()
+//                                .withLabel("All Skills")
+//                                .withValue("ALL_SKILLS")
+//                                .withEmoji(emojis.get("skills"))
+//                                .build()
+//                        )
+//                        .build()
+//                )
                 .withItems(
                     FieldItem.builder()
                         .withData(FormatUtil.format(
