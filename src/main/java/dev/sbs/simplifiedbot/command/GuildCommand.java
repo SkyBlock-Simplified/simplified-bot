@@ -135,7 +135,7 @@ public class GuildCommand extends Command {
         String guildDescription = guild.getDescription().orElse(guildName + " doesn't have a description set.");
         String guildTag = guild.getTag().orElse("Tag was not found.");
         int guildLevel = 0; //TODO: add level query
-        String guildOwner = "IGN"; //TODO: add owner query? maybe, probably too annoying
+        String guildOwner = ignMap.get(guild.getGuildMaster().getUniqueId());
 
         Response response = Response.builder()
             .withReference(commandContext)
@@ -211,12 +211,14 @@ public class GuildCommand extends Command {
                                     .withAmountPerPage(10)
                                     .build()
                             )
-                            .withOption(SelectMenu.Option.builder()
-                                .withLabel("Skyblock Level")
-                                .withDescription("Skyblock Level Leaderboard")
-                                .withValue("Skyblock Level")
-                                //.withEmoji()
-                                .build())
+                            .withOption(
+                                SelectMenu.Option.builder()
+                                    .withLabel("Skyblock Level")
+                                    .withDescription("Skyblock Level Leaderboard")
+                                    .withValue("Skyblock Level")
+                                    //.withEmoji()
+                                    .build()
+                            )
                             .withEmbeds(Embed.builder()
                                 .withColor(tagColor)
                                 .withTitle(guildName)
