@@ -180,9 +180,11 @@ public class GuildCommand extends Command {
                                 ).average().orElse(0),
                                 df.format(guildMemberPlayers.stream()
                                     .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
-                                guildMemberPlayers.stream().mapToDouble(
-                                    SkyBlockIsland.Member::getLevel
-                                ).average().orElse(0)
+                                guildMemberPlayers.stream()
+                                    .mapToDouble(SkyBlockIsland.Member::getLevel)
+                                    .filter(level -> level > 0)
+                                    .average()
+                                    .orElse(0)
                             )
                             .withColor(tagColor)
                             .build()
