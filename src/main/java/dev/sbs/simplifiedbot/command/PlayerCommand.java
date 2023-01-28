@@ -79,7 +79,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         SkyBlockIsland.Member member = skyBlockUser.getMember();
-        int uniqueMinions = member.getMinions()
+        int uniqueMinions = skyBlockIsland.getMinions()
             .stream()
             .mapToInt(minion -> minion.getUnlocked().size())
             .sum();
