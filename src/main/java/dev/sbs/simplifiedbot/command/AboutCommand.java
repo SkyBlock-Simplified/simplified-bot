@@ -128,16 +128,17 @@ public class AboutCommand extends Command {
                                         .withDescription("A big thank you goes out to those who donated early on in the development of the SkyBlock Simplified discord and bot!")
                                         .build()
                                 )
-                                .withItems(
-                                    SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class)
-                                        .findAll()
-                                        .stream()
-                                        .map(legacyDonorModel -> FieldItem.builder()
-                                            .withLabel(FormatUtil.format("<@{0}>", legacyDonorModel.getDiscordId()))
-                                            .withOptionValue(FormatUtil.format("${0,number,#.##}", legacyDonorModel.getAmount()))
-                                            .build()
+                                .withItemData(
+                                    Page.ItemData.builder(SbsLegacyDonorModel.class)
+                                        .withFieldItems(SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class).findAll())
+                                        .withTransformer(stream -> stream
+                                            .map(legacyDonorModel -> FieldItem.builder()
+                                                .withLabel(FormatUtil.format("<@{0}>", legacyDonorModel.getDiscordId()))
+                                                .withOptionValue(FormatUtil.format("${0,number,#.##}", legacyDonorModel.getAmount()))
+                                                .build()
+                                            )
                                         )
-                                        .collect(Concurrent.toList())
+                                        .build()
                                 )
                                 .build(),
                             Page.builder()
