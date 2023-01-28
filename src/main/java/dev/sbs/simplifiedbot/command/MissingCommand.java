@@ -5,7 +5,6 @@ import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.PlayerSta
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.AccessoryData;
 import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ObjectData;
 import dev.sbs.api.data.model.skyblock.accessory_data.accessories.AccessoryModel;
-import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.search.function.SearchFunction;
 import dev.sbs.api.util.helper.FormatUtil;
@@ -38,122 +37,7 @@ public class MissingCommand extends SkyBlockUserCommand {
     @Override
     protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
         PlayerStats playerStats = skyBlockUser.getSelectedIsland().getPlayerStats(skyBlockUser.getMember());
-        ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).findAll();
-
-        ConcurrentList<FieldItem> missingAccessories = allAccessories.stream()
-            .filter(accessoryModel -> accessoryModel.getItem().isObtainable())
-            .filter(accessoryModel -> playerStats.getAccessoryBag()
-                .getAccessories()
-                .stream()
-                .noneMatch(accessoryData -> accessoryData.getAccessory().equals(accessoryModel))
-            )
-            .filter(accessoryModel -> {
-                if (Objects.isNull(accessoryModel.getFamily()))
-                    return true;
-
-                return playerStats.getAccessoryBag()
-                    .getAccessories()
-                    .stream()
-                    .map(AccessoryData::getAccessory)
-                    .filter(playerAccessoryModel -> Objects.nonNull(playerAccessoryModel.getFamily()))
-                    .filter(playerAccessoryModel -> playerAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
-                    .noneMatch(playerAccessoryModel -> playerAccessoryModel.getFamilyRank() >= accessoryModel.getFamilyRank());
-            })
-            .filter(accessoryModel -> {
-                if (Objects.isNull(accessoryModel.getFamily()))
-                    return true;
-
-                return allAccessories.stream()
-                    .filter(compareAccessoryModel -> compareAccessoryModel.getItem().isObtainable())
-                    .filter(compareAccessoryModel -> Objects.nonNull(compareAccessoryModel.getFamily()))
-                    .filter(compareAccessoryModel -> compareAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
-                    .allMatch(compareAccessoryModel -> accessoryModel.getFamilyRank() >= compareAccessoryModel.getFamilyRank());
-            })
-            .map(accessoryModel -> FieldItem.builder()
-                .withEmoji(
-                    skyBlockUser.getSkyBlockEmojis()
-                        .getEmoji(accessoryModel.getItem().getItemId())
-                        .map(Emoji::of)
-                )
-                .withOptionValue(accessoryModel.getItem().getItemId())
-                .withLabel(accessoryModel.getName())
-                .build()
-            )
-            .collect(Concurrent.toList())
-            .sorted(pageItem -> pageItem.getOption().orElseThrow().getLabel());
-
-        ConcurrentList<FieldItem> unwantedAccessories = playerStats.getAccessoryBag()
-            .getAccessories()
-            .stream()
-            .filter(accessoryData -> !playerStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData))
-            .map(AccessoryData::getAccessory)
-            .map(accessoryModel -> FieldItem.builder()
-                .withEmoji(
-                    skyBlockUser.getSkyBlockEmojis()
-                        .getEmoji(accessoryModel.getItem().getItemId())
-                        .map(Emoji::of)
-                )
-                .withOptionValue(accessoryModel.getItem().getItemId())
-                .withLabel(accessoryModel.getName())
-                .build()
-            )
-            .collect(Concurrent.toList());
-
-        ConcurrentList<FieldItem> stackableAccessories = allAccessories.matchAll(
-                SearchFunction.Match.ANY,
-                accessoryModel -> accessoryModel.getFamily().isStatsStackable(),
-                accessoryModel -> accessoryModel.getFamily().isReforgesStackable()
-            )
-            .stream()
-            .filter(accessoryModel -> !playerStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData -> accessoryData.getAccessory().equals(accessoryModel), true))
-            .collect(Concurrent.toList())
-            .sorted(accessoryModel -> accessoryModel.getFamily().getKey(), AccessoryModel::getFamilyRank)
-            .stream()
-            .map(accessoryModel -> FieldItem.builder()
-                .withEmoji(
-                    skyBlockUser.getSkyBlockEmojis()
-                        .getEmoji(accessoryModel.getItem().getItemId())
-                        .map(Emoji::of)
-                )
-                .withOptionValue(accessoryModel.getItem().getItemId())
-                .withLabel(accessoryModel.getName())
-                .build()
-            )
-            .collect(Concurrent.toList());
-
-        ConcurrentList<FieldItem> missingRecombobulators = playerStats.getAccessoryBag()
-            .getFilteredAccessories()
-            .stream()
-            .filter(ObjectData::notRecombobulated)
-            .map(AccessoryData::getAccessory)
-            .map(accessoryModel -> FieldItem.builder()
-                .withEmoji(
-                    skyBlockUser.getSkyBlockEmojis()
-                        .getEmoji(accessoryModel.getItem().getItemId())
-                        .map(Emoji::of)
-                )
-                .withOptionValue(accessoryModel.getItem().getItemId())
-                .withLabel(accessoryModel.getName())
-                .build()
-            )
-            .collect(Concurrent.toList());
-
-        ConcurrentList<FieldItem> missingEnrichments = playerStats.getAccessoryBag()
-            .getFilteredAccessories()
-            .stream()
-            .filter(AccessoryData::isMissingEnrichment)
-            .map(AccessoryData::getAccessory)
-            .map(accessoryModel -> FieldItem.builder()
-                .withEmoji(
-                    skyBlockUser.getSkyBlockEmojis()
-                        .getEmoji(accessoryModel.getItem().getItemId())
-                        .map(Emoji::of)
-                )
-                .withOptionValue(accessoryModel.getItem().getItemId())
-                .withLabel(accessoryModel.getName())
-                .build()
-            )
-            .collect(Concurrent.toList());
+        ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).matchAll(accessoryModel -> accessoryModel.getItem().isObtainable());
 
         return commandContext.reply(
             Response.builder()
@@ -162,9 +46,53 @@ public class MissingCommand extends SkyBlockUserCommand {
                 .withTimeToLive(30)
                 .withPages(
                     Page.builder()
-                        .withItems(missingAccessories)
-                        .withItemsPerPage(10)
-                        .withItemStyle(PageItem.Style.LIST_SINGLE)
+                        .withItemData(
+                            Page.ItemData.builder(AccessoryModel.class)
+                                .withFieldItems(allAccessories)
+                                .withTransformer(stream -> stream
+                                    .filter(accessoryModel -> playerStats.getAccessoryBag()
+                                        .getAccessories()
+                                        .stream()
+                                        .noneMatch(accessoryData -> accessoryData.getAccessory().equals(accessoryModel))
+                                    )
+                                    .filter(accessoryModel -> {
+                                        if (Objects.isNull(accessoryModel.getFamily()))
+                                            return true;
+
+                                        return playerStats.getAccessoryBag()
+                                            .getAccessories()
+                                            .stream()
+                                            .map(AccessoryData::getAccessory)
+                                            .filter(playerAccessoryModel -> Objects.nonNull(playerAccessoryModel.getFamily()))
+                                            .filter(playerAccessoryModel -> playerAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
+                                            .noneMatch(playerAccessoryModel -> playerAccessoryModel.getFamilyRank() >= accessoryModel.getFamilyRank());
+                                    })
+                                    .filter(accessoryModel -> {
+                                        if (Objects.isNull(accessoryModel.getFamily()))
+                                            return true;
+
+                                        return allAccessories.stream()
+                                            .filter(compareAccessoryModel -> compareAccessoryModel.getItem().isObtainable())
+                                            .filter(compareAccessoryModel -> Objects.nonNull(compareAccessoryModel.getFamily()))
+                                            .filter(compareAccessoryModel -> compareAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
+                                            .allMatch(compareAccessoryModel -> accessoryModel.getFamilyRank() >= compareAccessoryModel.getFamilyRank());
+                                    })
+                                    .map(accessoryModel -> FieldItem.builder()
+                                        .withEmoji(
+                                            skyBlockUser.getSkyBlockEmojis()
+                                                .getEmoji(accessoryModel.getItem().getItemId())
+                                                .map(Emoji::of)
+                                        )
+                                        .withOptionValue(accessoryModel.getItem().getItemId())
+                                        .withLabel(accessoryModel.getName())
+                                        .build()
+                                    )
+                                )
+                                .withSortFunctions(AccessoryModel::getName)
+                                .withStyle(PageItem.Style.LIST_SINGLE)
+                                .withAmountPerPage(10)
+                                .build()
+                        )
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("missing")
@@ -173,30 +101,39 @@ public class MissingCommand extends SkyBlockUserCommand {
                         )
                         .withEmbeds(
                             getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "missing", "Accessory Information")
-                                .withDescription(FormatUtil.format("You are missing {0} accessories.", missingAccessories.size()))
+                                .withDescription(FormatUtil.format("You are missing {0} accessories.", -1))
                                 .build()
                         )
                         .build(),
                     Page.builder()
-                        .withItems(unwantedAccessories)
-                        .withItemsPerPage(10)
-                        .withItemStyle(PageItem.Style.LIST_SINGLE)
-                        .withOption(
-                            SelectMenu.Option.builder()
-                                .withValue("unwanted")
-                                .withLabel("Unwanted Accessories")
+                        .withItemData(
+                            Page.ItemData.builder(AccessoryModel.class)
+                                .withFieldItems(allAccessories.matchAll(
+                                    SearchFunction.Match.ANY,
+                                    accessoryModel -> accessoryModel.getFamily().isStatsStackable(),
+                                    accessoryModel -> accessoryModel.getFamily().isReforgesStackable()
+                                ))
+                                .withTransformer(stream -> stream
+                                    .filter(accessoryModel -> !playerStats.getAccessoryBag()
+                                        .getFilteredAccessories()
+                                        .contains(accessoryData -> accessoryData.getAccessory().equals(accessoryModel), true)
+                                    )
+                                    .map(accessoryModel -> FieldItem.builder()
+                                        .withEmoji(
+                                            skyBlockUser.getSkyBlockEmojis()
+                                                .getEmoji(accessoryModel.getItem().getItemId())
+                                                .map(Emoji::of)
+                                        )
+                                        .withOptionValue(accessoryModel.getItem().getItemId())
+                                        .withLabel(accessoryModel.getName())
+                                        .build()
+                                    )
+                                )
+                                .withSortFunctions(accessoryModel -> accessoryModel.getFamily().getKey(), AccessoryModel::getFamilyRank)
+                                .withStyle(PageItem.Style.LIST)
+                                .withAmountPerPage(10)
                                 .build()
                         )
-                        .withEmbeds(
-                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "unwanted", "Accessory Information")
-                                .withDescription(FormatUtil.format("You have {0} unwanted accessories.", unwantedAccessories.size()))
-                                .build()
-                        )
-                        .build(),
-                    Page.builder()
-                        .withItems(stackableAccessories)
-                        .withItemsPerPage(10)
-                        .withItemStyle(PageItem.Style.LIST)
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("stackable")
@@ -205,14 +142,66 @@ public class MissingCommand extends SkyBlockUserCommand {
                         )
                         .withEmbeds(
                             getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "stackable", "Accessory Information")
-                                .withDescription(FormatUtil.format("You are missing {0} stackable accessories.", stackableAccessories.size()))
+                                .withDescription(FormatUtil.format("You are missing {0} stackable accessories.", -1))
                                 .build()
                         )
                         .build(),
                     Page.builder()
-                        .withItems(missingRecombobulators)
-                        .withItemsPerPage(10)
-                        .withItemStyle(PageItem.Style.LIST)
+                        .withItemData(
+                            Page.ItemData.builder(AccessoryData.class)
+                                .withFieldItems(playerStats.getAccessoryBag().getAccessories())
+                                .withTransformer(stream -> stream
+                                    .filter(accessoryData -> !playerStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData))
+                                    .map(AccessoryData::getAccessory)
+                                    .map(accessoryModel -> FieldItem.builder()
+                                        .withEmoji(
+                                            skyBlockUser.getSkyBlockEmojis()
+                                                .getEmoji(accessoryModel.getItem().getItemId())
+                                                .map(Emoji::of)
+                                        )
+                                        .withOptionValue(accessoryModel.getItem().getItemId())
+                                        .withLabel(accessoryModel.getName())
+                                        .build()
+                                    )
+                                )
+                                .withStyle(PageItem.Style.LIST_SINGLE)
+                                .withAmountPerPage(10)
+                                .build()
+                        )
+                        .withOption(
+                            SelectMenu.Option.builder()
+                                .withValue("unwanted")
+                                .withLabel("Unwanted Accessories")
+                                .build()
+                        )
+                        .withEmbeds(
+                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "unwanted", "Accessory Information")
+                                .withDescription(FormatUtil.format("You have {0} unwanted accessories.", -1))
+                                .build()
+                        )
+                        .build(),
+                    Page.builder()
+                        .withItemData(
+                            Page.ItemData.builder(AccessoryData.class)
+                                .withFieldItems(playerStats.getAccessoryBag().getFilteredAccessories())
+                                .withTransformer(stream -> stream
+                                    .filter(ObjectData::notRecombobulated)
+                                    .map(AccessoryData::getAccessory)
+                                    .map(accessoryModel -> FieldItem.builder()
+                                        .withEmoji(
+                                            skyBlockUser.getSkyBlockEmojis()
+                                                .getEmoji(accessoryModel.getItem().getItemId())
+                                                .map(Emoji::of)
+                                        )
+                                        .withOptionValue(accessoryModel.getItem().getItemId())
+                                        .withLabel(accessoryModel.getName())
+                                        .build()
+                                    )
+                                )
+                                .withStyle(PageItem.Style.LIST)
+                                .withAmountPerPage(10)
+                                .build()
+                        )
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("recombobulators")
@@ -221,14 +210,32 @@ public class MissingCommand extends SkyBlockUserCommand {
                         )
                         .withEmbeds(
                             getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "recombobulators", "Accessory Information")
-                                .withDescription(FormatUtil.format("You are missing recombobulators on {0} accessories.", missingRecombobulators.size()))
+                                .withDescription(FormatUtil.format("You are missing recombobulators on {0} accessories.", -1))
                                 .build()
                         )
                         .build(),
                     Page.builder()
-                        .withItems(missingEnrichments)
-                        .withItemsPerPage(10)
-                        .withItemStyle(PageItem.Style.LIST)
+                        .withItemData(
+                            Page.ItemData.builder(AccessoryData.class)
+                                .withFieldItems(playerStats.getAccessoryBag().getFilteredAccessories())
+                                .withTransformer(stream -> stream
+                                    .filter(AccessoryData::isMissingEnrichment)
+                                    .map(AccessoryData::getAccessory)
+                                    .map(accessoryModel -> FieldItem.builder()
+                                        .withEmoji(
+                                            skyBlockUser.getSkyBlockEmojis()
+                                                .getEmoji(accessoryModel.getItem().getItemId())
+                                                .map(Emoji::of)
+                                        )
+                                        .withOptionValue(accessoryModel.getItem().getItemId())
+                                        .withLabel(accessoryModel.getName())
+                                        .build()
+                                    )
+                                )
+                                .withStyle(PageItem.Style.LIST)
+                                .withAmountPerPage(10)
+                                .build()
+                        )
                         .withOption(
                             SelectMenu.Option.builder()
                                 .withValue("enrichments")
@@ -237,7 +244,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                         )
                         .withEmbeds(
                             getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "enrichments", "Accessory Information")
-                                .withDescription(FormatUtil.format("You are missing enrichments on {0} accessories.", missingEnrichments.size()))
+                                .withDescription(FormatUtil.format("You are missing enrichments on {0} accessories.", -1))
                                 .build()
                         )
                         .build()
