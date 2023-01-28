@@ -56,6 +56,7 @@ public abstract class SkyBlockUserCommand extends Command {
         return Concurrent.newUnmodifiableList(
             Parameter.builder("name", "Minecraft Username or UUID", Parameter.Type.WORD)
                 .withValidator((argument, commandContext) -> StringUtil.isUUID(argument) || MOJANG_NAME.matcher(argument).matches())
+                .isRequired()
                 .build(),
             Parameter.builder("profile", "SkyBlock Profile Name", Parameter.Type.WORD)
                 .withValidator((argument, commandContext) -> SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent())

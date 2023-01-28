@@ -23,14 +23,14 @@ public class EmbedCreateCommand extends Command {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
-        Page.builder()
-            .withItems(
-                FooterItem.builder()
-                    .isEditable()
-                    .withName("yee haw")
-                    .build()
-            )
-            .build();
+//        Page.builder()
+//            .withItems(
+//                FooterItem.builder()
+//                    .isEditable()
+//                    .withName("yee haw") //TODO: yee haw
+//                    .build()
+//            )
+//            .build();
 
         return Mono.empty();
     }

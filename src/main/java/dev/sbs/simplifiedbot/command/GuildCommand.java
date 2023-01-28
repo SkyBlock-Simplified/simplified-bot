@@ -33,6 +33,7 @@ import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.item.FieldItem;
 import dev.sbs.discordapi.response.page.item.PageItem;
+import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -142,8 +143,8 @@ public class GuildCommand extends Command {
             .isInteractable()
             .withTimeToLive(120)
             .withPages(Page.builder()
-                .withItemStyle(PageItem.Style.FIELD_INLINE)
-                .withItemsPerPage(12)
+//                .withItemStyle(PageItem.Style.FIELD_INLINE)
+//                .withItemsPerPage(12)
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("General Information") //TODO: add minion slots to main page?
                     .withDescription("Guild Averages and Totals")
@@ -160,6 +161,7 @@ public class GuildCommand extends Command {
                         Average Weight: **{4}** (Without Overflow: **{5}**)
                         Average Networth: **{6}**
                         Average Skill Level: **{7}**
+                        Average Skyblock Level: **{8}**
                         """,
                         guildDescription,
                         guildTag,
@@ -167,15 +169,18 @@ public class GuildCommand extends Command {
                         guildOwner,
                         (int) guildMemberPlayers.stream().mapToDouble(
                             guildMember -> totalWeights.get(guildMember).getTotal()
-                        ).average().orElseThrow(),
+                        ).average().orElse(0),
                         (int) guildMemberPlayers.stream().mapToDouble(
                             guildMember -> totalWeights.get(guildMember).getValue()
-                        ).average().orElseThrow(),
+                        ).average().orElse(0),
                         (long) guildMemberPlayers.stream().mapToLong(
                             networths::get
-                        ).average().orElseThrow(),
+                        ).average().orElse(0),
                         df.format(guildMemberPlayers.stream()
-                            .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow())
+                            .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
+                        guildMemberPlayers.stream().mapToDouble(
+                            SkyBlockIsland.Member::getLevel
+                        ).average().orElse(0)
                         )
                     )
                     .withColor(tagColor)
@@ -205,29 +210,48 @@ public class GuildCommand extends Command {
 //                        )
 //                        .build()
 //                )
-                .withItems(
-                    FieldItem.builder()
-                        .withData(FormatUtil.format(
-                            """
-                                {0}Average Level: **{2}**
-                                {0}Total Experience:
-                                {1}**{3}**
-                                """,
-                            emojiReplyStem,
-                            emojiReplyEnd,
-                            df.format(guildMemberPlayers.stream()
-                                .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
-                            guildMemberPlayers.stream()
-                                .mapToLong(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().mapToLong(skill -> (long) skill.getExperience()).sum()).sum()
-                        ))
-                        .withOption(
-                            SelectMenu.Option.builder()
-                                .withLabel("All Skills")
-                                .withValue("ALL_SKILLS")
-                                .withEmoji(emojis.get("skills"))
-                                .build()
-                        )
+                .withPages(Page.builder()
+                    .withItemData(
+                        Page.ItemData.builder(SkyBlockIsland.Member.class)
+                            .withFieldItems(guildMemberPlayers)
+                            .withTransformer(stream ->
+                                StreamUtil.mapWithIndex(
+                                    guildMemberPlayers.sorted(SortOrder.DESCENDING, SkyBlockIsland.Member::getLevel).stream(),
+                                    (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                        .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                        .withLabel(FormatUtil.format(
+                                            " #{0} `{1}` >  **{2}**",
+                                            index + 1,
+                                            ignMap.get(guildMemberPlayer.getUniqueId()),
+                                            guildMemberPlayer.getLevel()
+                                        ))
+                                        .build()
+                                )
+                            )
+                            .withStyle(PageItem.Style.LIST_SINGLE)
+                            .withAmountPerPage(10)
+                            .build()
+                    )
+                    .withOption(SelectMenu.Option.builder()
+                        .withLabel("Skyblock Level")
+                        .withDescription("Skyblock Level Leaderboard")
+                        .withValue("Skyblock Level")
+                        //.withEmoji()
+                        .build())
+                    .withEmbeds(Embed.builder()
+                        .withColor(tagColor)
+                        .withTitle(guildName)
+                        .withDescription(FormatUtil.format("""
+                            Skyblock Level Average: **{0}**
+                            """,
+                            guildMemberPlayers.stream().mapToDouble(
+                                SkyBlockIsland.Member::getLevel
+                            ).average().orElse(0)
+                            ))
                         .build()
+                    )
+
+                    .build()
                 )
                 .build()
             )
@@ -235,8 +259,63 @@ public class GuildCommand extends Command {
 
 
             .withPages(Page.builder()
-                .withItemStyle(PageItem.Style.FIELD_INLINE)
-                .withItemsPerPage(20)
+                .withItemData(Page.ItemData.builder(SkillModel.class)
+                    .withItems(
+                        FieldItem.builder()
+                            .withData(FormatUtil.format(
+                                """
+                                    {0}Average Level: **{2}**
+                                    {0}Total Experience:
+                                    {1}**{3}**
+                                    """,
+                                emojiReplyStem,
+                                emojiReplyEnd,
+                                df.format(guildMemberPlayers.stream()
+                                    .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
+                                guildMemberPlayers.stream()
+                                    .mapToLong(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().mapToLong(skill -> (long) skill.getExperience()).sum()).sum()
+                            ))
+                            .withOption(
+                                SelectMenu.Option.builder()
+                                    .withLabel("All Skills")
+                                    .withValue("ALL_SKILLS")
+                                    .withEmoji(emojis.get("skills"))
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .withFieldItems(skillModels)
+                    .withTransformer(skillModelStream -> skillModelStream
+                        .map(skillModel -> FieldItem.builder()
+                            .withEmoji(emojis.get(skillModel.getKey()))
+                            .withData(FormatUtil.format(
+                                    """
+                                        {0}Average Level: **{2}**
+                                        {0}Total Experience:
+                                        {1}**{3}**
+                                        """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    df.format(guildMemberPlayers.stream()
+                                        .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
+                                            .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
+                                    (long) guildMemberPlayers.stream()
+                                        .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
+                                            .findFirst().orElseThrow().getExperience()).sum()
+                                )
+                            )
+                            .withOption(SelectMenu.Option.builder()
+                                .withLabel(skillModel.getName())
+                                .withValue(skillModel.getName())
+                                .withEmoji(emojis.get(skillModel.getKey()))
+                                .build()
+                            )
+                            .build()
+                        )
+                    )
+                    .withStyle(PageItem.Style.FIELD_INLINE)
+                    .withAmountPerPage(20)
+                    .build())
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Skill Averages")
                     .withDescription("Guild Skill Averages and Totals")
@@ -263,89 +342,13 @@ public class GuildCommand extends Command {
                     .withColor(tagColor)
                     .build()
                 )
-                .withItems(
-                    FieldItem.builder()
-                        .withData(FormatUtil.format(
-                            """
-                                {0}Average Level: **{2}**
-                                {0}Total Experience:
-                                {1}**{3}**
-                                """,
-                            emojiReplyStem,
-                            emojiReplyEnd,
-                            df.format(guildMemberPlayers.stream()
-                                .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
-                            guildMemberPlayers.stream()
-                                .mapToLong(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().mapToLong(skill -> (long) skill.getExperience()).sum()).sum()
-                        ))
-                        .withOption(
-                            SelectMenu.Option.builder()
-                                .withLabel("All Skills")
-                                .withValue("ALL_SKILLS")
-                                .withEmoji(emojis.get("skills"))
-                                .build()
-                        )
-                        .build()
 
-                )
-                .withItems(skillModels
-                    .stream()
-                    .map(skillModel -> FieldItem.builder()
-                        .withEmoji(emojis.get(skillModel.getKey()))
-                        .withData(FormatUtil.format(
-                            """
-                                {0}Average Level: **{2}**
-                                {0}Total Experience:
-                                {1}**{3}**
-                                """,
-                            emojiReplyStem,
-                            emojiReplyEnd,
-                            df.format(guildMemberPlayers.stream()
-                                .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
-                                    .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
-                            (long) guildMemberPlayers.stream()
-                                .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
-                                    .findFirst().orElseThrow().getExperience()).sum()
-                            )
-                        )
-                        .withOption(SelectMenu.Option.builder()
-                            .withLabel(skillModel.getName())
-                            .withValue(skillModel.getName())
-                            .withEmoji(emojis.get(skillModel.getKey()))
-                            .build()
-                        )
-                        .build()
-                    )
-                    .collect(Concurrent.toList())
-                )
+
                 .withPages(skillModels.stream()
                     .map(skillModel -> Page.builder()
-                        .withItemStyle(PageItem.Style.LIST_SINGLE)
-                        .withItemsPerPage(20)
-                        .withOption(SelectMenu.Option.builder()
-                            .withLabel(skillModel.getName() + " Leaderboard")
-                            .withDescription("Guild Leaderboard for the " + skillModel.getName() + " Skill")
-                            .withValue(skillModel.getName() + " Leaderboard")
-                            .withEmoji(emojis.get(skillModel.getKey()))
-                            .build())
-                        .withEmbeds(
-                            Embed.builder()
-                                .withColor(tagColor)
-                                .withTitle(guildName)
-                                .withDescription(FormatUtil.format("""
-                                {0} Average: **{1}** / {2}
-                                """,
-                                        skillModel.getName(),
-                                        df.format(guildMemberPlayers.stream()
-                                            .mapToDouble(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().filter(skill -> skill.getType().equals(skillModel))
-                                                .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
-                                        skillModel.getMaxLevel()
-                                    )
-                                )
-                                .build()
-                        )
-                        .withItems(
-                            StreamUtil.mapWithIndex(
+                        .withItemData(Page.ItemData.builder(SkyBlockIsland.Member.class)
+                            .withItems(
+                                StreamUtil.mapWithIndex(
                                     guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> skills.get(guildMemberPlayer).stream()
                                         .filter(skill -> skill.getType().equals(skillModel))
                                         .findFirst().orElseThrow().getExperience()).stream(),
@@ -359,8 +362,35 @@ public class GuildCommand extends Command {
                                             skills.get(guildMemberPlayer).stream().filter(skill -> skill.getType().equals(skillModel)).findFirst().orElseThrow().getLevel()
                                         ))
                                         .build()
+                                    )
+                                    .collect(Concurrent.toList()
                                 )
-                                .collect(Concurrent.toList())
+                            )
+                            .withStyle(PageItem.Style.LIST_SINGLE)
+                            .withAmountPerPage(20)
+                            .build()
+                        )
+                        .withOption(SelectMenu.Option.builder()
+                            .withLabel(skillModel.getName() + " Leaderboard")
+                            .withDescription("Guild Leaderboard for the " + skillModel.getName() + " Skill")
+                            .withValue(skillModel.getName() + " Leaderboard")
+                            .withEmoji(emojis.get(skillModel.getKey()))
+                            .build())
+                        .withEmbeds(
+                            Embed.builder()
+                                .withColor(tagColor)
+                                .withTitle(guildName)
+                                .withDescription(FormatUtil.format("""
+                                    {0} Average: **{1}** / {2}
+                                    """,
+                                    skillModel.getName(),
+                                    df.format(guildMemberPlayers.stream()
+                                        .mapToDouble(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().filter(skill -> skill.getType().equals(skillModel))
+                                            .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
+                                    skillModel.getMaxLevel()
+                                    )
+                                )
+                                .build()
                         )
                         .build()
                     )
@@ -372,8 +402,40 @@ public class GuildCommand extends Command {
 
 
             .withPages(Page.builder()
-                .withItemStyle(PageItem.Style.FIELD_INLINE)
-                .withItemsPerPage(20)
+                .withItemData(
+                    Page.ItemData.builder(SlayerModel.class)
+                        .withFieldItems(slayerModels)
+                        .withTransformer(stream -> stream
+                            .map(slayerModel -> FieldItem.builder()
+                                .withEmoji(emojis.get(slayerModel.getKey()))
+                                .withOptionValue(slayerModel.getKey())
+                                .withLabel(FormatUtil.format(
+                                    """
+                                        {0}Average Level: **{2}**
+                                        {0}Total Experience:
+                                        {1}**{3}**
+                                        """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    df.format(guildMemberPlayers.stream()
+                                        .mapToDouble(member -> member.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
+                                    (long) guildMemberPlayers.stream()
+                                        .mapToDouble(member -> member.getSlayer(slayerModel).getExperience()).sum()
+                                    )
+                                )
+                                .withOption(SelectMenu.Option.builder()
+                                    .withLabel(slayerModel.getName())
+                                    .withEmoji(emojis.get(slayerModel.getKey()))
+                                    .withValue(slayerModel.getName())
+                                    .build()
+                                )
+                                .build()
+                            )
+                        )
+                        .withStyle(PageItem.Style.FIELD_INLINE)
+                        .withAmountPerPage(20)
+                        .build()
+                )
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Slayer Information")
                     .withDescription("Guild Slayer Averages and Totals")
@@ -402,38 +464,30 @@ public class GuildCommand extends Command {
                         .withColor(tagColor)
                         .build()
                 )
-                .withItems(slayerModels.stream()
-                    .map(slayerModel -> FieldItem.builder()
-                        .withEmoji(emojis.get(slayerModel.getKey()))
-                        .withOptionValue(slayerModel.getKey())
-                        .withLabel(FormatUtil.format(
-                            """
-                                {0}Average Level: **{2}**
-                                {0}Total Experience:
-                                {1}**{3}**
-                                """,
-                            emojiReplyStem,
-                            emojiReplyEnd,
-                            df.format(guildMemberPlayers.stream()
-                                .mapToDouble(member -> member.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
-                            (long) guildMemberPlayers.stream()
-                                .mapToDouble(member -> member.getSlayer(slayerModel).getExperience()).sum()
-                            )
-                        )
-                        .withOption(SelectMenu.Option.builder()
-                            .withLabel(slayerModel.getName())
-                            .withEmoji(emojis.get(slayerModel.getKey()))
-                            .withValue(slayerModel.getName())
-                            .build()
-                        )
-                        .build()
-                    )
-                    .collect(Concurrent.toList())
-                )
                 .withPages(slayerModels.stream()
                     .map(slayerModel -> Page.builder()
-                        .withItemStyle(PageItem.Style.LIST_SINGLE)
-                        .withItemsPerPage(20)
+                        .withItemData(
+                            Page.ItemData.builder(SkyBlockIsland.Member.class)
+                                .withItems(
+                                    StreamUtil.mapWithIndex(
+                                        guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getExperience()).stream(),
+                                        (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                            .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                            .withLabel(FormatUtil.format(
+                                                " #{0} `{1}` >  **{2} [{3}]**",
+                                                index + 1,
+                                                ignMap.get(guildMemberPlayer.getUniqueId()),
+                                                (long) guildMemberPlayer.getSlayer(slayerModel).getExperience(),
+                                                guildMemberPlayer.getSlayer(slayerModel).getLevel()
+                                            ))
+                                            .build()
+                                    )
+                                    .collect(Concurrent.toList())
+                                )
+                                .withStyle(PageItem.Style.LIST_SINGLE)
+                                .withAmountPerPage(20)
+                                .build()
+                        )
                         .withOption(SelectMenu.Option.builder()
                             .withLabel(slayerModel.getName() + " Leaderboard")
                             .withDescription("Guild Leaderboard for the " + slayerModel.getName() + " Slayer")
@@ -455,22 +509,6 @@ public class GuildCommand extends Command {
                                 )
                                 .build()
                         )
-                        .withItems(
-                            StreamUtil.mapWithIndex(
-                                    guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getExperience()).stream(),
-                                    (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                        .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                                        .withLabel(FormatUtil.format(
-                                            " #{0} `{1}` >  **{2} [{3}]**",
-                                            index + 1,
-                                            ignMap.get(guildMemberPlayer.getUniqueId()),
-                                            (long) guildMemberPlayer.getSlayer(slayerModel).getExperience(),
-                                            guildMemberPlayer.getSlayer(slayerModel).getLevel()
-                                        ))
-                                        .build()
-                                )
-                                .collect(Concurrent.toList())
-                        )
                         .build()
                     )
                     .collect(Concurrent.toList())
@@ -481,8 +519,63 @@ public class GuildCommand extends Command {
 
 
             .withPages(Page.builder()
-                .withItemStyle(PageItem.Style.FIELD_INLINE)
-                .withItemsPerPage(20)
+                .withItemData(
+                    Page.ItemData.builder(DungeonClassModel.class)
+                        .withItems(FieldItem.builder()
+                            .withEmoji(emojis.get(catacombs.getKey()))
+                            .withLabel(FormatUtil.format(
+                                    """
+                                        {0}Average Level: **{2}**
+                                        {0}Total Experience:
+                                        {1}**{3}**
+                                        """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    df.format(guildMemberPlayers.stream()
+                                        .mapToDouble(member -> member.getDungeons().getDungeon(catacombs).getLevel()).average().orElseThrow()),
+                                    (long) guildMemberPlayers.stream()
+                                        .mapToDouble(member -> member.getDungeons().getDungeon(catacombs).getExperience()).sum()
+                                )
+                            )
+                            .withOption(SelectMenu.Option.builder()
+                                .withLabel(catacombs.getName())
+                                .withEmoji(emojis.get(catacombs.getKey()))
+                                .withValue(catacombs.getName())
+                                .build()
+                            )
+                            .build()
+                        )
+                        .withFieldItems(dungeonClassModels)
+                        .withTransformer(stream -> stream
+                            .map(dungeonClassModel -> FieldItem.builder()
+                                .withEmoji(emojis.get(dungeonClassModel.getKey()))
+                                .withData(FormatUtil.format(
+                                        """
+                                            {0}Average Level: **{2}**
+                                            {0}Total Experience:
+                                            {1}**{3}**
+                                            """,
+                                        emojiReplyStem,
+                                        emojiReplyEnd,
+                                        df.format(guildMemberPlayers.stream()
+                                            .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getLevel()).average().orElseThrow()),
+                                        (long) guildMemberPlayers.stream()
+                                            .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getExperience()).sum()
+                                    )
+                                )
+                                .withOption(SelectMenu.Option.builder()
+                                    .withLabel(dungeonClassModel.getName())
+                                    .withEmoji(emojis.get(dungeonClassModel.getKey()))
+                                    .withValue(dungeonClassModel.getName())
+                                    .build()
+                                )
+                                .build()
+                            )
+                        )
+                        .withStyle(PageItem.Style.FIELD_INLINE)
+                        .withAmountPerPage(20)
+                        .build()
+                )
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Dungeon Information")
                     .withDescription("Guild Dungeon Averages and Totals")
@@ -509,60 +602,29 @@ public class GuildCommand extends Command {
                     .withColor(tagColor)
                     .build()
                 )
-                .withItems(FieldItem.builder()
-                    .withEmoji(emojis.get(catacombs.getKey()))
-                    .withLabel(FormatUtil.format(
-                        """
-                            {0}Average Level: **{2}**
-                            {0}Total Experience:
-                            {1}**{3}**
-                            """,
-                        emojiReplyStem,
-                        emojiReplyEnd,
-                        df.format(guildMemberPlayers.stream()
-                            .mapToDouble(member -> member.getDungeons().getDungeon(catacombs).getLevel()).average().orElseThrow()),
-                        (long) guildMemberPlayers.stream()
-                            .mapToDouble(member -> member.getDungeons().getDungeon(catacombs).getExperience()).sum()
-                        )
-                    )
-                    .withOption(SelectMenu.Option.builder()
-                        .withLabel(catacombs.getName())
-                        .withEmoji(emojis.get(catacombs.getKey()))
-                        .withValue(catacombs.getName())
-                        .build()
-                    )
-                    .build()
-                )
-                .withItems(dungeonClassModels.stream()
-                    .map(dungeonClassModel -> FieldItem.builder()
-                        .withEmoji(emojis.get(dungeonClassModel.getKey()))
-                        .withData(FormatUtil.format(
-                            """
-                                {0}Average Level: **{2}**
-                                {0}Total Experience:
-                                {1}**{3}**
-                                """,
-                            emojiReplyStem,
-                            emojiReplyEnd,
-                            df.format(guildMemberPlayers.stream()
-                                .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getLevel()).average().orElseThrow()),
-                            (long) guildMemberPlayers.stream()
-                                .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getExperience()).sum()
-                            )
-                        )
-                        .withOption(SelectMenu.Option.builder()
-                            .withLabel(dungeonClassModel.getName())
-                            .withEmoji(emojis.get(dungeonClassModel.getKey()))
-                            .withValue(dungeonClassModel.getName())
-                            .build()
-                        )
-                        .build()
-                    )
-                    .collect(Concurrent.toList())
-                )
                 .withPages(Page.builder()
-                    .withItemStyle(PageItem.Style.LIST_SINGLE)
-                    .withItemsPerPage(20)
+                    .withItemData(
+                        Page.ItemData.builder(SkyBlockIsland.Member.class)
+                            .withItems(
+                                StreamUtil.mapWithIndex(
+                                    guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience()).stream(),
+                                    (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                        .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                        .withLabel(FormatUtil.format(
+                                            " #{0} `{1}` >  **{2} [{3}]**",
+                                            index + 1,
+                                            ignMap.get(guildMemberPlayer.getUniqueId()),
+                                            (long) guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience(),
+                                            guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()
+                                        ))
+                                        .build()
+                                    )
+                                    .collect(Concurrent.toList())
+                            )
+                            .withStyle(PageItem.Style.LIST_SINGLE)
+                            .withAmountPerPage(20)
+                            .build()
+                    )
                     .withOption(SelectMenu.Option.builder()
                         .withLabel("Catacombs Leaderboard")
                         .withDescription("Guild Leaderboard for Catacombs Level")
@@ -582,28 +644,33 @@ public class GuildCommand extends Command {
                             )
                             .build()
                     )
-                    .withItems(
-                        StreamUtil.mapWithIndex(
-                                guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience()).stream(),
-                                (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                    .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                                    .withLabel(FormatUtil.format(
-                                        " #{0} `{1}` >  **{2} [{3}]**",
-                                        index + 1,
-                                        ignMap.get(guildMemberPlayer.getUniqueId()),
-                                        (long) guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience(),
-                                        guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()
-                                    ))
-                                    .build()
-                            )
-                            .collect(Concurrent.toList())
-                    )
+
                     .build()
                 )
                 .withPages(dungeonClassModels.stream()
                     .map(classModel -> Page.builder()
-                        .withItemStyle(PageItem.Style.LIST_SINGLE)
-                        .withItemsPerPage(20)
+                        .withItemData(
+                            Page.ItemData.builder(SkyBlockIsland.Member.class)
+                                .withItems(
+                                    StreamUtil.mapWithIndex(
+                                        guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getExperience()).stream(),
+                                        (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                            .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                            .withLabel(FormatUtil.format(
+                                                " #{0} `{1}` >  **{2} [{3}]**",
+                                                index + 1,
+                                                ignMap.get(guildMemberPlayer.getUniqueId()),
+                                                (long) guildMemberPlayer.getDungeons().getClass(classModel).getExperience(),
+                                                guildMemberPlayer.getDungeons().getClass(classModel).getLevel()
+                                            ))
+                                            .build()
+                                    )
+                                    .collect(Concurrent.toList())
+                                )
+                                .withStyle(PageItem.Style.LIST_SINGLE)
+                                .withAmountPerPage(20)
+                                .build()
+                        )
                         .withOption(SelectMenu.Option.builder()
                             .withLabel(classModel.getName() + " Leaderboard")
                             .withDescription("Guild Leaderboard for the " + classModel.getName() + " Class")
@@ -625,22 +692,6 @@ public class GuildCommand extends Command {
                                 )
                                 .build()
                         )
-                        .withItems(
-                            StreamUtil.mapWithIndex(
-                                    guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getExperience()).stream(),
-                                    (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                        .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                                        .withLabel(FormatUtil.format(
-                                            " #{0} `{1}` >  **{2} [{3}]**",
-                                            index + 1,
-                                            ignMap.get(guildMemberPlayer.getUniqueId()),
-                                            (long) guildMemberPlayer.getDungeons().getClass(classModel).getExperience(),
-                                            guildMemberPlayer.getDungeons().getClass(classModel).getLevel()
-                                        ))
-                                        .build()
-                                )
-                                .collect(Concurrent.toList())
-                        )
                         .build()
                     )
                     .collect(Concurrent.toList())
@@ -651,8 +702,28 @@ public class GuildCommand extends Command {
 
 
             .withPages(Page.builder()
-                .withItemStyle(PageItem.Style.LIST_SINGLE)
-                .withItemsPerPage(20)
+                .withItemData(
+                    Page.ItemData.builder(SkyBlockIsland.Member.class)
+                        .withItems(
+                            StreamUtil.mapWithIndex(
+                                guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal()).stream(),
+                                (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                    .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                    .withLabel(FormatUtil.format(
+                                        " #{0} `{1}` >  **{2} [{3}]**",
+                                        index + 1,
+                                        ignMap.get(guildMemberPlayer.getUniqueId()),
+                                        (int) totalWeights.get(guildMemberPlayer).getTotal(),
+                                        (int) totalWeights.get(guildMemberPlayer).getValue()
+                                    ))
+                                    .build()
+                            )
+                            .collect(Concurrent.toList())
+                        )
+                        .withStyle(PageItem.Style.LIST_SINGLE)
+                        .withAmountPerPage(20)
+                        .build()
+                )
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Weight Leaderboard")
                     .withDescription("Guild Weight Leaderboard")
@@ -674,30 +745,33 @@ public class GuildCommand extends Command {
                         )
                         .build()
                 )
-                .withItems(
-                    StreamUtil.mapWithIndex(
-                        guildMemberPlayers.sorted(SortOrder.DESCENDING, guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal()).stream(),
-                        (guildMemberPlayer, index, size) -> FieldItem.builder()
-                            .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                            .withLabel(FormatUtil.format(
-                                " #{0} `{1}` >  **{2} [{3}]**",
-                                index + 1,
-                                ignMap.get(guildMemberPlayer.getUniqueId()),
-                                (int) totalWeights.get(guildMemberPlayer).getTotal(),
-                                (int) totalWeights.get(guildMemberPlayer).getValue()
-                            ))
-                            .build()
-                        )
-                        .collect(Concurrent.toList())
-                )
                 .build()
             )
 
 
 
             .withPages(Page.builder()
-                .withItemStyle(PageItem.Style.LIST_SINGLE)
-                .withItemsPerPage(20)
+                .withItemData(
+                    Page.ItemData.builder(SkyBlockIsland.Member.class)
+                        .withItems(
+                            StreamUtil.mapWithIndex(
+                                guildMemberPlayers.sorted(SortOrder.DESCENDING, networths::get).stream(),
+                                (guildMemberPlayer, index, size) -> FieldItem.builder()
+                                    .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
+                                    .withLabel(FormatUtil.format(
+                                        " #{0} `{1}` >  **{2}**",
+                                        index + 1,
+                                        ignMap.get(guildMemberPlayer.getUniqueId()),
+                                        (int) guildMemberPlayer.getPurse()
+                                    ))
+                                    .build()
+                            )
+                            .collect(Concurrent.toList())
+                        )
+                        .withStyle(PageItem.Style.LIST_SINGLE)
+                        .withAmountPerPage(20)
+                        .build()
+                )
                 .withOption(SelectMenu.Option.builder()
                     .withLabel("Networth Leaderboard")
                     .withDescription("Guild Networth Leaderboard")
@@ -719,21 +793,6 @@ public class GuildCommand extends Command {
                         )
                         .build()
                 )
-                .withItems(
-                StreamUtil.mapWithIndex(
-                        guildMemberPlayers.sorted(SortOrder.DESCENDING, networths::get).stream(),
-                        (guildMemberPlayer, index, size) -> FieldItem.builder()
-                            .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                            .withLabel(FormatUtil.format(
-                                " #{0} `{1}` >  **{2}**",
-                                index + 1,
-                                ignMap.get(guildMemberPlayer.getUniqueId()),
-                                (int) guildMemberPlayer.getPurse()
-                            ))
-                            .build()
-                    )
-                    .collect(Concurrent.toList())
-                )
                 .build()
             )
             .build();
@@ -747,6 +806,7 @@ public class GuildCommand extends Command {
                 .isRequired()
                 .build(),
             Parameter.builder("page", "Jump to a specific page", Parameter.Type.TEXT) //TODO: implement choices
+                .withChoices()
                 .build()
         );
     }
