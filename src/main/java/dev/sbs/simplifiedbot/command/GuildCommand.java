@@ -195,7 +195,7 @@ public class GuildCommand extends Command {
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withFieldItems(guildMemberPlayers)
                                     .withFilters(
-                                        Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                        Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                             .withFunctions(SkyBlockIsland.Member::getLevelExperience)
                                             .withOrder(SortOrder.DESCENDING)
                                             .build()
@@ -337,7 +337,7 @@ public class GuildCommand extends Command {
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withFieldItems(guildMemberPlayers)
                                     .withFilters(
-                                        Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                        Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                             .withFunctions(guildMemberPlayer -> skills.get(guildMemberPlayer).stream()
                                                 .filter(skill -> skill.getType().equals(skillModel))
                                                 .findFirst().orElseThrow().getExperience()
@@ -464,7 +464,7 @@ public class GuildCommand extends Command {
                                     Page.ItemData.builder(SkyBlockIsland.Member.class)
                                         .withFieldItems(guildMemberPlayers)
                                         .withFilters(
-                                            Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                            Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                                 .withFunctions(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getExperience())
                                                 .withOrder(SortOrder.DESCENDING)
                                                 .build()
@@ -613,7 +613,7 @@ public class GuildCommand extends Command {
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withFieldItems(guildMemberPlayers)
                                     .withFilters(
-                                        Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                        Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                             .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience())
                                             .withOrder(SortOrder.DESCENDING)
                                             .build()
@@ -668,7 +668,7 @@ public class GuildCommand extends Command {
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withFieldItems(guildMemberPlayers)
                                     .withFilters(
-                                        Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                        Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                             .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getExperience())
                                             .withOrder(SortOrder.DESCENDING)
                                             .build()
@@ -728,7 +728,7 @@ public class GuildCommand extends Command {
                         Page.ItemData.builder(SkyBlockIsland.Member.class)
                             .withFieldItems(guildMemberPlayers)
                             .withFilters(
-                                Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                     .withFunctions(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal())
                                     .withOrder(SortOrder.DESCENDING)
                                     .build()
@@ -782,7 +782,7 @@ public class GuildCommand extends Command {
                         Page.ItemData.builder(SkyBlockIsland.Member.class)
                             .withFieldItems(guildMemberPlayers)
                             .withFilters(
-                                Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                     .withFunctions(networths::get)
                                     .withOrder(SortOrder.DESCENDING)
                                     .build()

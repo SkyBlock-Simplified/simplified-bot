@@ -381,7 +381,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             )
                         )
                         .withFilters(
-                            Page.ItemData.Filter.<SkyBlockIsland.PetInfo>builder()
+                            Page.ItemData.Sorter.<SkyBlockIsland.PetInfo>builder()
                                 .withFunctions(SortOrder.ASCENDING, SkyBlockIsland.PetInfo::getRarityOrdinal)
                                 .withFunctions(SortOrder.DESCENDING, SkyBlockIsland.PetInfo::getLevel)
                                 .withFunctions(SortOrder.ASCENDING, SkyBlockIsland.PetInfo::getName)
@@ -446,10 +446,11 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             )
                         )
                         .withFilters(
-                            Page.ItemData.Filter.<AccessoryData>builder()
+                            Page.ItemData.Sorter.<AccessoryData>builder()
                                 .withFunctions(SortOrder.DESCENDING, AccessoryData::getRarity)
                                 .withFunctions(accessoryData -> accessoryData.getAccessory().getName())
                                 .withOrder(SortOrder.ASCENDING)
+                                .withLabel("Hypixel Default")
                                 .build()
                         )
                         .withStyle(PageItem.Style.FIELD_INLINE)
