@@ -194,8 +194,12 @@ public class GuildCommand extends Command {
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withFieldItems(guildMemberPlayers)
-                                    .withSortOrder(SortOrder.DESCENDING)
-                                    .withSortFunctions(SkyBlockIsland.Member::getLevelExperience)
+                                    .withFilters(
+                                        Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                            .withFunctions(SkyBlockIsland.Member::getLevelExperience)
+                                            .withOrder(SortOrder.DESCENDING)
+                                            .build()
+                                    )
                                     .withTransformer(stream ->
                                         StreamUtil.mapWithIndex(
                                             stream, (guildMemberPlayer, index, size) -> FieldItem.builder()
@@ -329,27 +333,32 @@ public class GuildCommand extends Command {
                     )
                     .withPages(skillModels.stream()
                         .map(skillModel -> Page.builder()
-                            .withItemData(Page.ItemData.builder(SkyBlockIsland.Member.class)
-                                .withFieldItems(guildMemberPlayers)
-                                .withSortOrder(SortOrder.DESCENDING)
-                                .withSortFunctions(guildMemberPlayer -> skills.get(guildMemberPlayer).stream()
-                                    .filter(skill -> skill.getType().equals(skillModel))
-                                    .findFirst().orElseThrow().getExperience()
-                                )
-                                .withTransformer(stream -> StreamUtil.mapWithIndex(stream, (member, index, size) -> FieldItem.builder()
-                                    .withOptionValue(ignMap.get(member.getUniqueId()))
-                                    .withLabel(FormatUtil.format(
-                                        " #{0} `{1}` >  **{2} [{3}]**",
-                                        index + 1,
-                                        ignMap.get(member.getUniqueId()),
-                                        (long) skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel)).findFirst().orElseThrow().getExperience(),
-                                        skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel)).findFirst().orElseThrow().getLevel()
+                            .withItemData(
+                                Page.ItemData.builder(SkyBlockIsland.Member.class)
+                                    .withFieldItems(guildMemberPlayers)
+                                    .withFilters(
+                                        Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                            .withFunctions(guildMemberPlayer -> skills.get(guildMemberPlayer).stream()
+                                                .filter(skill -> skill.getType().equals(skillModel))
+                                                .findFirst().orElseThrow().getExperience()
+                                            )
+                                            .withOrder(SortOrder.DESCENDING)
+                                            .build()
+                                    )
+                                    .withTransformer(stream -> StreamUtil.mapWithIndex(stream, (member, index, size) -> FieldItem.builder()
+                                        .withOptionValue(ignMap.get(member.getUniqueId()))
+                                        .withLabel(FormatUtil.format(
+                                            " #{0} `{1}` >  **{2} [{3}]**",
+                                            index + 1,
+                                            ignMap.get(member.getUniqueId()),
+                                            (long) skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel)).findFirst().orElseThrow().getExperience(),
+                                            skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel)).findFirst().orElseThrow().getLevel()
+                                        ))
+                                        .build()
                                     ))
+                                    .withStyle(PageItem.Style.LIST_SINGLE)
+                                    .withAmountPerPage(20)
                                     .build()
-                                ))
-                                .withStyle(PageItem.Style.LIST_SINGLE)
-                                .withAmountPerPage(20)
-                                .build()
                             )
                             .withOption(
                                 SelectMenu.Option.builder()
@@ -454,8 +463,12 @@ public class GuildCommand extends Command {
                                 .withItemData(
                                     Page.ItemData.builder(SkyBlockIsland.Member.class)
                                         .withFieldItems(guildMemberPlayers)
-                                        .withSortOrder(SortOrder.DESCENDING)
-                                        .withSortFunctions(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getExperience())
+                                        .withFilters(
+                                            Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                                .withFunctions(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getExperience())
+                                                .withOrder(SortOrder.DESCENDING)
+                                                .build()
+                                        )
                                         .withTransformer(stream ->
                                             StreamUtil.mapWithIndex(
                                                 stream,
@@ -599,8 +612,12 @@ public class GuildCommand extends Command {
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withFieldItems(guildMemberPlayers)
-                                    .withSortOrder(SortOrder.DESCENDING)
-                                    .withSortFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience())
+                                    .withFilters(
+                                        Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                            .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience())
+                                            .withOrder(SortOrder.DESCENDING)
+                                            .build()
+                                    )
                                     .withTransformer(stream ->
                                         StreamUtil.mapWithIndex(
                                             stream,
@@ -650,8 +667,12 @@ public class GuildCommand extends Command {
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withFieldItems(guildMemberPlayers)
-                                    .withSortOrder(SortOrder.DESCENDING)
-                                    .withSortFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getExperience())
+                                    .withFilters(
+                                        Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                            .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getExperience())
+                                            .withOrder(SortOrder.DESCENDING)
+                                            .build()
+                                    )
                                     .withTransformer(stream ->
                                         StreamUtil.mapWithIndex(
                                             stream,
@@ -706,8 +727,12 @@ public class GuildCommand extends Command {
                     .withItemData(
                         Page.ItemData.builder(SkyBlockIsland.Member.class)
                             .withFieldItems(guildMemberPlayers)
-                            .withSortOrder(SortOrder.DESCENDING)
-                            .withSortFunctions(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal())
+                            .withFilters(
+                                Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                    .withFunctions(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal())
+                                    .withOrder(SortOrder.DESCENDING)
+                                    .build()
+                            )
                             .withTransformer(stream ->
                                 StreamUtil.mapWithIndex(
                                     stream,
@@ -756,8 +781,12 @@ public class GuildCommand extends Command {
                     .withItemData(
                         Page.ItemData.builder(SkyBlockIsland.Member.class)
                             .withFieldItems(guildMemberPlayers)
-                            .withSortOrder(SortOrder.DESCENDING)
-                            .withSortFunctions(networths::get)
+                            .withFilters(
+                                Page.ItemData.Filter.<SkyBlockIsland.Member>builder()
+                                    .withFunctions(networths::get)
+                                    .withOrder(SortOrder.DESCENDING)
+                                    .build()
+                            )
                             .withTransformer(stream ->
                                 StreamUtil.mapWithIndex(
                                     stream,

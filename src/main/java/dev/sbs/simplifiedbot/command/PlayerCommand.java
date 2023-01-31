@@ -24,6 +24,7 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.search.function.SearchFunction;
+import dev.sbs.api.util.collection.sort.SortOrder;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
@@ -379,11 +380,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .build()
                             )
                         )
-                        .withComparators((o1, o2) -> Comparator.comparing(SkyBlockIsland.PetInfo::getRarityOrdinal)
-                            .thenComparingInt(SkyBlockIsland.PetInfo::getLevel)
-                            .reversed()
-                            .thenComparing(SkyBlockIsland.PetInfo::getName)
-                            .compare(o1, o2)
+                        .withFilters(
+                            Page.ItemData.Filter.<SkyBlockIsland.PetInfo>builder()
+                                .withFunctions(SortOrder.ASCENDING, SkyBlockIsland.PetInfo::getRarityOrdinal)
+                                .withFunctions(SortOrder.DESCENDING, SkyBlockIsland.PetInfo::getLevel)
+                                .withFunctions(SortOrder.ASCENDING, SkyBlockIsland.PetInfo::getName)
+                                .withOrder(SortOrder.ASCENDING)
+                                .build()
                         )
                         .withStyle(PageItem.Style.FIELD_INLINE)
                         .withAmountPerPage(12)
@@ -442,11 +445,12 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .build()
                             )
                         )
-                        .withComparators(
-                            (o1, o2) -> Comparator.comparing(AccessoryData::getRarity)
-                                .reversed()
-                                .thenComparing(accessoryData -> accessoryData.getAccessory().getName())
-                                .compare(o1, o2)
+                        .withFilters(
+                            Page.ItemData.Filter.<AccessoryData>builder()
+                                .withFunctions(SortOrder.DESCENDING, AccessoryData::getRarity)
+                                .withFunctions(accessoryData -> accessoryData.getAccessory().getName())
+                                .withOrder(SortOrder.ASCENDING)
+                                .build()
                         )
                         .withStyle(PageItem.Style.FIELD_INLINE)
                         .withAmountPerPage(12)
