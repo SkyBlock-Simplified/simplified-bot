@@ -183,7 +183,7 @@ public class GuildCommand extends Command {
                                 df.format(guildMemberPlayers.stream()
                                     .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
                                 guildMemberPlayers.stream()
-                                    .mapToDouble(SkyBlockIsland.Member::getLevel)
+                                    .mapToDouble(member -> member.getLeveling().getLevel())
                                     .filter(level -> level > 0)
                                     .average()
                                     .orElse(0)
@@ -198,7 +198,7 @@ public class GuildCommand extends Command {
                                     .withFieldItems(guildMemberPlayers)
                                     .withFilters(
                                         Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
-                                            .withFunctions(SkyBlockIsland.Member::getLevelExperience)
+                                            .withFunctions(member -> member.getLeveling().getExperience())
                                             .withOrder(SortOrder.DESCENDING)
                                             .build()
                                     )
@@ -210,7 +210,7 @@ public class GuildCommand extends Command {
                                                     " #{0} `{1}` >  **{2}**",
                                                     index + 1,
                                                     ignMap.get(guildMemberPlayer.getUniqueId()),
-                                                    guildMemberPlayer.getLevel()
+                                                    guildMemberPlayer.getLeveling().getLevel()
                                                 ))
                                                 .build()
                                         )
@@ -234,9 +234,10 @@ public class GuildCommand extends Command {
                                     """
                                     Skyblock Level Average: **{0}**
                                     """,
-                                    guildMemberPlayers.stream().mapToDouble(
-                                        SkyBlockIsland.Member::getLevel
-                                    ).average().orElse(0)
+                                    guildMemberPlayers.stream()
+                                        .mapToDouble(member -> member.getLeveling().getLevel())
+                                        .average()
+                                        .orElse(0)
                                 )
                                 .build()
                             )
