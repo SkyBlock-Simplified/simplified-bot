@@ -3,14 +3,14 @@ package dev.sbs.simplifiedbot.command;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.SkyBlockAuction;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Banking;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.account.Banking;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Dungeon;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Experience;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.JacobsFarming;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.PetInfo;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Skill;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Slayer;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.pets.Pet;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.util.Experience;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.AccessoryData;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.accessory_data.accessory_enrichments.AccessoryEnrichmentModel;
@@ -308,29 +308,29 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .withOption(getOptionBuilder("pets").withEmoji(getEmoji("PETS")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "pets", "Player Information")
-                        .withDescription("Pet Score: **{0}**", member.getPetScore())
+                        .withDescription("Pet Score: **{0}**", member.getPetData().getPetScore())
                         .build()
                 )
                 .withItemData(
-                    Page.ItemData.builder(PetInfo.class)
-                        .withFieldItems(member.getPets())
+                    Page.ItemData.builder(Pet.class)
+                        .withFieldItems(member.getPetData().getPets())
                         .withTransformer(stream -> stream
-                            .map(petInfo -> FieldItem.builder()
+                            .map(pet -> FieldItem.builder()
                                 .withOption(
                                     SelectMenu.Option.builder()
                                         .withLabel(
                                             "{0}{1}",
-                                            petInfo.getPet().map(PetModel::getName).orElse(petInfo.getPrettyName()),
-                                            getEmoji(FormatUtil.format("RARITY_{0}", petInfo.getRarity().getKey()))
+                                            pet.getPet().map(PetModel::getName).orElse(pet.getPrettyName()),
+                                            getEmoji(FormatUtil.format("RARITY_{0}", pet.getRarity().getKey()))
                                                 .map(Emoji::asPreSpacedFormat)
                                                 .orElse("")
                                         )
                                         .withEmoji(
                                             skyBlockUser.getSkyBlockEmojis()
-                                                .getPetEmoji(petInfo.getName())
+                                                .getPetEmoji(pet.getName())
                                                 .map(Emoji::of)
                                         )
-                                        .withValue(petInfo.getPet().map(PetModel::getKey).orElse(petInfo.getName()))
+                                        .withValue(pet.getPet().map(PetModel::getKey).orElse(pet.getName()))
                                         .build()
                                 )
                                 .withData(FormatUtil.format(
@@ -343,19 +343,19 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     emojiReplyStem,
                                     emojiReplyLine,
                                     emojiReplyEnd,
-                                    petInfo.getLevel(),
-                                    petInfo.getMaxLevel(),
-                                    petInfo.getExperience(),
-                                    petInfo.getProgressPercentage()
+                                    pet.getLevel(),
+                                    pet.getMaxLevel(),
+                                    pet.getExperience(),
+                                    pet.getProgressPercentage()
                                 ))
                                 .build()
                             )
                         )
                         .withFilters(
-                            Page.ItemData.Sorter.<PetInfo>builder()
-                                .withFunctions(SortOrder.ASCENDING, PetInfo::getRarityOrdinal)
-                                .withFunctions(SortOrder.DESCENDING, PetInfo::getLevel)
-                                .withFunctions(SortOrder.ASCENDING, PetInfo::getName)
+                            Page.ItemData.Sorter.<Pet>builder()
+                                .withFunctions(SortOrder.ASCENDING, Pet::getRarityOrdinal)
+                                .withFunctions(SortOrder.DESCENDING, Pet::getLevel)
+                                .withFunctions(SortOrder.ASCENDING, Pet::getName)
                                 .withOrder(SortOrder.ASCENDING)
                                 .build()
                         )
