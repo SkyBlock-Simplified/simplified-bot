@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.modules.damage_per_second;
 
-import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ObjectData;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.ObjectData;
 import dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;

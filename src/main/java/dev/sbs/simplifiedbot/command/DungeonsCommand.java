@@ -1,7 +1,8 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Dungeon;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_classes.DungeonClassModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_floors.DungeonFloorModel;
@@ -146,7 +147,7 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 .stream()
                                 .map(Map.Entry::getValue)
                                 .flatMap(ConcurrentList::stream)
-                                .mapToDouble(SkyBlockIsland.Dungeon.Run::getSecretsFound)
+                                .mapToDouble(Dungeon.BestRun::getSecretsFound)
                                 .sum()
                         )
                         .withFields(

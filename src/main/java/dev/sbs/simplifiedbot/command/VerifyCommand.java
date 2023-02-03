@@ -1,9 +1,9 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.implementation.HypixelPlayerData;
+import dev.sbs.api.client.hypixel.request.HypixelPlayerRequest;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelPlayerResponse;
-import dev.sbs.api.client.sbs.implementation.MojangData;
+import dev.sbs.api.client.sbs.request.MojangRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.discord.users.UserSqlModel;
@@ -44,9 +44,9 @@ public class VerifyCommand extends Command {
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
         String playerID = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow(); // Will never throw
-        MojangData mojangData = SimplifiedApi.getWebApi(MojangData.class);
-        MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangData.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangData.getProfileFromUsername(playerID);
-        HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getWebApi(HypixelPlayerData.class).getPlayer(mojangProfileResponse.getUniqueId());
+        MojangRequest mojangRequest = SimplifiedApi.getWebApi(MojangRequest.class);
+        MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
+        HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getPlayer(mojangProfileResponse.getUniqueId());
         String interactDiscordTag = commandContext.getInteractUser().getTag();
 
         String hypixelDiscordTag = hypixelPlayerResponse.getPlayer()

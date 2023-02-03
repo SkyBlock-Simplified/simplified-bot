@@ -1,13 +1,14 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.implementation.HypixelSkyBlockData;
+import dev.sbs.api.client.hypixel.request.HypixelSkyBlockData;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
-import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
-import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.PlayerStats;
-import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.ItemData;
-import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.PlayerDataHelper;
-import dev.sbs.api.client.sbs.implementation.MojangData;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.NbtContent;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.PlayerStats;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.ItemData;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.PlayerDataHelper;
+import dev.sbs.api.client.sbs.request.MojangRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
@@ -86,7 +87,7 @@ public final class OptimizerRequest {
                     .getContents()
                     .stream()
                     .map(Map.Entry::getValue)
-                    .map(SkyBlockIsland.NbtContent::getNbtData)
+                    .map(NbtContent::getNbtData)
                     .flatMap(compoundTag -> compoundTag.<CompoundTag>getList("i").stream())
                     .filter(CompoundTag::notEmpty)
                     .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
@@ -102,7 +103,7 @@ public final class OptimizerRequest {
     }
 
     public static OptimizerRequestBuilder of(String username) {
-        MojangProfileResponse mojangProfileResponse = SimplifiedApi.getWebApi(MojangData.class).getProfileFromUsername(username);
+        MojangProfileResponse mojangProfileResponse = SimplifiedApi.getWebApi(MojangRequest.class).getProfileFromUsername(username);
         SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getWebApi(HypixelSkyBlockData.class).getProfiles(mojangProfileResponse.getUniqueId());
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, mojangProfileResponse.getUniqueId());
     }

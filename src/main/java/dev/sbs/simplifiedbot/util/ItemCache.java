@@ -2,11 +2,11 @@ package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.exception.HypixelApiException;
-import dev.sbs.api.client.hypixel.implementation.HypixelSkyBlockData;
-import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuction;
+import dev.sbs.api.client.hypixel.request.HypixelSkyBlockData;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuctionsEndedResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuctionsResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockBazaarResponse;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.SkyBlockAuction;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
 import dev.sbs.api.scheduler.Scheduler;

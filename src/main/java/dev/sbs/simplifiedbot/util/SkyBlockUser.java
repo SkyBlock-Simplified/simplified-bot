@@ -1,14 +1,14 @@
 package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.implementation.HypixelPlayerData;
-import dev.sbs.api.client.hypixel.implementation.HypixelSkyBlockData;
+import dev.sbs.api.client.hypixel.request.HypixelPlayerRequest;
+import dev.sbs.api.client.hypixel.request.HypixelSkyBlockData;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelStatusResponse;
-import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuction;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
-import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
-import dev.sbs.api.client.sbs.implementation.MojangData;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.SkyBlockAuction;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.sbs.request.MojangRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.client.sbs.response.SkyBlockEmojisResponse;
 import dev.sbs.api.data.model.discord.users.UserModel;
@@ -59,11 +59,11 @@ public final class SkyBlockUser {
         }
 
         String playerID = optionalPlayerID.orElseThrow(); // Will never reach here
-        MojangData mojangData = SimplifiedApi.getWebApi(MojangData.class);
-        this.mojangProfile = StringUtil.isUUID(playerID) ? mojangData.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangData.getProfileFromUsername(playerID);
+        MojangRequest mojangRequest = SimplifiedApi.getWebApi(MojangRequest.class);
+        this.mojangProfile = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
         this.profiles = SimplifiedApi.getWebApi(HypixelSkyBlockData.class).getProfiles(this.getMojangProfile().getUniqueId());
-        this.guild = SimplifiedApi.getWebApi(HypixelPlayerData.class).getGuildByPlayer(this.getMojangProfile().getUniqueId()).getGuild();
-        this.session = SimplifiedApi.getWebApi(HypixelPlayerData.class).getStatus(this.getMojangProfile().getUniqueId()).getSession();
+        this.guild = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getGuildByPlayer(this.getMojangProfile().getUniqueId()).getGuild();
+        this.session = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getStatus(this.getMojangProfile().getUniqueId()).getSession();
         this.auctions = SimplifiedApi.getWebApi(HypixelSkyBlockData.class).getAuctionByPlayer(this.getMojangProfile().getUniqueId()).getAuctions();
 
         // Empty Profile

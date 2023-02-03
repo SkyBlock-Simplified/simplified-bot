@@ -1,11 +1,13 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.implementation.HypixelPlayerData;
-import dev.sbs.api.client.hypixel.implementation.HypixelSkyBlockData;
+import dev.sbs.api.client.hypixel.request.HypixelPlayerRequest;
+import dev.sbs.api.client.hypixel.request.HypixelSkyBlockData;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelPlayerResponse;
-import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Experience;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Skill;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
 import dev.sbs.api.data.model.Model;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_classes.DungeonClassModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
@@ -57,7 +59,7 @@ public class GuildCommand extends Command {
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
         String guildName = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow();
 
-        HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getWebApi(HypixelPlayerData.class).getGuildByName(guildName);
+        HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getGuildByName(guildName);
 
         if (hypixelGuildResponse.getGuild().isEmpty()) {
             return commandContext.reply(
@@ -83,12 +85,12 @@ public class GuildCommand extends Command {
         ConcurrentList<DungeonClassModel> dungeonClassModels = SimplifiedApi.getRepositoryOf(DungeonClassModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
         HypixelSkyBlockData skyBlockData = SimplifiedApi.getWebApi(HypixelSkyBlockData.class);
         HypixelGuildResponse.Guild guild = hypixelGuildResponse.getGuild().get();
-        HypixelPlayerData hypixelPlayerData = SimplifiedApi.getWebApi(HypixelPlayerData.class);
+        HypixelPlayerRequest hypixelPlayerRequest = SimplifiedApi.getWebApi(HypixelPlayerRequest.class);
 
         ConcurrentMap<HypixelPlayerResponse.Player, SkyBlockIsland> guildMembers = guild.getMembers().stream()
             .limit(2) //TODO: limiting size!!
             .map(member -> Pair.of(
-                hypixelPlayerData.getPlayer(member.getUniqueId()).getPlayer(),
+                hypixelPlayerRequest.getPlayer(member.getUniqueId()).getPlayer(),
                 skyBlockData.getProfiles(member.getUniqueId()).getLastPlayed())
             )
             .collect(Concurrent.toMap());
@@ -101,7 +103,7 @@ public class GuildCommand extends Command {
             .map(hypixelPlayer -> guildMembers.get(hypixelPlayer).getMember(hypixelPlayer.getUniqueId()).orElseThrow())
             .collect(Concurrent.toList());
 
-        ConcurrentMap<SkyBlockIsland.Member, SkyBlockIsland.Experience.Weight> totalWeights = guildMemberPlayers.stream()
+        ConcurrentMap<SkyBlockIsland.Member, Experience.Weight> totalWeights = guildMemberPlayers.stream()
             .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getTotalWeight()))
             .collect(Concurrent.toMap());
 
@@ -109,7 +111,7 @@ public class GuildCommand extends Command {
             .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getPurse())) //TODO: networth query
             .collect(Concurrent.toMap());
 
-        ConcurrentMap<SkyBlockIsland.Member, ConcurrentList<SkyBlockIsland.Skill>> skills = guildMemberPlayers.stream()
+        ConcurrentMap<SkyBlockIsland.Member, ConcurrentList<Skill>> skills = guildMemberPlayers.stream()
             .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getSkills()))
             .collect(Concurrent.toMap());
 
@@ -845,9 +847,9 @@ public class GuildCommand extends Command {
         );
     }
 
-    private static double getSkillAverage(ConcurrentList<SkyBlockIsland.Skill> skills) {
+    private static double getSkillAverage(ConcurrentList<Skill> skills) {
         return skills.stream()
             .filter(skill -> skill.getType().isCosmetic())
-            .mapToInt(SkyBlockIsland.Experience::getLevel).average().orElseThrow(); //TODO: fix performance lol
+            .mapToInt(Experience::getLevel).average().orElseThrow(); //TODO: fix performance lol
     }
 }

@@ -2,9 +2,16 @@ package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
-import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuction;
-import dev.sbs.api.client.hypixel.response.skyblock.island.SkyBlockIsland;
-import dev.sbs.api.client.hypixel.response.skyblock.island.playerstats.data.AccessoryData;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.SkyBlockAuction;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Banking;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Dungeon;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Experience;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.JacobsFarming;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.PetInfo;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Skill;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Slayer;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.AccessoryData;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.accessory_data.accessory_enrichments.AccessoryEnrichmentModel;
 import dev.sbs.api.data.model.skyblock.collection_data.collection_items.CollectionItemModel;
@@ -86,15 +93,15 @@ public class PlayerCommand extends SkyBlockUserCommand {
             .sum();
 
         // Weights
-        SkyBlockIsland.Experience.Weight totalWeight = member.getTotalWeight();
-        ConcurrentMap<SkyBlockIsland.Skill, SkyBlockIsland.Experience.Weight> skillWeight = member.getSkillWeight();
-        ConcurrentMap<SkyBlockIsland.Slayer, SkyBlockIsland.Experience.Weight> slayerWeight = member.getSlayerWeight();
-        ConcurrentMap<SkyBlockIsland.Dungeon, SkyBlockIsland.Experience.Weight> dungeonWeight = member.getDungeonWeight();
-        ConcurrentMap<SkyBlockIsland.Dungeon.Class, SkyBlockIsland.Experience.Weight> dungeonClassWeight = member.getDungeonClassWeight();
+        Experience.Weight totalWeight = member.getTotalWeight();
+        ConcurrentMap<Skill, Experience.Weight> skillWeight = member.getSkillWeight();
+        ConcurrentMap<Slayer, Experience.Weight> slayerWeight = member.getSlayerWeight();
+        ConcurrentMap<Dungeon, Experience.Weight> dungeonWeight = member.getDungeonWeight();
+        ConcurrentMap<Dungeon.Class, Experience.Weight> dungeonClassWeight = member.getDungeonClassWeight();
 
         return Concurrent.newList(
             Page.builder()
-                .withOption(getOptionBuilder("stats").withEmoji(Emoji.of(skyBlockIsland.getProfileName().map(ProfileModel::getEmoji).get())).build())
+                .withOption(getOptionBuilder("stats").withEmoji(Emoji.of(skyBlockIsland.getProfileModel().map(ProfileModel::getEmoji).get())).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "stats", "Player Information")
                         .withFields(
@@ -125,7 +132,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
-                                    skyBlockIsland.getBanking().map(SkyBlockIsland.Banking::getBalance).orElse(0.0),
+                                    skyBlockIsland.getBanking().map(Banking::getBalance).orElse(0.0),
                                     member.getPurse()
                                 )
                                 .isInline()
@@ -241,61 +248,25 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             totalWeight.getTotal(),
                             totalWeight.getValue(),
                             totalWeight.getOverflow(),
-                            skillWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getTotal)
-                                .sum(),
-                            skillWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getValue)
-                                .sum(),
-                            skillWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getOverflow)
-                                .sum(),
-                            slayerWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getTotal)
-                                .sum(),
-                            slayerWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getValue)
-                                .sum(),
-                            slayerWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getOverflow)
-                                .sum(),
-                            dungeonWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getTotal)
-                                .sum(),
-                            dungeonWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getValue)
-                                .sum(),
-                            dungeonWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getValue)
-                                .sum(),
-                            dungeonClassWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getTotal)
-                                .sum(),
-                            dungeonClassWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getValue)
-                                .sum(),
-                            dungeonClassWeight.stream()
-                                .map(Map.Entry::getValue)
-                                .mapToDouble(SkyBlockIsland.Experience.Weight::getOverflow)
-                                .sum()
+                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getTotal).sum(),
+                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
+                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getOverflow).sum(),
+                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getTotal).sum(),
+                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
+                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getOverflow).sum(),
+                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getTotal).sum(),
+                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
+                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
+                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getTotal).sum(),
+                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
+                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getOverflow).sum()
                         )
                         .withFields(
                             getWeightFields(
                                 "Skills",
                                 skillWeight,
                                 SearchFunction.combine(
-                                    SkyBlockIsland.Skill::getType,
+                                    Skill::getType,
                                     SkillModel::getName
                                 )
                             )
@@ -305,7 +276,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 "Slayers",
                                 slayerWeight,
                                 SearchFunction.combine(
-                                    SkyBlockIsland.Slayer::getType,
+                                    Slayer::getType,
                                     SlayerModel::getName
                                 )
                             )
@@ -315,7 +286,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 "Dungeons",
                                 dungeonWeight,
                                 SearchFunction.combine(
-                                    SkyBlockIsland.Dungeon::getType,
+                                    Dungeon::getType,
                                     DungeonModel::getName
                                 )
                             )
@@ -325,7 +296,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 "Dungeon Classes",
                                 dungeonClassWeight,
                                 SearchFunction.combine(
-                                    SkyBlockIsland.Dungeon.Class::getType,
+                                    Dungeon.Class::getType,
                                     DungeonClassModel::getName
                                 )
                             )
@@ -341,7 +312,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withItemData(
-                    Page.ItemData.builder(SkyBlockIsland.PetInfo.class)
+                    Page.ItemData.builder(PetInfo.class)
                         .withFieldItems(member.getPets())
                         .withTransformer(stream -> stream
                             .map(petInfo -> FieldItem.builder()
@@ -381,10 +352,10 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             )
                         )
                         .withFilters(
-                            Page.ItemData.Sorter.<SkyBlockIsland.PetInfo>builder()
-                                .withFunctions(SortOrder.ASCENDING, SkyBlockIsland.PetInfo::getRarityOrdinal)
-                                .withFunctions(SortOrder.DESCENDING, SkyBlockIsland.PetInfo::getLevel)
-                                .withFunctions(SortOrder.ASCENDING, SkyBlockIsland.PetInfo::getName)
+                            Page.ItemData.Sorter.<PetInfo>builder()
+                                .withFunctions(SortOrder.ASCENDING, PetInfo::getRarityOrdinal)
+                                .withFunctions(SortOrder.DESCENDING, PetInfo::getLevel)
+                                .withFunctions(SortOrder.ASCENDING, PetInfo::getName)
                                 .withOrder(SortOrder.ASCENDING)
                                 .build()
                         )
@@ -550,16 +521,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             Field.builder()
                                 .withName("Medals")
                                 .withValue(
-                                    Arrays.stream(SkyBlockIsland.JacobsFarming.Medal.values())
-                                        .flatMap(farmingMedal -> member.getJacobsFarming()
-                                            .stream()
-                                            .map(jacobsFarming -> FormatUtil.format(
-                                                "{0}{1}: {2}",
-                                                "",
-                                                capitalizeEnum(farmingMedal),
-                                                jacobsFarming.getMedals(farmingMedal)
-                                            ))
-                                        )
+                                    Arrays.stream(JacobsFarming.Medal.values())
+                                        .map(farmingMedal -> FormatUtil.format(
+                                            "{0}{1}: {2}",
+                                            "",
+                                            capitalizeEnum(farmingMedal),
+                                            member.getJacobsFarming().getMedals(farmingMedal)
+                                        ))
                                         .collect(StreamUtil.toStringBuilder(true))
                                         .build()
                                 )
@@ -569,15 +537,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             Field.builder()
                                 .withName("Upgrades")
                                 .withValue(
-                                    Arrays.stream(SkyBlockIsland.JacobsFarming.Perk.values())
-                                        .flatMap(farmingPerk -> member.getJacobsFarming()
-                                            .stream()
-                                            .map(jacobsFarming -> FormatUtil.format(
-                                                "{0}: {1}",
-                                                capitalizeEnum(farmingPerk),
-                                                jacobsFarming.getPerk(farmingPerk)
-                                            ))
-                                        )
+                                    Arrays.stream(JacobsFarming.Perk.values())
+                                        .map(farmingPerk -> FormatUtil.format(
+                                            "{0}: {1}",
+                                            "",
+                                            capitalizeEnum(farmingPerk),
+                                            member.getJacobsFarming().getPerk(farmingPerk)
+                                        ))
                                         .collect(StreamUtil.toStringBuilder(true))
                                         .build()
                                 )
@@ -606,16 +572,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     SimplifiedApi.getRepositoryOf(CollectionItemModel.class)
                                         .findAll(CollectionItemModel::isFarmingEvent, true)
                                         .stream()
-                                        .flatMap(collectionItemModel -> member.getJacobsFarming()
+                                        .map(collectionItemModel -> member.getJacobsFarming()
+                                            .getContests()
                                             .stream()
-                                            .map(jacobsFarming -> jacobsFarming.getContests()
-                                                .stream()
-                                                .filter(farmingContest -> farmingContest.getCollectionName().equals(collectionItemModel.getItem().getItemId()))
-                                                .sorted((o1, o2) -> Comparator.comparing(SkyBlockIsland.JacobsFarming.Contest::getCollected).compare(o2, o1))
-                                                .map(SkyBlockIsland.JacobsFarming.Contest::getCollected)
-                                                .findFirst()
-                                                .orElse(0)
-                                            )
+                                            .filter(farmingContest -> farmingContest.getCollectionName().equals(collectionItemModel.getItem().getItemId()))
+                                            .sorted((o1, o2) -> Comparator.comparing(JacobsFarming.Contest::getCollected).compare(o2, o1))
+                                            .map(JacobsFarming.Contest::getCollected)
+                                            .findFirst()
+                                            .orElse(0)
                                         )
                                         .collect(StreamUtil.toStringBuilder(true))
                                         .build()
@@ -628,15 +592,12 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     SimplifiedApi.getRepositoryOf(CollectionItemModel.class)
                                         .findAll(CollectionItemModel::isFarmingEvent, true)
                                         .stream()
-                                        .flatMap(collectionItemModel -> member.getJacobsFarming()
+                                        .map(collectionItemModel -> member.getJacobsFarming().getUniqueGolds()
                                             .stream()
-                                            .map(jacobsFarming -> jacobsFarming.getUniqueGolds()
-                                                .stream()
-                                                .filter(uniqueGold -> uniqueGold.equals(collectionItemModel))
-                                                .findFirst()
-                                                .map(farmingCollectionItemModel -> "Yes")
-                                                .orElse("No")
-                                            )
+                                            .filter(uniqueGold -> uniqueGold.equals(collectionItemModel))
+                                            .findFirst()
+                                            .map(farmingCollectionItemModel -> "Yes")
+                                            .orElse("No")
                                         )
                                         .collect(StreamUtil.toStringBuilder(true))
                                         .build()
@@ -650,7 +611,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
         );
     }
 
-    private static <T extends SkyBlockIsland.Experience> ConcurrentList<Field> getWeightFields(String title, ConcurrentMap<T, SkyBlockIsland.Experience.Weight> weightMap, Function<T, String> typeNameFunction) {
+    private static <T extends Experience> ConcurrentList<Field> getWeightFields(String title, ConcurrentMap<T, Experience.Weight> weightMap, Function<T, String> typeNameFunction) {
         return Concurrent.newList(
             Field.builder()
                 .withName(title)
@@ -668,7 +629,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .withValue(
                     weightMap.stream()
                         .map(Map.Entry::getValue)
-                        .map(SkyBlockIsland.Experience.Weight::getValue)
+                        .map(Experience.Weight::getValue)
                         .map(value -> FormatUtil.format("{0}", value))
                         .collect(StreamUtil.toStringBuilder(true))
                         .build()
@@ -680,7 +641,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .withValue(
                     weightMap.stream()
                         .map(Map.Entry::getValue)
-                        .map(SkyBlockIsland.Experience.Weight::getOverflow)
+                        .map(Experience.Weight::getOverflow)
                         .map(value -> FormatUtil.format("{0}", value))
                         .collect(StreamUtil.toStringBuilder(true))
                         .build()
