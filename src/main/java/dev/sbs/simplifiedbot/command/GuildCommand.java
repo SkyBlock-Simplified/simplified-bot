@@ -2,7 +2,7 @@ package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.request.HypixelPlayerRequest;
-import dev.sbs.api.client.hypixel.request.HypixelSkyBlockData;
+import dev.sbs.api.client.hypixel.request.HypixelSkyBlockRequest;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelPlayerResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Skill;
@@ -83,7 +83,7 @@ public class GuildCommand extends Command {
         ConcurrentList<SlayerModel> slayerModels = SimplifiedApi.getRepositoryOf(SlayerModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
         DungeonModel catacombs = SimplifiedApi.getRepositoryOf(DungeonModel.class).findFirstOrNull(DungeonModel::getKey, "CATACOMBS");
         ConcurrentList<DungeonClassModel> dungeonClassModels = SimplifiedApi.getRepositoryOf(DungeonClassModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
-        HypixelSkyBlockData skyBlockData = SimplifiedApi.getWebApi(HypixelSkyBlockData.class);
+        HypixelSkyBlockRequest skyBlockData = SimplifiedApi.getWebApi(HypixelSkyBlockRequest.class);
         HypixelGuildResponse.Guild guild = hypixelGuildResponse.getGuild().get();
         HypixelPlayerRequest hypixelPlayerRequest = SimplifiedApi.getWebApi(HypixelPlayerRequest.class);
 

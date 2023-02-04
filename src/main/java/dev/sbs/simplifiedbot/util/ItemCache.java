@@ -2,7 +2,7 @@ package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.exception.HypixelApiException;
-import dev.sbs.api.client.hypixel.request.HypixelSkyBlockData;
+import dev.sbs.api.client.hypixel.request.HypixelSkyBlockRequest;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuctionsEndedResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockAuctionsResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockBazaarResponse;
@@ -96,16 +96,16 @@ public class ItemCache {
         @Override
         public long process() {
             try {
-                HypixelSkyBlockData hypixelSkyBlockData = SimplifiedApi.getWebApi(HypixelSkyBlockData.class);
+                HypixelSkyBlockRequest hypixelSkyBlockRequest = SimplifiedApi.getWebApi(HypixelSkyBlockRequest.class);
                 ConcurrentList<SkyBlockAuction> auctions = Concurrent.newList();
-                SkyBlockAuctionsResponse skyBlockAuctionsResponse = hypixelSkyBlockData.getAuctions();
+                SkyBlockAuctionsResponse skyBlockAuctionsResponse = hypixelSkyBlockRequest.getAuctions();
                 auctions.addAll(skyBlockAuctionsResponse.getAuctions());
                 long lastUpdated = skyBlockAuctionsResponse.getLastUpdated().getRealTime();
 
                 // Handle Auction Pages
                 for (int i = 1; i < skyBlockAuctionsResponse.getTotalPages(); i++) {
                     try {
-                        SkyBlockAuctionsResponse skyBlockAuctionsPageResponse = hypixelSkyBlockData.getAuctions(i);
+                        SkyBlockAuctionsResponse skyBlockAuctionsPageResponse = hypixelSkyBlockRequest.getAuctions(i);
                         auctions.addAll(skyBlockAuctionsPageResponse.getAuctions());
 
                         if (skyBlockAuctionsPageResponse.getLastUpdated().getRealTime() > lastUpdated)
@@ -134,7 +134,7 @@ public class ItemCache {
 
         @Override
         public long process() {
-            SkyBlockBazaarResponse skyBlockBazaarResponse = SimplifiedApi.getWebApi(HypixelSkyBlockData.class).getBazaar();
+            SkyBlockBazaarResponse skyBlockBazaarResponse = SimplifiedApi.getWebApi(HypixelSkyBlockRequest.class).getBazaar();
             this.replaceItems(skyBlockBazaarResponse.getProducts().values());
             return skyBlockBazaarResponse.getLastUpdated().getRealTime();
         }
@@ -145,7 +145,7 @@ public class ItemCache {
 
         @Override
         protected long process() {
-            SkyBlockAuctionsEndedResponse skyBlockAuctionsEndedResponse = SimplifiedApi.getWebApi(HypixelSkyBlockData.class).getEndedAuctions();
+            SkyBlockAuctionsEndedResponse skyBlockAuctionsEndedResponse = SimplifiedApi.getWebApi(HypixelSkyBlockRequest.class).getEndedAuctions();
             this.replaceItems(skyBlockAuctionsEndedResponse.getAuctions());
             return skyBlockAuctionsEndedResponse.getLastUpdated().getRealTime();
         }

@@ -3,9 +3,9 @@ package dev.sbs.simplifiedbot.command.group.developer;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
-import dev.sbs.api.data.model.discord.emojis.EmojiSqlRepository;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildSqlModel;
+import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
@@ -50,7 +50,7 @@ public class DevEmojiCommand extends Command {
                             if (existingEmojiModel.getEmojiId() != guildEmoji.getId().asLong()) {
                                 existingEmojiModel.setEmojiId(guildEmoji.getId().asLong());
 
-                                ((EmojiSqlRepository) SimplifiedApi.getRepositoryOf(EmojiSqlModel.class)).update(existingEmojiModel);
+                                ((SqlRepository<EmojiSqlModel>) SimplifiedApi.getRepositoryOf(EmojiSqlModel.class)).update(existingEmojiModel);
                                 this.getLog().info("Updating emoji: {0} :: {1,number,#} :: {2}", guild.getName(), guildEmoji.getId().asLong(), name);
                             }
                         } else {
@@ -60,7 +60,7 @@ public class DevEmojiCommand extends Command {
                             newEmojiModel.setKey(key);
                             newEmojiModel.setName(name);
                             newEmojiModel.setAnimated(guildEmoji.isAnimated());
-                            ((EmojiSqlRepository) SimplifiedApi.getRepositoryOf(EmojiSqlModel.class)).save(newEmojiModel);
+                            ((SqlRepository<EmojiSqlModel>) SimplifiedApi.getRepositoryOf(EmojiSqlModel.class)).save(newEmojiModel);
                             this.getLog().info("Saving new emoji: {0} :: {1,number,#} :: {2}", guild.getName(), guildEmoji.getId().asLong(), name);
                         }
                     })
