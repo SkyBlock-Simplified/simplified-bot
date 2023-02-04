@@ -7,7 +7,7 @@ import dev.sbs.api.client.sbs.request.MojangRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.discord.users.UserSqlModel;
-import dev.sbs.api.data.model.discord.users.UserSqlRepository;
+import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
@@ -69,7 +69,7 @@ public class VerifyCommand extends Command {
                 newUserModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
 
                 // Save New User
-                ((UserSqlRepository) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).save(newUserModel);
+                ((SqlRepository<UserSqlModel>) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).save(newUserModel);
             } else {
                 boolean alreadyVerified = false;
 
@@ -84,7 +84,7 @@ public class VerifyCommand extends Command {
 
                 // Update User
                 if (!alreadyVerified)
-                    ((UserSqlRepository) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).update((UserSqlModel) userModel);
+                    ((SqlRepository<UserSqlModel>) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).update((UserSqlModel) userModel);
                 else
                     message = "Your Discord account has been verified.";
 
