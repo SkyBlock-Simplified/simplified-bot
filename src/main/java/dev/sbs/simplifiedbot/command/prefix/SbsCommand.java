@@ -7,7 +7,7 @@ import discord4j.rest.util.Permission;
 
 @CommandInfo(
     id = "13543409-e862-4c5e-9af4-e37f38107efa",
-    name = "beta", // TODO
+    name = "sbs", // TODO
     permissions = {
         Permission.VIEW_CHANNEL,
         Permission.SEND_MESSAGES,
