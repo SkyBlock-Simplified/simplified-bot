@@ -2,7 +2,7 @@ package dev.sbs.simplifiedbot;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.sbs.request.SkyBlockRequest;
-import dev.sbs.api.client.sbs.response.SkyBlockEmojisResponse;
+import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
@@ -31,6 +31,9 @@ import dev.sbs.simplifiedbot.command.group.developer.DevStatsCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevTestCommand;
 import dev.sbs.simplifiedbot.command.group.developer.command.DevDisableCommand;
 import dev.sbs.simplifiedbot.command.group.developer.command.DevEnableCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerAccessoriesCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerAuctionsCommand;
+import dev.sbs.simplifiedbot.command.group.player.PlayerJacobsCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerNetworthCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerPetsCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerSkillsCommand;
@@ -55,7 +58,7 @@ public final class SimplifiedBot extends DiscordBot {
 
     @Getter private DiscordConfig config;
     @Getter private ItemCache itemCache;
-    @Getter private SkyBlockEmojisResponse skyBlockEmojis;
+    @Getter private SkyBlockEmojis skyBlockEmojis;
 
     public static void main(final String[] args) {
         new SimplifiedBot();
@@ -71,6 +74,7 @@ public final class SimplifiedBot extends DiscordBot {
             HelpCommand.class,
             MissingCommand.class,
             PlayerCommand.class,
+            DungeonsCommand.class,
             VerifyCommand.class,
 
             // Developer Commands
@@ -83,7 +87,9 @@ public final class SimplifiedBot extends DiscordBot {
             DevTestCommand.class,
 
             // Player Commands
-            DungeonsCommand.class,
+            PlayerAccessoriesCommand.class,
+            PlayerAuctionsCommand.class,
+            PlayerJacobsCommand.class,
             PlayerNetworthCommand.class,
             PlayerPetsCommand.class,
             PlayerSkillsCommand.class,
@@ -151,7 +157,7 @@ public final class SimplifiedBot extends DiscordBot {
 
         // Update Caches
         this.getLog().info("Building Caches");
-        this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockRequest.class).getEmojis();
+        this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockRequest.class).getItemEmojis();
         this.itemCache = new ItemCache();
         this.getItemCache().getAuctionHouse().update();
         this.getItemCache().getBazaar().update();
@@ -159,7 +165,7 @@ public final class SimplifiedBot extends DiscordBot {
 
         // Schedule SkyBlock Emoji Cache Updates
         this.getScheduler().scheduleAsync(
-            () -> this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockRequest.class).getEmojis(),
+            () -> this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockRequest.class).getItemEmojis(),
             10,
             10,
             TimeUnit.MINUTES
