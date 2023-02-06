@@ -10,7 +10,7 @@ import dev.sbs.api.client.hypixel.response.skyblock.implementation.SkyBlockAucti
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
 import dev.sbs.api.client.sbs.request.MojangRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
-import dev.sbs.api.client.sbs.response.SkyBlockEmojisResponse;
+import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.SimplifiedException;
@@ -35,7 +35,7 @@ public final class SkyBlockUser {
     private final SkyBlockProfilesResponse profiles;
     @Getter private final MojangProfileResponse mojangProfile;
     @Getter private SkyBlockIsland selectedIsland;
-    @Getter private final SkyBlockEmojisResponse skyBlockEmojis;
+    @Getter private final SkyBlockEmojis skyBlockEmojis;
     @Getter private final ConcurrentList<SkyBlockAuction> auctions;
     @Getter private final ItemCache.AuctionHouse auctionHouse;
     @Getter private final Optional<HypixelGuildResponse.Guild> guild;
