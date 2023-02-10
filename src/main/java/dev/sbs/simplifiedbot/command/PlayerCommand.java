@@ -668,7 +668,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
         );
     }
 
-    private static SelectMenu.Option.OptionBuilder getOptionBuilder(String identifier) {
+    private static SelectMenu.Option.Builder getOptionBuilder(String identifier) {
         return SelectMenu.Option.builder()
             .withValue(identifier)
             .withLabel(WordUtil.capitalizeFully(identifier.replace("_", " ")));
