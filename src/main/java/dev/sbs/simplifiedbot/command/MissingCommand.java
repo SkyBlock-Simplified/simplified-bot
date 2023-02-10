@@ -88,7 +88,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                         .build()
                                     )
                                 )
-                                .withFilters(
+                                .withSorters(
                                     Page.ItemData.Sorter.<AccessoryModel>builder()
                                         .withFunctions(AccessoryModel::getName)
                                         .build()
@@ -133,7 +133,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                         .build()
                                     )
                                 )
-                                .withFilters(
+                                .withSorters(
                                     Page.ItemData.Sorter.<AccessoryModel>builder()
                                         .withFunctions(accessoryModel -> accessoryModel.getFamily().getKey())
                                         .withFunctions(AccessoryModel::getFamilyRank)
