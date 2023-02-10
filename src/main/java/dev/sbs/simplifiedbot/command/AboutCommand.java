@@ -45,7 +45,6 @@ public class AboutCommand extends Command {
                     Page.builder()
                         .withOption(
                             SelectMenu.Option.builder()
-                                .isPlaceholderSelected()
                                 .withValue("about")
                                 .withLabel("About")
                                 .withDescription("General information about the bot.")

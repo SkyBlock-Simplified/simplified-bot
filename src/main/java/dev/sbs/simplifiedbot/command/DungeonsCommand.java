@@ -122,7 +122,6 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                             (masterMode ? "Master" : "Normal")
                         )
                         .withEmoji(Emoji.of(dungeonModel.getEmoji()))
-                        .isPlaceholderSelected()
                         .build()
                 )
                 .withEmbeds(
