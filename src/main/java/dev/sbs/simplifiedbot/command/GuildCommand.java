@@ -26,7 +26,6 @@ import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.Argument;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
@@ -59,7 +58,7 @@ public class GuildCommand extends Command {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
-        String guildName = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow();
+        String guildName = commandContext.getArgument("name").getValue().orElseThrow();
 
         HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getGuildByName(guildName);
 
@@ -188,7 +187,7 @@ public class GuildCommand extends Command {
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withColumnNames(Triple.of("Skyblock Level Leaderboard", "", ""))
-                                    .withFieldItems(guildMemberPlayers)
+                                    .withItems(guildMemberPlayers)
                                     .withSorters(
                                         Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                             .withFunctions(member -> member.getLeveling().getExperience())
@@ -240,7 +239,7 @@ public class GuildCommand extends Command {
                 Page.builder()
                     .withItemData(
                         Page.ItemData.builder(SkillModel.class)
-                            .withItems(
+                            .withPageItems(
                                 FieldItem.builder()
                                     .withData(
                                         """
@@ -262,7 +261,7 @@ public class GuildCommand extends Command {
                                     )
                                     .build()
                             )
-                            .withFieldItems(skillModels)
+                            .withItems(skillModels)
                             .withTransformer(stream -> stream
                                 .map(skillModel -> FieldItem.builder()
                                     .withEmoji(emojis.get(skillModel.getKey()))
@@ -290,7 +289,7 @@ public class GuildCommand extends Command {
                                     .build()
                                 )
                             )
-                            .withItems(FieldItem.builder().build())
+                            .withPageItems(FieldItem.builder().build())
                             .withStyle(PageItem.Style.FIELD_INLINE)
                             .withAmountPerPage(20)
                             .build()
@@ -326,7 +325,7 @@ public class GuildCommand extends Command {
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withColumnNames(Triple.of(skillModel.getName() + " Leaderboard", "", ""))
-                                    .withFieldItems(guildMemberPlayers)
+                                    .withItems(guildMemberPlayers)
                                     .withSorters(
                                         Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                             .withFunctions(guildMemberPlayer -> skills.get(guildMemberPlayer).stream()
@@ -384,7 +383,7 @@ public class GuildCommand extends Command {
                 Page.builder()
                     .withItemData(
                         Page.ItemData.builder(SlayerModel.class)
-                            .withFieldItems(slayerModels)
+                            .withItems(slayerModels)
                             .withTransformer(stream -> stream
                                 .map(slayerModel -> FieldItem.builder()
                                     .withEmoji(emojis.get(slayerModel.getKey()))
@@ -412,7 +411,7 @@ public class GuildCommand extends Command {
                                     .build()
                                 )
                             )
-                            .withItems(FieldItem.builder().build())
+                            .withPageItems(FieldItem.builder().build())
                             .withStyle(PageItem.Style.FIELD_INLINE)
                             .withAmountPerPage(20)
                             .build()
@@ -450,7 +449,7 @@ public class GuildCommand extends Command {
                                 .withItemData(
                                     Page.ItemData.builder(SkyBlockIsland.Member.class)
                                         .withColumnNames(Triple.of(slayerModel.getName() + " Leaderboard", "", ""))
-                                        .withFieldItems(guildMemberPlayers)
+                                        .withItems(guildMemberPlayers)
                                         .withSorters(
                                             Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                                 .withFunctions(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getExperience())
@@ -506,7 +505,7 @@ public class GuildCommand extends Command {
                 Page.builder()
                     .withItemData(
                         Page.ItemData.builder(DungeonClassModel.class)
-                            .withItems(FieldItem.builder()
+                            .withPageItems(FieldItem.builder()
                                 .withEmoji(emojis.get(catacombs.getKey()))
                                 .withLabel(
                                     FormatUtil.format(
@@ -530,7 +529,7 @@ public class GuildCommand extends Command {
                                 )
                                 .build()
                             )
-                            .withFieldItems(dungeonClassModels)
+                            .withItems(dungeonClassModels)
                             .withTransformer(stream -> stream
                                 .map(dungeonClassModel -> FieldItem.builder()
                                     .withEmoji(emojis.get(dungeonClassModel.getKey()))
@@ -592,7 +591,7 @@ public class GuildCommand extends Command {
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withColumnNames(Triple.of("Catacombs Leaderboard", "", ""))
-                                    .withFieldItems(guildMemberPlayers)
+                                    .withItems(guildMemberPlayers)
                                     .withSorters(
                                         Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                             .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience())
@@ -646,7 +645,7 @@ public class GuildCommand extends Command {
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
                                     .withColumnNames(Triple.of(classModel.getName() + " Leaderboard", "", ""))
-                                    .withFieldItems(guildMemberPlayers)
+                                    .withItems(guildMemberPlayers)
                                     .withSorters(
                                         Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                             .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getExperience())
@@ -705,7 +704,7 @@ public class GuildCommand extends Command {
                     .withItemData(
                         Page.ItemData.builder(SkyBlockIsland.Member.class)
                             .withColumnNames(Triple.of("Weight Leaderboard", "", ""))
-                            .withFieldItems(guildMemberPlayers)
+                            .withItems(guildMemberPlayers)
                             .withSorters(
                                 Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                     .withFunctions(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal())
@@ -758,7 +757,7 @@ public class GuildCommand extends Command {
                     .withItemData(
                         Page.ItemData.builder(SkyBlockIsland.Member.class)
                             .withColumnNames(Triple.of("Networth Leaderboard", "", ""))
-                            .withFieldItems(guildMemberPlayers)
+                            .withItems(guildMemberPlayers)
                             .withSorters(
                                 Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
                                     .withFunctions(networths::get)
@@ -827,7 +826,7 @@ public class GuildCommand extends Command {
             .mapToInt(Experience::getLevel).average().orElseThrow(); //TODO: fix performance lol
     }
 
-    private static SelectMenu.Option.OptionBuilder getOptionBuilder(String identifier) {
+    private static SelectMenu.Option.Builder getOptionBuilder(String identifier) {
         return SelectMenu.Option.builder()
             .withValue(identifier)
             .withLabel(WordUtil.capitalizeFully(identifier.replace("_", " ")));
