@@ -27,6 +27,7 @@ public class PlayerAccessoriesCommand extends SkyBlockUserCommand {
                 .isInteractable()
                 .replyMention()
                 .withReference(commandContext)
+                .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
                 .build()
                 .gotoPage("accessories")
