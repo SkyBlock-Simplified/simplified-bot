@@ -6,6 +6,7 @@ import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildRep
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
+import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.collection.search.function.SearchFunction;
 import dev.sbs.api.util.data.tuple.Pair;
@@ -28,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @CommandInfo(
@@ -71,7 +72,7 @@ public class RepCheckCommand extends Command {
         if (ListUtil.isEmpty(reputationTypes))
             return commandContext.reply(genericResponse("No reputation types have been setup!", Color.RED));
 
-        Map<GuildReputationTypeModel, Integer> receiverReputation = reputationTypes.stream()
+        ConcurrentMap<GuildReputationTypeModel, ConcurrentList<GuildReputationModel>> receiverReputation = reputationTypes.stream()
             .map(reputationType -> Pair.of(
                 reputationType,
                 SimplifiedApi.getRepositoryOf(GuildReputationModel.class)
@@ -79,14 +80,13 @@ public class RepCheckCommand extends Command {
                         Pair.of(GuildReputationModel::getType, reputationType),
                         Pair.of(GuildReputationModel::getReceiverDiscordId, receiverDiscordId)
                     )
-                    .size()
             ))
             .collect(Concurrent.toMap());
 
         ConcurrentList<Field> typeFields = reputationTypes.stream()
             .map(reputationType -> Field.builder()
                 .withName(reputationType.getName())
-                .withValue(receiverReputation.get(reputationType).toString())
+                .withValue(String.valueOf(receiverReputation.get(reputationType).size()))
                 .isInline()
                 .build()
             )
@@ -104,8 +104,25 @@ public class RepCheckCommand extends Command {
                                 .withAuthor(userName, receivingMember.get().getAvatarUrl())
                                 .withColor(Color.YELLOW)
                                 .withTitle("Reputation")
-                                .withField("Total", String.valueOf(receiverReputation.values().stream().reduce(0, Integer::sum)), true)
-                                .withField("Unverified", "x", true)
+                                .withDescription(
+                                    """
+                                        Total: All verified and unverified reputation a user has been given.
+                                        Verified: The total reputation confirmed by the staff team.
+                                        Unverified: The total reputation not yet confirmed by the staff team."""
+                                )
+                                .withField("Total", String.valueOf(receiverReputation.values().stream().mapToInt(ConcurrentList::size).sum()), true)
+                                .withField("Verified", String.valueOf(
+                                    receiverReputation.values()
+                                        .stream()
+                                        .flatMap(list -> list.stream().filter(guildReputationModel -> Objects.nonNull(guildReputationModel.getAssigneeDiscordId())))
+                                        .count()
+                                ), true)
+                                .withField("Unverified", String.valueOf(
+                                    receiverReputation.values()
+                                        .stream()
+                                        .flatMap(list -> list.stream().filter(guildReputationModel -> Objects.isNull(guildReputationModel.getAssigneeDiscordId())))
+                                        .count()
+                                ), true)
                                 .withEmptyField(true)
                                 .withFields(typeFields)
                                 .build()
