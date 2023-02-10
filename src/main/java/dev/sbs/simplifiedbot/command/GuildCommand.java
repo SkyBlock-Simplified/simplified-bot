@@ -23,6 +23,7 @@ import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.data.tuple.Triple;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
+import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.Argument;
@@ -116,10 +117,6 @@ public class GuildCommand extends Command {
             .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getSkills()))
             .collect(Concurrent.toMap());
 
-//        ConcurrentMap<SkyBlockIsland.Member, ConcurrentList<SkyBlockIsland.Slayer>> slayers = guildMemberPlayers.stream()
-//            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getSlayers())) //TODO: clear up whether slayers should be cached or not; getSlayers calls getRepository, getSlayer pulls from list -> same thing with dungeon classes
-//            .collect(Concurrent.toMap());
-
         ConcurrentMap<String, Emoji> emojis = new ConcurrentMap<>();
         skillModels.forEach(skillModel -> emojis.put(skillModel.getKey(), Emoji.of(skillModel.getEmoji()).orElseThrow()));
         slayerModels.forEach(slayerModel -> emojis.put(slayerModel.getKey(), Emoji.of(slayerModel.getEmoji()).orElseThrow()));
@@ -146,10 +143,8 @@ public class GuildCommand extends Command {
             .withTimeToLive(120)
             .withPages(
                 Page.builder()
-                    .withOption(SelectMenu.Option.builder()
-                        .withLabel("General Information") //TODO: add minion slots to main page?
-                        .withDescription("Guild Averages and Totals")
-                        .withValue("General Information")
+                    .withOption(getOptionBuilder("general_information")
+                        .withDescription("Guild Averages and Totals") //TODO: add minion slots to main page?
                         .withEmoji(emojis.get("skyblock"))
                         .build())
                     .withEmbeds(
@@ -218,10 +213,8 @@ public class GuildCommand extends Command {
                                     .build()
                             )
                             .withOption(
-                                SelectMenu.Option.builder()
-                                    .withLabel("Skyblock Level")
+                                getOptionBuilder("skyblock_level")
                                     .withDescription("Skyblock Level Leaderboard")
-                                    .withValue("Skyblock Level")
                                     //.withEmoji()
                                     .build()
                             )
@@ -263,9 +256,7 @@ public class GuildCommand extends Command {
                                             .mapToLong(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().mapToLong(skill -> (long) skill.getExperience()).sum()).sum()
                                     )
                                     .withOption(
-                                        SelectMenu.Option.builder()
-                                            .withLabel("All Skills")
-                                            .withValue("ALL_SKILLS")
+                                        getOptionBuilder("all_skills")
                                             .withEmoji(emojis.get("skills"))
                                             .build()
                                     )
@@ -292,9 +283,7 @@ public class GuildCommand extends Command {
                                                     .findFirst().orElseThrow().getExperience()).sum()
                                         )
                                     )
-                                    .withOption(SelectMenu.Option.builder()
-                                        .withLabel(skillModel.getName())
-                                        .withValue(skillModel.getName())
+                                    .withOption(getOptionBuilder(skillModel.getKey().toLowerCase())
                                         .withEmoji(emojis.get(skillModel.getKey()))
                                         .build()
                                     )
@@ -307,10 +296,8 @@ public class GuildCommand extends Command {
                             .build()
                     )
                     .withOption(
-                        SelectMenu.Option.builder()
-                            .withLabel("Skill Averages")
+                        getOptionBuilder("skill_averages")
                             .withDescription("Guild Skill Averages and Totals")
-                            .withValue("Skill Averages")
                             .withEmoji(emojis.get("skills"))
                             .build())
                     .withEmbeds(
@@ -365,10 +352,8 @@ public class GuildCommand extends Command {
                                     .build()
                             )
                             .withOption(
-                                SelectMenu.Option.builder()
-                                    .withLabel(skillModel.getName() + " Leaderboard")
+                                getOptionBuilder(skillModel.getKey().toLowerCase() + "_leaderboard")
                                     .withDescription("Guild Leaderboard for the " + skillModel.getName() + " Skill")
-                                    .withValue(skillModel.getName() + " Leaderboard")
                                     .withEmoji(emojis.get(skillModel.getKey()))
                                     .build()
                             )
@@ -420,10 +405,8 @@ public class GuildCommand extends Command {
                                         )
                                     )
                                     .withOption(
-                                        SelectMenu.Option.builder()
-                                            .withLabel(slayerModel.getName())
+                                        getOptionBuilder(slayerModel.getName().replace(" ", "_").toLowerCase())
                                             .withEmoji(emojis.get(slayerModel.getKey()))
-                                            .withValue(slayerModel.getName())
                                             .build()
                                     )
                                     .build()
@@ -435,10 +418,8 @@ public class GuildCommand extends Command {
                             .build()
                     )
                     .withOption(
-                        SelectMenu.Option.builder()
-                            .withLabel("Slayer Information")
+                        getOptionBuilder("slayer_information")
                             .withDescription("Guild Slayer Averages and Totals")
-                            .withValue("Slayer Information")
                             .withEmoji(emojis.get("slayer"))
                             .build()
                     )
@@ -496,10 +477,8 @@ public class GuildCommand extends Command {
                                         .build()
                                 )
                                 .withOption(
-                                    SelectMenu.Option.builder()
-                                        .withLabel(slayerModel.getName() + " Leaderboard")
+                                    getOptionBuilder(slayerModel.getName().replace(" ", "_").toLowerCase() + "_leaderboard")
                                         .withDescription("Guild Leaderboard for the " + slayerModel.getName() + " Slayer")
-                                        .withValue(slayerModel.getName() + " Leaderboard")
                                         .withEmoji(emojis.get(slayerModel.getKey()))
                                         .build())
                                 .withEmbeds(
@@ -545,10 +524,8 @@ public class GuildCommand extends Command {
                                     )
                                 )
                                 .withOption(
-                                    SelectMenu.Option.builder()
-                                        .withLabel(catacombs.getName())
+                                    getOptionBuilder(catacombs.getKey().toLowerCase())
                                         .withEmoji(emojis.get(catacombs.getKey()))
-                                        .withValue(catacombs.getName())
                                         .build()
                                 )
                                 .build()
@@ -573,10 +550,8 @@ public class GuildCommand extends Command {
                                         )
                                     )
                                     .withOption(
-                                        SelectMenu.Option.builder()
-                                            .withLabel(dungeonClassModel.getName())
+                                        getOptionBuilder(dungeonClassModel.getKey().toLowerCase())
                                             .withEmoji(emojis.get(dungeonClassModel.getKey()))
-                                            .withValue(dungeonClassModel.getName())
                                             .build()
                                     )
                                     .build()
@@ -587,10 +562,8 @@ public class GuildCommand extends Command {
                             .build()
                     )
                     .withOption(
-                        SelectMenu.Option.builder()
-                            .withLabel("Dungeon Information")
+                        getOptionBuilder("dungeon_information")
                             .withDescription("Guild Dungeon Averages and Totals")
-                            .withValue("Dungeon Information")
                             .withEmoji(emojis.get(catacombs.getKey()))
                             .build())
                     .withEmbeds(
@@ -648,10 +621,8 @@ public class GuildCommand extends Command {
                                     .build()
                             )
                             .withOption(
-                                SelectMenu.Option.builder()
-                                    .withLabel("Catacombs Leaderboard")
+                                getOptionBuilder("catacombs_leaderboard")
                                     .withDescription("Guild Leaderboard for Catacombs Level")
-                                    .withValue("Catacombs Leaderboard")
                                     .withEmoji(emojis.get(catacombs.getKey()))
                                     .build())
                             .withEmbeds(
@@ -704,10 +675,8 @@ public class GuildCommand extends Command {
                                     .build()
                             )
                             .withOption(
-                                SelectMenu.Option.builder()
-                                    .withLabel(classModel.getName() + " Leaderboard")
+                                getOptionBuilder(classModel.getKey().toLowerCase() + "_leaderboard")
                                     .withDescription("Guild Leaderboard for the " + classModel.getName() + " Class")
-                                    .withValue(classModel.getName() + " Leaderboard")
                                     .withEmoji(emojis.get(classModel.getKey()))
                                     .build())
                             .withEmbeds(
@@ -763,10 +732,8 @@ public class GuildCommand extends Command {
                             .build()
                     )
                     .withOption(
-                        SelectMenu.Option.builder()
-                            .withLabel("Weight Leaderboard")
+                        getOptionBuilder("weight_leaderboard")
                             .withDescription("Guild Weight Leaderboard")
-                            .withValue("Weight Leaderboard")
                             .withEmoji(emojis.get("weight"))
                             .build())
                     .withEmbeds(
@@ -817,10 +784,8 @@ public class GuildCommand extends Command {
                             .build()
                     )
                     .withOption(
-                        SelectMenu.Option.builder()
-                            .withLabel("Networth Leaderboard")
+                        getOptionBuilder("networth_leaderboard")
                             .withDescription("Guild Networth Leaderboard")
-                            .withValue("Networth Leaderboard")
                             .withEmoji(emojis.get("networth"))
                             .build())
                     .withEmbeds(
@@ -860,5 +825,11 @@ public class GuildCommand extends Command {
         return skills.stream()
             .filter(skill -> skill.getType().isCosmetic())
             .mapToInt(Experience::getLevel).average().orElseThrow(); //TODO: fix performance lol
+    }
+
+    private static SelectMenu.Option.OptionBuilder getOptionBuilder(String identifier) {
+        return SelectMenu.Option.builder()
+            .withValue(identifier)
+            .withLabel(WordUtil.capitalizeFully(identifier.replace("_", " ")));
     }
 }
