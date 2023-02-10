@@ -66,7 +66,6 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 mojangProfile,
                                 skyBlockIsland,
                                 "dungeon_classes",
-                                "Classes Information",
                                 member.getDungeons().getClasses(),
                                 member.getDungeonClassAverage(),
                                 member.getDungeonClassExperience(),
@@ -127,7 +126,7 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifierFunction.apply(dungeonModel), "Dungeon Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifierFunction.apply(dungeonModel))
                         .withDescription(
                             """
                                 {0}Total Runs: {2}

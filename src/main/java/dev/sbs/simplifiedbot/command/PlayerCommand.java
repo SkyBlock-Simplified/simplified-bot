@@ -103,7 +103,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withOption(getOptionBuilder("stats").withEmoji(Emoji.of(skyBlockIsland.getProfileModel().map(ProfileModel::getEmoji).get())).build())
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, "stats", "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "stats")
                         .withFields(
                             Field.builder()
                                 .withEmoji(getEmoji("STATUS_INFO"))
@@ -203,7 +203,6 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         mojangProfile,
                         skyBlockIsland,
                         "skills",
-                        "Skill Information",
                         member.getSkills(),
                         member.getSkillAverage(),
                         member.getSkillExperience(),
@@ -221,7 +220,6 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         mojangProfile,
                         skyBlockIsland,
                         "slayers",
-                        "Slayer Information",
                         member.getSlayers().inverse(),
                         member.getSlayerAverage(),
                         member.getSlayerExperience(),
@@ -235,7 +233,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withOption(getOptionBuilder("weight").withEmoji(getEmoji("WEIGHT")).build())
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, "weight", "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "weight")
                         .withDescription(
                             """
                                 {0}Total Weight: **{2}** (**{3}** + **{4}**)
@@ -307,7 +305,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withOption(getOptionBuilder("pets").withEmoji(getEmoji("PETS")).build())
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, "pets", "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "pets")
                         .withDescription("Pet Score: **{0}**", member.getPetData().getPetScore())
                         .build()
                 )
@@ -376,7 +374,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withOption(getOptionBuilder("accessories").withEmoji(getEmoji("ACCESSORIES")).build())
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, "accessories", "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "accessories")
                         .withDescription("If you wish to see missing accessory information, use the /missing command.")
                         .build()
                 )
@@ -443,7 +441,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withOption(getOptionBuilder("auctions").withEmoji(getEmoji("AUCTIONS")).build())
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, "auctions", "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "auctions")
                         .withDescription(
                             """
                                 {0}Unclaimed Auctions: **{2}**
@@ -527,7 +525,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
             Page.builder()
                 .withOption(getOptionBuilder("jacobs_farming").withEmoji(getEmoji("SKILL_FARMING")).build())
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, "jacobs_farming", "Player Information")
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "jacobs_farming")
                         .withFields(
                             Field.builder()
                                 .withName("Medals")

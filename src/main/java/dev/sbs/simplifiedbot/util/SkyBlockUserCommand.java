@@ -72,25 +72,26 @@ public abstract class SkyBlockUserCommand extends Command {
         );
     }
 
-    protected static Embed.EmbedBuilder getEmbedBuilder(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, String identifier, String title) {
+    protected static Embed.EmbedBuilder getEmbedBuilder(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, String identifier) {
         return Embed.builder()
-            .withAuthor(title)
+            .withAuthor(WordUtil.capitalizeFully(identifier.replace("_", " ")))
             .withColor(Color.DARK_GRAY)
             .withTitle(
-                "{0} :: {1} ({2}{3})",
-                WordUtil.capitalizeFully(identifier.replace("_", " ")),
+                "{0} :: {1}{2}",
                 mojangProfile.getUsername(),
                 skyBlockIsland.getProfileModel()
                     .map(ProfileModel::getEmoji)
                     .flatMap(Emoji::of)
                     .map(Emoji::asSpacedFormat)
                     .orElse(""),
-                skyBlockIsland.getProfileModel().map(ProfileModel::getName).orElse("")
+                skyBlockIsland.getProfileModel()
+                    .map(ProfileModel::getName)
+                    .orElse("")
             )
             .withTimestamp(Instant.now())
             .withThumbnailUrl(
-                "https://api.sbs.dev/mojang/avatar/{0}",
-                mojangProfile.getUsername()
+                "https://crafatar.com/avatars/{0}?overlay",
+                mojangProfile.getUniqueId()
             );
     }
 
@@ -98,7 +99,6 @@ public abstract class SkyBlockUserCommand extends Command {
         MojangProfileResponse mojangProfile,
         SkyBlockIsland skyBlockIsland,
         String value,
-        String title,
         ConcurrentList<T> experienceObjects,
         double average,
         double experience,
@@ -111,50 +111,50 @@ public abstract class SkyBlockUserCommand extends Command {
         String emojiReplyLine = getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
         Embed.EmbedBuilder startBuilder;
+
         if (details) {
-            startBuilder = getEmbedBuilder(mojangProfile, skyBlockIsland, value, title)
-            .withField(
-                "Details",
-                FormatUtil.format(
-                    """
-                    {0}Average Level: **{2,number,#.##}**
-                    {0}Total Experience: **{3,number,#,###}**
-                    {1}Total Progress: **{4,number,#.##}%**
-                    """,
-                    emojiReplyStem,
-                    emojiReplyEnd,
-                    average,
-                    experience,
-                    totalProgress
-                )
-            );
-        }
-        else {
-            startBuilder = getEmbedBuilder(mojangProfile, skyBlockIsland, value, title);
-        }
-        return startBuilder
-            .withFields(experienceObjects.stream()
-                .map(experienceObject -> Field.builder()
-                    .withName(WordUtil.capitalizeFully(nameFunction.apply(experienceObject).replace("_", " ")))
-                    .withValue(FormatUtil.format("""
-                        {0}Level: **{3,number,#.##}**
-                        {0}Experience:
-                        {1}**{4,number,#,###}**
-                        {2}Progress: **{5,number,#.##}%**
-                        """,
+            startBuilder = getEmbedBuilder(mojangProfile, skyBlockIsland, value)
+                .withField(
+                    "Details",
+                    FormatUtil.format(
+                        """
+                            {0}Average Level: **{2,number,#.##}**
+                            {0}Total Experience: **{3,number,#,###}**
+                            {1}Total Progress: **{4,number,#.##}%**
+                            """,
                         emojiReplyStem,
-                        emojiReplyLine,
                         emojiReplyEnd,
-                        experienceObject.getLevel(),
-                        (long) experienceObject.getExperience(),
-                        experienceObject.getTotalProgressPercentage()
-                        )
+                        average,
+                        experience,
+                        totalProgress
                     )
-                    .withEmoji(emojiFunction.apply(experienceObject))
-                    .isInline()
-                    .build()
-                )
-                .collect(Concurrent.toList())
+                );
+        } else
+            startBuilder = getEmbedBuilder(mojangProfile, skyBlockIsland, value);
+
+        return startBuilder.withFields(
+                experienceObjects.stream()
+                    .map(experienceObject -> Field.builder()
+                        .withName(WordUtil.capitalizeFully(nameFunction.apply(experienceObject).replace("_", " ")))
+                        .withValue(FormatUtil.format(
+                            """
+                            {0}Level: **{3,number,#.##}**
+                            {0}Experience:
+                            {1}**{4,number,#,###}**
+                            {2}Progress: **{5,number,#.##}%**
+                            """,
+                            emojiReplyStem,
+                            emojiReplyLine,
+                            emojiReplyEnd,
+                            experienceObject.getLevel(),
+                            (long) experienceObject.getExperience(),
+                            experienceObject.getTotalProgressPercentage()
+                        ))
+                        .withEmoji(emojiFunction.apply(experienceObject))
+                        .isInline()
+                        .build()
+                    )
+                    .collect(Concurrent.toList())
             )
             .withEmptyField(true)
             .build();
