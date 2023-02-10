@@ -19,6 +19,7 @@ import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
+import dev.sbs.discordapi.response.embed.Footer;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -74,21 +75,19 @@ public abstract class SkyBlockUserCommand extends Command {
 
     protected static Embed.EmbedBuilder getEmbedBuilder(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, String identifier) {
         return Embed.builder()
-            .withAuthor(WordUtil.capitalizeFully(identifier.replace("_", " ")))
+            .withAuthor(mojangProfile.getUsername())
             .withColor(Color.DARK_GRAY)
-            .withTitle(
-                "{0} :: {1}{2}",
-                mojangProfile.getUsername(),
+            .withTitle(WordUtil.capitalizeFully(identifier.replace("_", " ")))
+            .withTimestamp(Instant.now())
+            .withFooter(Footer.of(
+                skyBlockIsland.getProfileModel()
+                    .map(ProfileModel::getName)
+                    .orElse(""),
                 skyBlockIsland.getProfileModel()
                     .map(ProfileModel::getEmoji)
                     .flatMap(Emoji::of)
-                    .map(Emoji::asSpacedFormat)
-                    .orElse(""),
-                skyBlockIsland.getProfileModel()
-                    .map(ProfileModel::getName)
-                    .orElse("")
-            )
-            .withTimestamp(Instant.now())
+                    .map(Emoji::getUrl)
+            ))
             .withThumbnailUrl(
                 "https://crafatar.com/avatars/{0}?overlay",
                 mojangProfile.getUniqueId()
