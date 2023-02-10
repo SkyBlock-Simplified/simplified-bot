@@ -48,7 +48,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItemData(
                             Page.ItemData.builder(AccessoryModel.class)
-                                .withFieldItems(allAccessories)
+                                .withItems(allAccessories)
                                 .withTransformer(stream -> stream
                                     .filter(accessoryModel -> playerStats.getAccessoryBag()
                                         .getAccessories()
@@ -112,7 +112,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItemData(
                             Page.ItemData.builder(AccessoryModel.class)
-                                .withFieldItems(allAccessories.matchAll(
+                                .withItems(allAccessories.matchAll(
                                     SearchFunction.Match.ANY,
                                     accessoryModel -> accessoryModel.getFamily().isStatsStackable(),
                                     accessoryModel -> accessoryModel.getFamily().isReforgesStackable()
@@ -158,7 +158,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItemData(
                             Page.ItemData.builder(AccessoryData.class)
-                                .withFieldItems(playerStats.getAccessoryBag().getAccessories())
+                                .withItems(playerStats.getAccessoryBag().getAccessories())
                                 .withTransformer(stream -> stream
                                     .filter(accessoryData -> !playerStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData))
                                     .map(AccessoryData::getAccessory)
@@ -192,7 +192,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItemData(
                             Page.ItemData.builder(AccessoryData.class)
-                                .withFieldItems(playerStats.getAccessoryBag().getFilteredAccessories())
+                                .withItems(playerStats.getAccessoryBag().getFilteredAccessories())
                                 .withTransformer(stream -> stream
                                     .filter(ObjectData::notRecombobulated)
                                     .map(AccessoryData::getAccessory)
@@ -226,7 +226,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                     Page.builder()
                         .withItemData(
                             Page.ItemData.builder(AccessoryData.class)
-                                .withFieldItems(playerStats.getAccessoryBag().getFilteredAccessories())
+                                .withItems(playerStats.getAccessoryBag().getFilteredAccessories())
                                 .withTransformer(stream -> stream
                                     .filter(AccessoryData::isMissingEnrichment)
                                     .map(AccessoryData::getAccessory)

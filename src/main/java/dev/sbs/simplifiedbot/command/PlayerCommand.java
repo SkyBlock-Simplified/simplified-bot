@@ -325,7 +325,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .withItemData(
                     Page.ItemData.builder(Pet.class)
-                        .withFieldItems(member.getPetData().getPets())
+                        .withItems(member.getPetData().getPets())
                         .withTransformer(stream -> stream
                             .map(pet -> FieldItem.builder()
                                 .withOption(
@@ -388,7 +388,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .withItemData(
                     Page.ItemData.builder(AccessoryData.class)
-                        .withFieldItems(skyBlockIsland.getPlayerStats(member).getAccessoryBag().getFilteredAccessories())
+                        .withItems(skyBlockIsland.getPlayerStats(member).getAccessoryBag().getFilteredAccessories())
                         .withTransformer(stream -> stream
                             .map(accessoryData -> FieldItem.builder()
                                 .withOption(
@@ -473,7 +473,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .withItemData(
                     Page.ItemData.builder(SkyBlockAuction.class)
-                        .withFieldItems(skyBlockUser.getAuctions())
+                        .withItems(skyBlockUser.getAuctions())
                         .withTransformer(stream -> stream
                             .map(skyBlockAuction -> {
                                 CompoundTag auctionNbt = skyBlockAuction.getItemNbt().getNbtData();

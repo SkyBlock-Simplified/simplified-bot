@@ -129,7 +129,7 @@ public class AboutCommand extends Command {
                                 )
                                 .withItemData(
                                     Page.ItemData.builder(SbsLegacyDonorModel.class)
-                                        .withFieldItems(SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class).findAll())
+                                        .withItems(SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class).findAll())
                                         .withTransformer(stream -> stream
                                             .map(legacyDonorModel -> FieldItem.builder()
                                                 .withLabel(FormatUtil.format("<@{0}>", legacyDonorModel.getDiscordId()))
