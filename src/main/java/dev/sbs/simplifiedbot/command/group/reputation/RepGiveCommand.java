@@ -3,8 +3,10 @@ package dev.sbs.simplifiedbot.command.group.reputation;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.guild_data.guild_reputation.GuildReputationModel;
 import dev.sbs.api.data.model.discord.guild_data.guild_reputation.GuildReputationSqlModel;
+import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildReputationTypeModel;
+import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildReputationTypeSqlModel;
+import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.WordUtil;
@@ -33,15 +35,12 @@ public class RepGiveCommand extends Command {
         super(discordBot);
     }
 
-    public static final ConcurrentList<String> reputationTypes = new ConcurrentList<>(
-        "crafting",
-        "services"
-    );
-
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
         String receiverDiscordId = commandContext.getArgument("user").getValue().orElse("307984861166043137");
-        String type = commandContext.getArgument("type").getValue().orElse("crafting");
+        String typeString = commandContext.getArgument("type").getValue().orElse("crafting");
+        GuildReputationTypeSqlModel type = SimplifiedApi.getRepositoryOf(GuildReputationTypeSqlModel.class)
+            .findFirst(GuildReputationTypeModel::getKey, typeString.toUpperCase()).orElseThrow();
         String submitterDiscordId = commandContext.getInteractUserId().asString();
         String reason = commandContext.getArgument("reason").getValue().orElse("");
 
@@ -54,7 +53,7 @@ public class RepGiveCommand extends Command {
 
         String lastReportedId = String.valueOf(SimplifiedApi.getRepositoryOf(GuildReputationModel.class)
             .findLast(GuildReputationModel::getSubmitterDiscordId, submitterDiscordId)
-            .map(GuildReputationModel::getReportedDiscordId)
+            .map(GuildReputationModel::getReceiverDiscordId)
             .orElse(0L));
 
         if (lastReportedId.equals(receiverDiscordId)) {
@@ -65,13 +64,13 @@ public class RepGiveCommand extends Command {
 
         GuildReputationSqlModel entry = new GuildReputationSqlModel();
         entry.setSubmitterDiscordId(Long.valueOf(submitterDiscordId));
-        entry.setReportedDiscordId(Long.valueOf(receiverDiscordId));
-        //entry.setType(type);
+        entry.setReceiverDiscordId(Long.valueOf(receiverDiscordId));
+        entry.setType(type);
         entry.setReason(reason);
-        //((SqlRepository<GuildReputationSqlModel>) SimplifiedApi.getRepositoryOf(GuildReputationSqlModel.class)).save(entry);
+        ((SqlRepository<GuildReputationSqlModel>) SimplifiedApi.getRepositoryOf(GuildReputationSqlModel.class)).save(entry);
 
         return commandContext.reply(
-            genericResponse("You have given +1 " + WordUtil.capitalizeFully(type) + " Reputation to  <@" + receiverDiscordId + ">"
+            genericResponse("You have given +1 " + WordUtil.capitalizeFully(typeString) + " Reputation to  <@" + receiverDiscordId + ">"
                 + "\nReason: " + reason, Color.YELLOW)
         );
     }
@@ -101,7 +100,8 @@ public class RepGiveCommand extends Command {
             Parameter.builder("type", "Type of the given Rep", Parameter.Type.WORD)
                 .isRequired()
                 .withChoices(
-                    reputationTypes.stream().map(reputationType -> Pair.of(WordUtil.capitalizeFully(reputationType.replace("_", " ")), reputationType))
+                    SimplifiedApi.getRepositoryOf(GuildReputationTypeModel.class).findAll()
+                        .stream().map(reputationType -> Pair.of(reputationType.getName(), reputationType.getKey().toLowerCase()))
                         .collect(Concurrent.toLinkedMap())
                 )
                 .build(),
