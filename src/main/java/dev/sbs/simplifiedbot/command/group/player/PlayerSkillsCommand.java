@@ -29,8 +29,8 @@ public class PlayerSkillsCommand extends SkyBlockUserCommand {
                 .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
+                .withDefaultPage("skills")
                 .build()
-                .gotoPage("skills")
         );
     }
 

@@ -29,8 +29,8 @@ public class PlayerJacobsCommand extends SkyBlockUserCommand {
                 .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
+                .withDefaultPage("jacobs_farming")
                 .build()
-                .gotoPage("jacobs_farming")
         );
     }
 

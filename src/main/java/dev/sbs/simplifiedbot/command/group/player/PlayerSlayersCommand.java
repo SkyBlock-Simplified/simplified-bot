@@ -29,8 +29,8 @@ public class PlayerSlayersCommand extends SkyBlockUserCommand {
                 .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
+                .withDefaultPage("slayers")
                 .build()
-                .gotoPage("slayers")
         );
     }
 

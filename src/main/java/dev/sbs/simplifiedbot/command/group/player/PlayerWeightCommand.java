@@ -29,8 +29,8 @@ public class PlayerWeightCommand extends SkyBlockUserCommand {
                 .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
+                .withDefaultPage("weight")
                 .build()
-                .gotoPage("weight")
         );
     }
 

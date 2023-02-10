@@ -29,8 +29,8 @@ public class PlayerAccessoriesCommand extends SkyBlockUserCommand {
                 .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
+                .withDefaultPage("accessories")
                 .build()
-                .gotoPage("accessories")
         );
     }
 
