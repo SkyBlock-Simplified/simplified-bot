@@ -146,7 +146,7 @@ public class GuildCommand extends Command {
         String guildOwner = ignMap.get(guild.getGuildMaster().getUniqueId());
         String pageIdentifier = commandContext.getArgument("page").getValue().orElse("general_information");
 
-        Response response = Response.builder()
+        return commandContext.reply(Response.builder()
             .withReference(commandContext)
             .isInteractable()
             .withTimeToLive(120)
@@ -815,8 +815,8 @@ public class GuildCommand extends Command {
                     .build()
             )
             .withDefaultPage(pageIdentifier)
-            .build();
-        return commandContext.reply(response);
+            .build()
+        );
     }
 
     @Override

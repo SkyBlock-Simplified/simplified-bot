@@ -16,14 +16,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.PrefixCommand;
 import dev.sbs.discordapi.util.DiscordConfig;
-import dev.sbs.simplifiedbot.command.AboutCommand;
-import dev.sbs.simplifiedbot.command.DevCommand;
-import dev.sbs.simplifiedbot.command.DungeonsCommand;
-import dev.sbs.simplifiedbot.command.GuildCommand;
-import dev.sbs.simplifiedbot.command.HelpCommand;
-import dev.sbs.simplifiedbot.command.MissingCommand;
-import dev.sbs.simplifiedbot.command.PlayerCommand;
-import dev.sbs.simplifiedbot.command.VerifyCommand;
+import dev.sbs.simplifiedbot.command.*;
 import dev.sbs.simplifiedbot.command.group.developer.DevActivityCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevLatencyCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevShardCommand;
@@ -39,6 +32,8 @@ import dev.sbs.simplifiedbot.command.group.player.PlayerPetsCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerSkillsCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerSlayersCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerWeightCommand;
+import dev.sbs.simplifiedbot.command.group.reputation.RepCheckCommand;
+import dev.sbs.simplifiedbot.command.group.reputation.RepGiveCommand;
 import dev.sbs.simplifiedbot.command.prefix.SbsCommand;
 import dev.sbs.simplifiedbot.util.ItemCache;
 import discord4j.common.util.Snowflake;
@@ -76,6 +71,7 @@ public final class SimplifiedBot extends DiscordBot {
             PlayerCommand.class,
             DungeonsCommand.class,
             VerifyCommand.class,
+            ReputationCommand.class,
 
             // Developer Commands
             DevDisableCommand.class,
@@ -94,7 +90,11 @@ public final class SimplifiedBot extends DiscordBot {
             PlayerPetsCommand.class,
             PlayerSkillsCommand.class,
             PlayerSlayersCommand.class,
-            PlayerWeightCommand.class
+            PlayerWeightCommand.class,
+
+            // Reputation Commands
+            RepGiveCommand.class,
+            RepCheckCommand.class
         );
     }
 
