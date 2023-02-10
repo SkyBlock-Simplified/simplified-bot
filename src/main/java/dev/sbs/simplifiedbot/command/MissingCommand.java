@@ -104,7 +104,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                 .build()
                         )
                         .withEmbeds(
-                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "missing", "Accessory Information")
+                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "missing_accessories")
                                 .withDescription(FormatUtil.format("You are missing {0} accessories.", -1))
                                 .build()
                         )
@@ -150,7 +150,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                 .build()
                         )
                         .withEmbeds(
-                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "stackable", "Accessory Information")
+                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "stackable_accessories")
                                 .withDescription(FormatUtil.format("You are missing {0} stackable accessories.", -1))
                                 .build()
                         )
@@ -184,7 +184,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                 .build()
                         )
                         .withEmbeds(
-                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "unwanted", "Accessory Information")
+                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "unwanted_accessories")
                                 .withDescription(FormatUtil.format("You have {0} unwanted accessories.", -1))
                                 .build()
                         )
@@ -218,7 +218,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                 .build()
                         )
                         .withEmbeds(
-                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "recombobulators", "Accessory Information")
+                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "missing_recombobulators")
                                 .withDescription(FormatUtil.format("You are missing recombobulators on {0} accessories.", -1))
                                 .build()
                         )
@@ -252,7 +252,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                 .build()
                         )
                         .withEmbeds(
-                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "enrichments", "Accessory Information")
+                            getEmbedBuilder(skyBlockUser.getMojangProfile(), skyBlockUser.getSelectedIsland(), "missing_enrichments")
                                 .withDescription(FormatUtil.format("You are missing enrichments on {0} accessories.", -1))
                                 .build()
                         )
