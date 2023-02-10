@@ -20,6 +20,7 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.collection.sort.SortOrder;
 import dev.sbs.api.util.data.tuple.Pair;
+import dev.sbs.api.util.data.tuple.Triple;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.discordapi.DiscordBot;
@@ -134,9 +135,9 @@ public class GuildCommand extends Command {
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
 
         Color tagColor = guild.getTagColor().orElse(MinecraftChatFormatting.YELLOW).getColor();
-        String guildDescription = guild.getDescription().orElse(guildName + " doesn't have a description set.");
+        String guildDescription = guild.getDescription().orElse(guild.getName() + " doesn't have a description set.");
         String guildTag = guild.getTag().orElse("Tag was not found.");
-        int guildLevel = 0; //TODO: add level query
+        int guildLevel = guild.getLevel();
         String guildOwner = ignMap.get(guild.getGuildMaster().getUniqueId());
 
         Response response = Response.builder()
@@ -145,8 +146,6 @@ public class GuildCommand extends Command {
             .withTimeToLive(120)
             .withPages(
                 Page.builder()
-//                  .withItemStyle(PageItem.Style.FIELD_INLINE)
-//                  .withItemsPerPage(12)
                     .withOption(SelectMenu.Option.builder()
                         .withLabel("General Information") //TODO: add minion slots to main page?
                         .withDescription("Guild Averages and Totals")
@@ -155,22 +154,17 @@ public class GuildCommand extends Command {
                         .build())
                     .withEmbeds(
                         Embed.builder()
-                            .withTitle(guildName)
+                            .withTitle(guild.getName())
                             .withDescription(
                                 """
                                 {0}
-                                Tag: {1}
-                                Guild Level: {2}
-                                Guild Owner: {3}
-                                Average Weight: **{4}** (Without Overflow: **{5}**)
-                                Average Networth: **{6}**
-                                Average Skill Level: **{7}**
-                                Average Skyblock Level: **{8}**
+                                
+                                Average Weight: **{1}** (Without Overflow: **{2}**)
+                                Average Networth: **{3}**
+                                Average Skill Level: **{4}**
+                                Average Skyblock Level: **{5}**
                                 """,
                                 guildDescription,
-                                guildTag,
-                                guildLevel,
-                                guildOwner,
                                 (int) guildMemberPlayers.stream().mapToDouble(
                                     guildMember -> totalWeights.get(guildMember).getTotal()
                                 ).average().orElse(0),
@@ -188,6 +182,9 @@ public class GuildCommand extends Command {
                                     .average()
                                     .orElse(0)
                             )
+                            .withField("Tag", guildTag, true)
+                            .withField("Guild Level", String.valueOf(guildLevel), true)
+                            .withField("Guild Owner", guildOwner, true)
                             .withColor(tagColor)
                             .build()
                     )
@@ -195,6 +192,7 @@ public class GuildCommand extends Command {
                         Page.builder()
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
+                                    .withColumnNames(Triple.of("Skyblock Level Leaderboard", "", ""))
                                     .withFieldItems(guildMemberPlayers)
                                     .withSorters(
                                         Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
@@ -206,7 +204,7 @@ public class GuildCommand extends Command {
                                         StreamUtil.mapWithIndex(
                                             stream, (guildMemberPlayer, index, size) -> FieldItem.builder()
                                                 .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                                                .withLabel(FormatUtil.format(
+                                                .withData(FormatUtil.format(
                                                     " #{0} `{1}` >  **{2}**",
                                                     index + 1,
                                                     ignMap.get(guildMemberPlayer.getUniqueId()),
@@ -229,7 +227,7 @@ public class GuildCommand extends Command {
                             )
                             .withEmbeds(Embed.builder()
                                 .withColor(tagColor)
-                                .withTitle(guildName)
+                                .withTitle(guild.getName())
                                 .withDescription(
                                     """
                                     Skyblock Level Average: **{0}**
@@ -274,7 +272,7 @@ public class GuildCommand extends Command {
                                     .build()
                             )
                             .withFieldItems(skillModels)
-                            .withTransformer(skillModelStream -> skillModelStream
+                            .withTransformer(stream -> stream
                                 .map(skillModel -> FieldItem.builder()
                                     .withEmoji(emojis.get(skillModel.getKey()))
                                     .withData(
@@ -303,9 +301,11 @@ public class GuildCommand extends Command {
                                     .build()
                                 )
                             )
+                            .withItems(FieldItem.builder().build())
                             .withStyle(PageItem.Style.FIELD_INLINE)
                             .withAmountPerPage(20)
-                            .build())
+                            .build()
+                    )
                     .withOption(
                         SelectMenu.Option.builder()
                             .withLabel("Skill Averages")
@@ -315,7 +315,7 @@ public class GuildCommand extends Command {
                             .build())
                     .withEmbeds(
                         Embed.builder()
-                            .withTitle(guildName)
+                            .withTitle(guild.getName())
                             .withDescription(
                                 """
                                 Average Weight: **{0}** (Without Overflow: **{1}**)
@@ -338,6 +338,7 @@ public class GuildCommand extends Command {
                         .map(skillModel -> Page.builder()
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
+                                    .withColumnNames(Triple.of(skillModel.getName() + " Leaderboard", "", ""))
                                     .withFieldItems(guildMemberPlayers)
                                     .withSorters(
                                         Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
@@ -350,7 +351,7 @@ public class GuildCommand extends Command {
                                     )
                                     .withTransformer(stream -> StreamUtil.mapWithIndex(stream, (member, index, size) -> FieldItem.builder()
                                         .withOptionValue(ignMap.get(member.getUniqueId()))
-                                        .withLabel(FormatUtil.format(
+                                        .withData(FormatUtil.format(
                                             " #{0} `{1}` >  **{2} [{3}]**",
                                             index + 1,
                                             ignMap.get(member.getUniqueId()),
@@ -374,15 +375,16 @@ public class GuildCommand extends Command {
                             .withEmbeds(
                                 Embed.builder()
                                     .withColor(tagColor)
-                                    .withTitle(guildName)
-                                    .withDescription(FormatUtil.format("""
+                                    .withTitle(guild.getName())
+                                    .withDescription(FormatUtil.format(
+                                        """
                                         {0} Average: **{1}** / {2}
                                         """,
-                                            skillModel.getName(),
-                                            df.format(guildMemberPlayers.stream()
-                                                .mapToDouble(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().filter(skill -> skill.getType().equals(skillModel))
-                                                    .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
-                                            skillModel.getMaxLevel()
+                                        skillModel.getName(),
+                                        df.format(guildMemberPlayers.stream()
+                                            .mapToDouble(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().filter(skill -> skill.getType().equals(skillModel))
+                                                .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
+                                        skillModel.getMaxLevel()
                                         )
                                     )
                                     .build()
@@ -402,7 +404,7 @@ public class GuildCommand extends Command {
                                 .map(slayerModel -> FieldItem.builder()
                                     .withEmoji(emojis.get(slayerModel.getKey()))
                                     .withOptionValue(slayerModel.getKey())
-                                    .withLabel(
+                                    .withData(
                                         FormatUtil.format(
                                             """
                                                 {0}Average Level: **{2}**
@@ -427,6 +429,7 @@ public class GuildCommand extends Command {
                                     .build()
                                 )
                             )
+                            .withItems(FieldItem.builder().build())
                             .withStyle(PageItem.Style.FIELD_INLINE)
                             .withAmountPerPage(20)
                             .build()
@@ -441,7 +444,7 @@ public class GuildCommand extends Command {
                     )
                     .withEmbeds(
                         Embed.builder()
-                            .withTitle(guildName)
+                            .withTitle(guild.getName())
                             .withDescription(
                                 """
                                 Average Weight: **{0}** (Without Overflow: **{1}**)
@@ -465,6 +468,7 @@ public class GuildCommand extends Command {
                             Page.builder()
                                 .withItemData(
                                     Page.ItemData.builder(SkyBlockIsland.Member.class)
+                                        .withColumnNames(Triple.of(slayerModel.getName() + " Leaderboard", "", ""))
                                         .withFieldItems(guildMemberPlayers)
                                         .withSorters(
                                             Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
@@ -477,7 +481,7 @@ public class GuildCommand extends Command {
                                                 stream,
                                                 (guildMemberPlayer, index, size) -> FieldItem.builder()
                                                     .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                                                    .withLabel(FormatUtil.format(
+                                                    .withData(FormatUtil.format(
                                                         " #{0} `{1}` >  **{2} [{3}]**",
                                                         index + 1,
                                                         ignMap.get(guildMemberPlayer.getUniqueId()),
@@ -501,7 +505,7 @@ public class GuildCommand extends Command {
                                 .withEmbeds(
                                     Embed.builder()
                                         .withColor(tagColor)
-                                        .withTitle(guildName)
+                                        .withTitle(guild.getName())
                                         .withDescription(
                                             """
                                             {0} Average: **{1}** / {2}
@@ -591,7 +595,7 @@ public class GuildCommand extends Command {
                             .build())
                     .withEmbeds(
                         Embed.builder()
-                            .withTitle(guildName)
+                            .withTitle(guild.getName())
                             .withDescription(
                                 """
                                 Average Weight: **{0}** (Without Overflow: **{1}**)
@@ -614,6 +618,7 @@ public class GuildCommand extends Command {
                         Page.builder()
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
+                                    .withColumnNames(Triple.of("Catacombs Leaderboard", "", ""))
                                     .withFieldItems(guildMemberPlayers)
                                     .withSorters(
                                         Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
@@ -626,7 +631,7 @@ public class GuildCommand extends Command {
                                             stream,
                                             (guildMemberPlayer, index, size) -> FieldItem.builder()
                                                 .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                                                .withLabel(
+                                                .withData(
                                                     FormatUtil.format(
                                                         " #{0} `{1}` >  **{2} [{3}]**",
                                                         index + 1,
@@ -652,7 +657,7 @@ public class GuildCommand extends Command {
                             .withEmbeds(
                                 Embed.builder()
                                     .withColor(tagColor)
-                                    .withTitle(guildName)
+                                    .withTitle(guild.getName())
                                     .withDescription(
                                         """
                                         Catacombs Average: **{0}** / 50
@@ -669,6 +674,7 @@ public class GuildCommand extends Command {
                         .map(classModel -> Page.builder()
                             .withItemData(
                                 Page.ItemData.builder(SkyBlockIsland.Member.class)
+                                    .withColumnNames(Triple.of(classModel.getName() + " Leaderboard", "", ""))
                                     .withFieldItems(guildMemberPlayers)
                                     .withSorters(
                                         Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
@@ -681,7 +687,7 @@ public class GuildCommand extends Command {
                                             stream,
                                             (guildMemberPlayer, index, size) -> FieldItem.builder()
                                                 .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                                                .withLabel(
+                                                .withData(
                                                     FormatUtil.format(
                                                         " #{0} `{1}` >  **{2} [{3}]**",
                                                         index + 1,
@@ -707,7 +713,7 @@ public class GuildCommand extends Command {
                             .withEmbeds(
                                 Embed.builder()
                                     .withColor(tagColor)
-                                    .withTitle(guildName)
+                                    .withTitle(guild.getName())
                                     .withDescription(
                                         """
                                         {0} Average: **{1}** / {2}
@@ -729,6 +735,7 @@ public class GuildCommand extends Command {
                 Page.builder()
                     .withItemData(
                         Page.ItemData.builder(SkyBlockIsland.Member.class)
+                            .withColumnNames(Triple.of("Weight Leaderboard", "", ""))
                             .withFieldItems(guildMemberPlayers)
                             .withSorters(
                                 Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
@@ -741,7 +748,7 @@ public class GuildCommand extends Command {
                                     stream,
                                     (guildMemberPlayer, index, size) -> FieldItem.builder()
                                         .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                                        .withLabel(FormatUtil.format(
+                                        .withData(FormatUtil.format(
                                             " #{0} `{1}` >  **{2} [{3}]**",
                                             index + 1,
                                             ignMap.get(guildMemberPlayer.getUniqueId()),
@@ -765,7 +772,7 @@ public class GuildCommand extends Command {
                     .withEmbeds(
                         Embed.builder()
                             .withColor(tagColor)
-                            .withTitle(guildName)
+                            .withTitle(guild.getName())
                             .withDescription(
                                 """
                                 Average Weight: **{0}** (Without Overflow: **{1}**)
@@ -783,6 +790,7 @@ public class GuildCommand extends Command {
                 Page.builder()
                     .withItemData(
                         Page.ItemData.builder(SkyBlockIsland.Member.class)
+                            .withColumnNames(Triple.of("Networth Leaderboard", "", ""))
                             .withFieldItems(guildMemberPlayers)
                             .withSorters(
                                 Page.ItemData.Sorter.<SkyBlockIsland.Member>builder()
@@ -795,7 +803,7 @@ public class GuildCommand extends Command {
                                     stream,
                                     (guildMemberPlayer, index, size) -> FieldItem.builder()
                                         .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
-                                        .withLabel(FormatUtil.format(
+                                        .withData(FormatUtil.format(
                                             " #{0} `{1}` >  **{2}**",
                                             index + 1,
                                             ignMap.get(guildMemberPlayer.getUniqueId()),
@@ -818,7 +826,7 @@ public class GuildCommand extends Command {
                     .withEmbeds(
                         Embed.builder()
                             .withColor(tagColor)
-                            .withTitle(guildName)
+                            .withTitle(guild.getName())
                             .withDescription(FormatUtil.format("""
                                 Average Networth: **{0}**
                                 Total Networth: **{1}**
