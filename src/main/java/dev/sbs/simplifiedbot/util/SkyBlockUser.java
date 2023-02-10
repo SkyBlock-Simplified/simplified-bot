@@ -18,7 +18,6 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.api.util.helper.WordUtil;
-import dev.sbs.discordapi.command.data.Argument;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
 import dev.sbs.discordapi.context.CommandContext;
@@ -44,7 +43,7 @@ public final class SkyBlockUser {
     public SkyBlockUser(CommandContext<?> commandContext) {
         this.auctionHouse = ((SimplifiedBot) commandContext.getDiscordBot()).getItemCache().getAuctionHouse();
         this.skyBlockEmojis = ((SimplifiedBot) commandContext.getDiscordBot()).getSkyBlockEmojis();
-        Optional<String> optionalPlayerID = commandContext.getArgument("name").flatMap(Argument::getValue);
+        Optional<String> optionalPlayerID = commandContext.getArgument("name").getValue();
 
         if (optionalPlayerID.isEmpty()) {
             if (!this.isVerified(commandContext.getInteractUserId()))
@@ -73,7 +72,7 @@ public final class SkyBlockUser {
                 .build();
         }
 
-        Optional<String> optionalProfileName = commandContext.getArgument("profile").flatMap(Argument::getValue);
+        Optional<String> optionalProfileName = commandContext.getArgument("profile").getValue();
         Optional<SkyBlockIsland> optionalSkyBlockIsland = Optional.empty();
 
         if (optionalProfileName.isPresent()) {

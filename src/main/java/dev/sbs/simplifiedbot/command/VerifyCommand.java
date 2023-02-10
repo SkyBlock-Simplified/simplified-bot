@@ -16,7 +16,6 @@ import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.Argument;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
@@ -43,7 +42,7 @@ public class VerifyCommand extends Command {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
-        String playerID = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow(); // Will never throw
+        String playerID = commandContext.getArgument("name").getValue().orElseThrow(); // Will never throw
         MojangRequest mojangRequest = SimplifiedApi.getWebApi(MojangRequest.class);
         MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
         HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getPlayer(mojangProfileResponse.getUniqueId());
