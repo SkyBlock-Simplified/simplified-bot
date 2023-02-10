@@ -31,7 +31,6 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.search.function.SearchFunction;
-import dev.sbs.api.util.collection.sort.SortOrder;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
@@ -306,7 +305,22 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .withOption(getOptionBuilder("pets").withEmoji(getEmoji("PETS")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "pets")
-                        .withDescription("Pet Score: **{0}**", member.getPetData().getPetScore())
+                        .withDescription(
+                            """
+                                Unique Pets: **{0}** / **{1}**
+                                Pet Score: **{2}** (+{3} Magic Find)""",
+                            member.getPetData()
+                                .getPets()
+                                .stream()
+                                .filter(StreamUtil.distinctByKey(Pet::getName))
+                                .collect(Concurrent.toList())
+                                .size(),
+                            SimplifiedApi.getRepositoryOf(PetModel.class)
+                                .findAll()
+                                .size(),
+                            member.getPetData().getPetScore(),
+                            member.getPetData().getPetScoreMagicFind()
+                        )
                         .build()
                 )
                 .withItemData(
@@ -358,12 +372,6 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     .compare(o1, o2)
                                 )
                                 .withLabel("Default")
-                                .build(),
-                            Page.ItemData.Sorter.<Pet>builder()
-                                .withFunctions(SortOrder.ASCENDING, Pet::getRarityOrdinal)
-                                .withFunctions(SortOrder.DESCENDING, Pet::getLevel)
-                                .withFunctions(SortOrder.ASCENDING, Pet::getName)
-                                .withLabel("Test")
                                 .build()
                         )
                         .withStyle(PageItem.Style.FIELD_INLINE)
