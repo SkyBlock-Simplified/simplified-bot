@@ -26,7 +26,6 @@ import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.Argument;
 import dev.sbs.discordapi.command.data.CommandInfo;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
@@ -57,9 +56,18 @@ public class GuildCommand extends Command {
     private static final DecimalFormat df = new DecimalFormat("0.00");
     private static final ConcurrentList<String> emojiStrings = new ConcurrentList<>();
 
+    private static final ConcurrentList<String> pageIdentifiers = new ConcurrentList<>(
+        "general_information",
+        "skill_averages",
+        "slayer_information",
+        "dungeon_information",
+        "weight_leaderboard",
+        "networth_leaderboard"
+    );
+
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
-        String guildName = commandContext.getArgument("name").flatMap(Argument::getValue).orElseThrow();
+        String guildName = commandContext.getArgument("name").getValue().orElseThrow();
 
         HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getGuildByName(guildName);
 
@@ -136,6 +144,7 @@ public class GuildCommand extends Command {
         String guildTag = guild.getTag().orElse("Tag was not found.");
         int guildLevel = guild.getLevel();
         String guildOwner = ignMap.get(guild.getGuildMaster().getUniqueId());
+        String pageIdentifier = commandContext.getArgument("page").getValue().orElse("general_information");
 
         Response response = Response.builder()
             .withReference(commandContext)
@@ -170,7 +179,7 @@ public class GuildCommand extends Command {
                                     networths::get
                                 ).average().orElse(0),
                                 df.format(guildMemberPlayers.stream()
-                                    .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
+                                    .mapToDouble(SkyBlockIsland.Member::getSkillAverage).average().orElseThrow()),
                                 guildMemberPlayers.stream()
                                     .mapToDouble(member -> member.getLeveling().getLevel())
                                     .filter(level -> level > 0)
@@ -251,7 +260,7 @@ public class GuildCommand extends Command {
                                         emojiReplyStem,
                                         emojiReplyEnd,
                                         df.format(guildMemberPlayers.stream()
-                                            .mapToDouble(guildMemberPlayer -> getSkillAverage(skills.get(guildMemberPlayer))).average().orElseThrow()),
+                                            .mapToDouble(SkyBlockIsland.Member::getSkillAverage).average().orElseThrow()),
                                         guildMemberPlayers.stream()
                                             .mapToLong(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().mapToLong(skill -> (long) skill.getExperience()).sum()).sum()
                                     )
@@ -805,6 +814,7 @@ public class GuildCommand extends Command {
                     )
                     .build()
             )
+            .withDefaultPage(pageIdentifier)
             .build();
         return commandContext.reply(response);
     }
@@ -815,19 +825,17 @@ public class GuildCommand extends Command {
             Parameter.builder("name", "Name of the Guild to look up", Parameter.Type.TEXT)
                 .isRequired()
                 .build(),
-            Parameter.builder("page", "Jump to a specific page", Parameter.Type.TEXT) //TODO: implement choices
-                .withChoices()
+            Parameter.builder("page", "Jump to a specific page", Parameter.Type.TEXT)
+                .withChoices(
+                    pageIdentifiers.stream()
+                        .map(pageIdentifier -> Pair.of(WordUtil.capitalizeFully(pageIdentifier.replace("_", " ")), pageIdentifier))
+                        .collect(Concurrent.toLinkedMap())
+                )
                 .build()
         );
     }
 
-    private static double getSkillAverage(ConcurrentList<Skill> skills) {
-        return skills.stream()
-            .filter(skill -> skill.getType().isCosmetic())
-            .mapToInt(Experience::getLevel).average().orElseThrow(); //TODO: fix performance lol
-    }
-
-    private static SelectMenu.Option.OptionBuilder getOptionBuilder(String identifier) {
+    private static SelectMenu.Option.Builder getOptionBuilder(String identifier) {
         return SelectMenu.Option.builder()
             .withValue(identifier)
             .withLabel(WordUtil.capitalizeFully(identifier.replace("_", " ")));
