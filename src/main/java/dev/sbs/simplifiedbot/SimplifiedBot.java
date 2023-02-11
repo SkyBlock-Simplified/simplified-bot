@@ -3,6 +3,7 @@ package dev.sbs.simplifiedbot;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.sbs.request.SkyBlockRequest;
 import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
+import dev.sbs.api.data.model.discord.command_data.command_parents.CommandParentModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
@@ -14,9 +15,14 @@ import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.PrefixCommand;
 import dev.sbs.discordapi.util.DiscordConfig;
-import dev.sbs.simplifiedbot.command.*;
+import dev.sbs.simplifiedbot.command.AboutCommand;
+import dev.sbs.simplifiedbot.command.DungeonsCommand;
+import dev.sbs.simplifiedbot.command.GuildCommand;
+import dev.sbs.simplifiedbot.command.HelpCommand;
+import dev.sbs.simplifiedbot.command.LinkCommand;
+import dev.sbs.simplifiedbot.command.MissingCommand;
+import dev.sbs.simplifiedbot.command.PlayerCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevActivityCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevLatencyCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevShardCommand;
@@ -34,7 +40,6 @@ import dev.sbs.simplifiedbot.command.group.player.PlayerSlayersCommand;
 import dev.sbs.simplifiedbot.command.group.player.PlayerWeightCommand;
 import dev.sbs.simplifiedbot.command.group.reputation.RepCheckCommand;
 import dev.sbs.simplifiedbot.command.group.reputation.RepGiveCommand;
-import dev.sbs.simplifiedbot.command.prefix.SbsCommand;
 import dev.sbs.simplifiedbot.util.ItemCache;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.presence.ClientActivity;
@@ -47,6 +52,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public final class SimplifiedBot extends DiscordBot {
@@ -64,14 +70,12 @@ public final class SimplifiedBot extends DiscordBot {
         return Concurrent.newUnmodifiableSet(
             // Top-Level/Slash Commands
             AboutCommand.class,
-            DevCommand.class,
             GuildCommand.class,
             HelpCommand.class,
             MissingCommand.class,
             PlayerCommand.class,
             DungeonsCommand.class,
-            VerifyCommand.class,
-            ReputationCommand.class,
+            LinkCommand.class,
 
             // Developer Commands
             DevDisableCommand.class,
@@ -114,8 +118,8 @@ public final class SimplifiedBot extends DiscordBot {
     }
 
     @Override
-    protected @NotNull Class<? extends PrefixCommand> getPrefixCommand() {
-        return SbsCommand.class;
+    protected @NotNull Optional<CommandParentModel> getPrefix() {
+        return SimplifiedApi.getRepositoryOf(CommandParentModel.class).findFirst(CommandParentModel::getKey, "sbs");
     }
 
     @Override
