@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.data.model.discord.sbs.sbs_developers.SbsDeveloperModel;
-import dev.sbs.api.data.model.discord.sbs.sbs_legacy_donors.SbsLegacyDonorModel;
+import dev.sbs.api.data.model.discord.sbs_data.sbs_developers.SbsDeveloperModel;
+import dev.sbs.api.data.model.discord.sbs_data.sbs_legacy_donors.SbsLegacyDonorModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
