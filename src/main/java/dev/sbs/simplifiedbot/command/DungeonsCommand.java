@@ -11,7 +11,7 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -27,13 +27,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-@CommandInfo(
-    id = "cc65f062-45f8-44c0-9635-84359e3ea246",
-    name = "dungeons"
-)
+@CommandId("cc65f062-45f8-44c0-9635-84359e3ea246")
 public class DungeonsCommand extends SkyBlockUserCommand {
 
-    protected DungeonsCommand(DiscordBot discordBot) {
+    protected DungeonsCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

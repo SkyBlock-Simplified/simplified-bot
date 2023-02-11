@@ -14,7 +14,7 @@ import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Response;
@@ -22,7 +22,6 @@ import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.ReputationCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -32,11 +31,7 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.Optional;
 
-@CommandInfo(
-    id = "01cd83a4-cc84-4b76-9e16-dbdab43e80ff",
-    name = "check",
-    parent = ReputationCommand.class
-)
+@CommandId("01cd83a4-cc84-4b76-9e16-dbdab43e80ff")
 public class RepCheckCommand extends Command {
 
     protected RepCheckCommand(@NotNull DiscordBot discordBot) {

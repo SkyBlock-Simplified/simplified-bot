@@ -2,22 +2,15 @@ package dev.sbs.simplifiedbot.command.group.embed;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
-import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.item.FooterItem;
-import dev.sbs.simplifiedbot.command.EmbedCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandInfo(
-    id = "5c0512d2-49c6-45fb-a95c-beb25d541e5f",
-    name = "edit",
-    parent = EmbedCommand.class
-)
+@CommandId("5c0512d2-49c6-45fb-a95c-beb25d541e5f")
 public class EmbedCreateCommand extends Command {
 
-    protected EmbedCreateCommand(DiscordBot discordBot) {
+    protected EmbedCreateCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

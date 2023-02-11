@@ -9,24 +9,19 @@ import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.DevCommand;
 import discord4j.common.util.Snowflake;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-@CommandInfo(
-    id = "1287dda9-ded3-4c7e-9e42-33bfd79043f8",
-    name = "emoji",
-    parent = DevCommand.class
-)
+@CommandId("1287dda9-ded3-4c7e-9e42-33bfd79043f8")
 public class DevEmojiCommand extends Command {
 
-    protected DevEmojiCommand(DiscordBot discordBot) {
+    protected DevEmojiCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

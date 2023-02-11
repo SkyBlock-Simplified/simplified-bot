@@ -1,13 +1,14 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.data.model.discord.command_categories.CommandCategoryModel;
+import dev.sbs.api.data.model.discord.command_data.command_categories.CommandCategoryModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.command.data.Parameter;
+import dev.sbs.discordapi.command.relationship.Relationship;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -22,13 +23,10 @@ import reactor.core.publisher.Mono;
 import java.awt.*;
 import java.time.Instant;
 
-@CommandInfo(
-    id = "e54b45ec-e47d-4784-bac4-72c4908ba87d",
-    name = "help"
-)
+@CommandId("e54b45ec-e47d-4784-bac4-72c4908ba87d")
 public class HelpCommand extends Command {
 
-    protected HelpCommand(DiscordBot discordBot) {
+    protected HelpCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
@@ -84,10 +82,10 @@ public class HelpCommand extends Command {
                                             .withTimestamp(Instant.now())
                                             .withColor(Color.DARK_GRAY)
                                             .withFields(
-                                                this.getDiscordBot()
-                                                    .getRootCommandRelationship()
-                                                    .getSubCommands()
+                                                this.getCompactedRelationships()
                                                     .stream()
+                                                    .filter(Relationship.Command.class::isInstance)
+                                                    .map(Relationship.Command.class::cast)
                                                     .filter(relationship -> relationship.getInstance()
                                                         .getCategory()
                                                         .map(commandCategory::equals)
@@ -95,7 +93,7 @@ public class HelpCommand extends Command {
                                                     )
                                                     .map(relationship -> Field.builder()
                                                         .withEmoji(relationship.getInstance().getEmoji())
-                                                        .withName(relationship.getCommandInfo().name())
+                                                        .withName(relationship.getName())
                                                         .withValue(relationship.getInstance().getDescription())
                                                         .isInline()
                                                         .build()
@@ -105,10 +103,10 @@ public class HelpCommand extends Command {
                                             .build()
                                     )
                                     .withPages(
-                                        this.getDiscordBot()
-                                            .getRootCommandRelationship()
-                                            .getSubCommands()
+                                        this.getCompactedRelationships()
                                             .stream()
+                                            .filter(Relationship.Command.class::isInstance)
+                                            .map(Relationship.Command.class::cast)
                                             .filter(relationship -> relationship.getInstance()
                                                 .getCategory()
                                                 .map(commandCategory::equals)
@@ -118,9 +116,9 @@ public class HelpCommand extends Command {
                                                 .withOption(
                                                     SelectMenu.Option.builder()
                                                         .withEmoji(relationship.getInstance().getEmoji())
-                                                        .withLabel(relationship.getCommandInfo().name())
+                                                        .withLabel(relationship.getName())
                                                         .withDescription(relationship.getInstance().getDescription())
-                                                        .withValue(relationship.getCommandInfo().name())
+                                                        .withValue(relationship.getName())
                                                         .build()
                                                 )
                                                 .withEmbeds(relationship.createHelpEmbed(commandContext.isSlashCommand()))

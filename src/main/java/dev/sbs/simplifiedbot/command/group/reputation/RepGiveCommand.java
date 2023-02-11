@@ -13,14 +13,13 @@ import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.ReputationCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -29,11 +28,7 @@ import reactor.core.publisher.Mono;
 import java.awt.*;
 import java.util.Optional;
 
-@CommandInfo(
-    id = "6f97994d-a09b-45f2-9275-66d5028d5b39",
-    name = "give",
-    parent = ReputationCommand.class
-)
+@CommandId("6f97994d-a09b-45f2-9275-66d5028d5b39")
 public class RepGiveCommand extends Command {
 
     protected RepGiveCommand(@NotNull DiscordBot discordBot) {

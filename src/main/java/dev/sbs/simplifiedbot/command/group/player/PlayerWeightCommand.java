@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.command.group.player;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.simplifiedbot.command.PlayerCommand;
@@ -10,13 +10,10 @@ import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandInfo(
-    id = "93d1546e-5522-4eed-95d5-cee418e1a2c4",
-    name = "weight"
-)
+@CommandId("93d1546e-5522-4eed-95d5-cee418e1a2c4")
 public class PlayerWeightCommand extends SkyBlockUserCommand {
 
-    protected PlayerWeightCommand(DiscordBot discordBot) {
+    protected PlayerWeightCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

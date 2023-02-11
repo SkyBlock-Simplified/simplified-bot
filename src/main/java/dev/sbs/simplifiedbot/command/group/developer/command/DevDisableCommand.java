@@ -4,22 +4,17 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.DevCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandInfo(
-    id = "79dbe55c-22a5-41dc-9bb0-fc956e2390b3",
-    name = "disable",
-    parent = DevCommand.class
-)
+@CommandId("79dbe55c-22a5-41dc-9bb0-fc956e2390b3")
 public class DevDisableCommand extends Command {
 
-    protected DevDisableCommand(DiscordBot discordBot) {
+    protected DevDisableCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

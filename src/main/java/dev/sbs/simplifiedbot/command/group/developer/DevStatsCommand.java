@@ -7,7 +7,7 @@ import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -15,7 +15,6 @@ import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.base.DiscordHelper;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.DevCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
@@ -27,14 +26,10 @@ import java.awt.*;
 import java.time.Instant;
 import java.util.Optional;
 
-@CommandInfo(
-    id = "2ce215ee-1d4e-4c7a-bb77-82f6c39eb02d",
-    name = "stats",
-    parent = DevCommand.class
-)
+@CommandId("2ce215ee-1d4e-4c7a-bb77-82f6c39eb02d")
 public class DevStatsCommand extends Command {
 
-    protected DevStatsCommand(DiscordBot discordBot) {
+    protected DevStatsCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

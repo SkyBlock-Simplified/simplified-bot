@@ -36,7 +36,7 @@ import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -56,13 +56,10 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Function;
 
-@CommandInfo(
-    id = "733e6780-84cd-45ed-921a-9b1ca9b02ed6",
-    name = "player"
-)
+@CommandId("733e6780-84cd-45ed-921a-9b1ca9b02ed6")
 public class PlayerCommand extends SkyBlockUserCommand {
 
-    protected PlayerCommand(DiscordBot discordBot) {
+    protected PlayerCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

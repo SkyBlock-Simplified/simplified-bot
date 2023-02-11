@@ -26,7 +26,7 @@ import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
@@ -43,13 +43,10 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.UUID;
 
-@CommandInfo(
-    id = "b04d133d-3532-447b-8782-37d1036f3957",
-    name = "guild"
-)
+@CommandId("b04d133d-3532-447b-8782-37d1036f3957")
 public class GuildCommand extends Command {
 
-    protected GuildCommand(DiscordBot discordBot) {
+    protected GuildCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

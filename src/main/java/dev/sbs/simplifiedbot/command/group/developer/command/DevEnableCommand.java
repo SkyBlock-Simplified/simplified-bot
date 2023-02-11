@@ -4,22 +4,17 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.DevCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandInfo(
-    id = "5f279de3-6cf2-468e-9ec1-b208637efc8c",
-    name = "enable",
-    parent = DevCommand.class
-)
+@CommandId("5f279de3-6cf2-468e-9ec1-b208637efc8c")
 public class DevEnableCommand extends Command {
 
-    protected DevEnableCommand(DiscordBot discordBot) {
+    protected DevEnableCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

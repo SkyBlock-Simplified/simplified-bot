@@ -1,14 +1,14 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.data.model.discord.sbs_developers.SbsDeveloperModel;
-import dev.sbs.api.data.model.discord.sbs_legacy_donors.SbsLegacyDonorModel;
+import dev.sbs.api.data.model.discord.sbs.sbs_developers.SbsDeveloperModel;
+import dev.sbs.api.data.model.discord.sbs.sbs_legacy_donors.SbsLegacyDonorModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -23,13 +23,10 @@ import reactor.core.publisher.Mono;
 import java.awt.*;
 import java.time.Instant;
 
-@CommandInfo(
-    id = "1b072a71-2045-457a-a9f7-354b936567cb",
-    name = "about"
-)
+@CommandId("1b072a71-2045-457a-a9f7-354b936567cb")
 public class AboutCommand extends Command {
 
-    protected AboutCommand(DiscordBot discordBot) {
+    protected AboutCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

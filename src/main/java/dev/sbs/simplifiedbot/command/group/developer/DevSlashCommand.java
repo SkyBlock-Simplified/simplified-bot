@@ -2,21 +2,16 @@ package dev.sbs.simplifiedbot.command.group.developer;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.DevCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandInfo(
-    id = "e7d01ff9-13f5-4b42-97c0-8c04faadf8ba",
-    name = "slash",
-    parent = DevCommand.class
-)
+@CommandId("e7d01ff9-13f5-4b42-97c0-8c04faadf8ba")
 public class DevSlashCommand extends Command {
 
-    protected DevSlashCommand(DiscordBot discordBot) {
+    protected DevSlashCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

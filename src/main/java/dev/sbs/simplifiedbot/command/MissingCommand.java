@@ -9,7 +9,7 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.search.function.SearchFunction;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -24,13 +24,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-@CommandInfo(
-    id = "b0e6bdee-971c-4774-9373-a8ef3ccd4e5b",
-    name = "missing"
-)
+@CommandId("b0e6bdee-971c-4774-9373-a8ef3ccd4e5b")
 public class MissingCommand extends SkyBlockUserCommand {
 
-    protected MissingCommand(DiscordBot discordBot) {
+    protected MissingCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.command.group.player;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.simplifiedbot.command.PlayerCommand;
@@ -10,13 +10,10 @@ import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandInfo(
-    id = "086d67ba-eba9-40db-958f-2f6759ae3b70",
-    name = "slayers"
-)
+@CommandId("086d67ba-eba9-40db-958f-2f6759ae3b70")
 public class PlayerSlayersCommand extends SkyBlockUserCommand {
 
-    protected PlayerSlayersCommand(DiscordBot discordBot) {
+    protected PlayerSlayersCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

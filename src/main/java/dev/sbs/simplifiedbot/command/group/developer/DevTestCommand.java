@@ -4,7 +4,7 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Emoji;
@@ -17,18 +17,13 @@ import dev.sbs.discordapi.response.component.layout.ActionRow;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.command.DevCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandInfo(
-    id = "75f1762a-4672-48db-83d8-86d953645d08",
-    name = "test",
-    parent = DevCommand.class
-)
+@CommandId("75f1762a-4672-48db-83d8-86d953645d08")
 public class DevTestCommand extends Command {
 
-    protected DevTestCommand(DiscordBot discordBot) {
+    protected DevTestCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

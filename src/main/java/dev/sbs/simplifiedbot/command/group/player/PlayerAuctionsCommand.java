@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.command.group.player;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.simplifiedbot.command.PlayerCommand;
@@ -10,13 +10,10 @@ import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandInfo(
-    id = "2d8b04e5-8a57-4cfa-a20b-8951ca202a01",
-    name = "auctions"
-)
+@CommandId("2d8b04e5-8a57-4cfa-a20b-8951ca202a01")
 public class PlayerAuctionsCommand extends SkyBlockUserCommand {
 
-    protected PlayerAuctionsCommand(DiscordBot discordBot) {
+    protected PlayerAuctionsCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
