@@ -1,19 +1,18 @@
-package dev.sbs.simplifiedbot.command.group.player;
+package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Response;
-import dev.sbs.simplifiedbot.command.PlayerCommand;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandId("086d67ba-eba9-40db-958f-2f6759ae3b70")
-public class PlayerSlayersCommand extends SkyBlockUserCommand {
+@CommandId("93d1546e-5522-4eed-95d5-cee418e1a2c4")
+public class WeightCommand extends SkyBlockUserCommand {
 
-    protected PlayerSlayersCommand(@NotNull DiscordBot discordBot) {
+    protected WeightCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
@@ -26,7 +25,7 @@ public class PlayerSlayersCommand extends SkyBlockUserCommand {
                 .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
-                .withDefaultPage("slayers")
+                .withDefaultPage("weight")
                 .build()
         );
     }

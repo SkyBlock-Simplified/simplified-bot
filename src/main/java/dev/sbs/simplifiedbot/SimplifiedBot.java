@@ -16,13 +16,7 @@ import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.util.DiscordConfig;
-import dev.sbs.simplifiedbot.command.AboutCommand;
-import dev.sbs.simplifiedbot.command.DungeonsCommand;
-import dev.sbs.simplifiedbot.command.GuildCommand;
-import dev.sbs.simplifiedbot.command.HelpCommand;
-import dev.sbs.simplifiedbot.command.LinkCommand;
-import dev.sbs.simplifiedbot.command.MissingCommand;
-import dev.sbs.simplifiedbot.command.PlayerCommand;
+import dev.sbs.simplifiedbot.command.*;
 import dev.sbs.simplifiedbot.command.group.developer.DevActivityCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevLatencyCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevShardCommand;
@@ -30,14 +24,6 @@ import dev.sbs.simplifiedbot.command.group.developer.DevStatsCommand;
 import dev.sbs.simplifiedbot.command.group.developer.DevTestCommand;
 import dev.sbs.simplifiedbot.command.group.developer.command.DevDisableCommand;
 import dev.sbs.simplifiedbot.command.group.developer.command.DevEnableCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerAccessoriesCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerAuctionsCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerJacobsCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerNetworthCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerPetsCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerSkillsCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerSlayersCommand;
-import dev.sbs.simplifiedbot.command.group.player.PlayerWeightCommand;
 import dev.sbs.simplifiedbot.command.group.reputation.RepCheckCommand;
 import dev.sbs.simplifiedbot.command.group.reputation.RepGiveCommand;
 import dev.sbs.simplifiedbot.util.ItemCache;
@@ -87,14 +73,14 @@ public final class SimplifiedBot extends DiscordBot {
             DevTestCommand.class,
 
             // Player Commands
-            PlayerAccessoriesCommand.class,
-            PlayerAuctionsCommand.class,
-            PlayerJacobsCommand.class,
-            PlayerNetworthCommand.class,
-            PlayerPetsCommand.class,
-            PlayerSkillsCommand.class,
-            PlayerSlayersCommand.class,
-            PlayerWeightCommand.class,
+            AccessoriesCommand.class,
+            AuctionsCommand.class,
+            JacobsCommand.class,
+            NetworthCommand.class,
+            PetsCommand.class,
+            SkillsCommand.class,
+            SlayersCommand.class,
+            WeightCommand.class,
 
             // Reputation Commands
             RepGiveCommand.class,

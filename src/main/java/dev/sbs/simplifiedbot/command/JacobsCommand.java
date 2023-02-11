@@ -1,19 +1,18 @@
-package dev.sbs.simplifiedbot.command.group.player;
+package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Response;
-import dev.sbs.simplifiedbot.command.PlayerCommand;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandId("a7e43d59-38f2-41d9-ba0f-4f2664b212f7")
-public class PlayerAccessoriesCommand extends SkyBlockUserCommand {
+@CommandId("221de855-826b-419d-8721-2620e5f529b8")
+public class JacobsCommand extends SkyBlockUserCommand {
 
-    protected PlayerAccessoriesCommand(@NotNull DiscordBot discordBot) {
+    protected JacobsCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
@@ -26,7 +25,7 @@ public class PlayerAccessoriesCommand extends SkyBlockUserCommand {
                 .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
-                .withDefaultPage("accessories")
+                .withDefaultPage("jacobs_farming")
                 .build()
         );
     }

@@ -1,19 +1,18 @@
-package dev.sbs.simplifiedbot.command.group.player;
+package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Response;
-import dev.sbs.simplifiedbot.command.PlayerCommand;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 @CommandId("938888f7-1950-484c-a1e2-73bd8df2871a")
-public class PlayerSkillsCommand extends SkyBlockUserCommand {
+public class SkillsCommand extends SkyBlockUserCommand {
 
-    protected PlayerSkillsCommand(@NotNull DiscordBot discordBot) {
+    protected SkillsCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

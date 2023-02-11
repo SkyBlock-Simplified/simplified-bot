@@ -1,19 +1,18 @@
-package dev.sbs.simplifiedbot.command.group.player;
+package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.discordapi.response.Response;
-import dev.sbs.simplifiedbot.command.PlayerCommand;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandId("2d8b04e5-8a57-4cfa-a20b-8951ca202a01")
-public class PlayerAuctionsCommand extends SkyBlockUserCommand {
+@CommandId("ec1c37e2-ea99-4da2-ba04-8eecc368cda9")
+public class PetsCommand extends SkyBlockUserCommand {
 
-    protected PlayerAuctionsCommand(@NotNull DiscordBot discordBot) {
+    protected PetsCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
@@ -26,7 +25,7 @@ public class PlayerAuctionsCommand extends SkyBlockUserCommand {
                 .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
-                .withDefaultPage("auctions")
+                .withDefaultPage("pets")
                 .build()
         );
     }

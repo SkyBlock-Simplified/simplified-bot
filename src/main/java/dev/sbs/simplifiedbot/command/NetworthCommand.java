@@ -1,4 +1,4 @@
-package dev.sbs.simplifiedbot.command.group.player;
+package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandId;
@@ -9,9 +9,9 @@ import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 @CommandId("df6db078-5f43-41f8-9439-40f21b3ddc18")
-public class PlayerNetworthCommand extends SkyBlockUserCommand {
+public class NetworthCommand extends SkyBlockUserCommand {
 
-    protected PlayerNetworthCommand(@NotNull DiscordBot discordBot) {
+    protected NetworthCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
