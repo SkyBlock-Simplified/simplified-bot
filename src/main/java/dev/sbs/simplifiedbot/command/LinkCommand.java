@@ -16,7 +16,7 @@ import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandInfo;
+import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
@@ -30,13 +30,10 @@ import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandInfo(
-    id = "48b8f351-4e74-4010-b1ef-9b3d18c9833a",
-    name = "verify"
-)
-public class VerifyCommand extends Command {
+@CommandId("48b8f351-4e74-4010-b1ef-9b3d18c9833a")
+public class LinkCommand extends Command {
 
-    protected VerifyCommand(DiscordBot discordBot) {
+    protected LinkCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
