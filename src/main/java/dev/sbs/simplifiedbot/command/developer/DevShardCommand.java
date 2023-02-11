@@ -1,4 +1,4 @@
-package dev.sbs.simplifiedbot.command.group.developer;
+package dev.sbs.simplifiedbot.command.developer;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
@@ -8,10 +8,10 @@ import dev.sbs.discordapi.util.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandId("07cff179-8415-4612-a15e-4534de379051")
-public class DevActivityCommand extends Command {
+@CommandId("4be179c5-c163-47e9-a682-7c6f237d9437")
+public class DevShardCommand extends Command {
 
-    protected DevActivityCommand(@NotNull DiscordBot discordBot) {
+    protected DevShardCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 

@@ -1,4 +1,4 @@
-package dev.sbs.simplifiedbot.command.group.developer;
+package dev.sbs.simplifiedbot.command.developer;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;

@@ -1,4 +1,4 @@
-package dev.sbs.simplifiedbot.command.group.reputation;
+package dev.sbs.simplifiedbot.command.reputation;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.guild_data.guild_reputation.GuildReputationModel;

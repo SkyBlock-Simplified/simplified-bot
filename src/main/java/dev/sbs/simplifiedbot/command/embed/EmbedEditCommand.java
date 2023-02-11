@@ -1,4 +1,4 @@
-package dev.sbs.simplifiedbot.command.group.embed;
+package dev.sbs.simplifiedbot.command.embed;
 
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;

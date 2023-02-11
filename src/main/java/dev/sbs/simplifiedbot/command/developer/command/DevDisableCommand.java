@@ -1,4 +1,4 @@
-package dev.sbs.simplifiedbot.command.group.developer.command;
+package dev.sbs.simplifiedbot.command.developer.command;
 
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
