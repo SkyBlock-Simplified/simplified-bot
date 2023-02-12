@@ -8,6 +8,7 @@ import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildSqlModel;
+import dev.sbs.api.reflection.Reflection;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentSet;
@@ -16,16 +17,6 @@ import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.util.DiscordConfig;
-import dev.sbs.simplifiedbot.command.*;
-import dev.sbs.simplifiedbot.command.developer.DevActivityCommand;
-import dev.sbs.simplifiedbot.command.developer.DevLatencyCommand;
-import dev.sbs.simplifiedbot.command.developer.DevShardCommand;
-import dev.sbs.simplifiedbot.command.developer.DevStatsCommand;
-import dev.sbs.simplifiedbot.command.developer.DevTestCommand;
-import dev.sbs.simplifiedbot.command.developer.command.DevDisableCommand;
-import dev.sbs.simplifiedbot.command.developer.command.DevEnableCommand;
-import dev.sbs.simplifiedbot.command.reputation.RepCheckCommand;
-import dev.sbs.simplifiedbot.command.reputation.RepGiveCommand;
 import dev.sbs.simplifiedbot.util.ItemCache;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.presence.ClientActivity;
@@ -54,37 +45,9 @@ public final class SimplifiedBot extends DiscordBot {
     @Override
     protected @NotNull ConcurrentSet<Class<? extends Command>> getCommands() {
         return Concurrent.newUnmodifiableSet(
-            // Top-Level/Slash Commands
-            AboutCommand.class,
-            GuildCommand.class,
-            HelpCommand.class,
-            MissingCommand.class,
-            PlayerCommand.class,
-            DungeonsCommand.class,
-            LinkCommand.class,
-
-            // Developer Commands
-            DevDisableCommand.class,
-            DevEnableCommand.class,
-            DevActivityCommand.class,
-            DevLatencyCommand.class,
-            DevShardCommand.class,
-            DevStatsCommand.class,
-            DevTestCommand.class,
-
-            // Player Commands
-            AccessoriesCommand.class,
-            AuctionsCommand.class,
-            JacobsCommand.class,
-            NetworthCommand.class,
-            PetsCommand.class,
-            SkillsCommand.class,
-            SlayersCommand.class,
-            WeightCommand.class,
-
-            // Reputation Commands
-            RepGiveCommand.class,
-            RepCheckCommand.class
+            Reflection.getResources()
+                .filterPackage("dev.sbs.simplifiedbot.command")
+                .getSubtypesOf(Command.class)
         );
     }
 
