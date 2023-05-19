@@ -16,6 +16,7 @@ import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.discordapi.response.page.handler.item.CollectionItemHandler;
 import dev.sbs.discordapi.response.page.item.FieldItem;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -124,8 +125,8 @@ public class AboutCommand extends Command {
                                         .withDescription("A big thank you goes out to those who donated early on in the development of the SkyBlock Simplified discord and bot!")
                                         .build()
                                 )
-                                .withItemData(
-                                    Page.ItemData.builder(SbsLegacyDonorModel.class)
+                                .withItemHandler(
+                                    CollectionItemHandler.builder(SbsLegacyDonorModel.class)
                                         .withItems(SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class).findAll())
                                         .withTransformer(stream -> stream
                                             .map(legacyDonorModel -> FieldItem.builder()

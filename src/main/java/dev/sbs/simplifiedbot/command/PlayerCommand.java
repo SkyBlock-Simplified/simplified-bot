@@ -43,8 +43,10 @@ import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.discordapi.response.page.handler.item.CollectionItemHandler;
+import dev.sbs.discordapi.response.page.handler.item.ItemHandler;
 import dev.sbs.discordapi.response.page.item.FieldItem;
-import dev.sbs.discordapi.response.page.item.PageItem;
+import dev.sbs.discordapi.response.page.item.Item;
 import dev.sbs.discordapi.util.DiscordDate;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
@@ -320,8 +322,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .build()
                 )
-                .withItemData(
-                    Page.ItemData.builder(Pet.class)
+                .withItemHandler(
+                    CollectionItemHandler.builder(Pet.class)
                         .withItems(member.getPetData().getPets())
                         .withTransformer(stream -> stream
                             .map(pet -> FieldItem.builder()
@@ -361,7 +363,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             )
                         )
                         .withSorters(
-                            Page.ItemData.Sorter.<Pet>builder()
+                            ItemHandler.Sorter.<Pet>builder()
                                 .withComparators((o1, o2) -> Comparator.comparing(Pet::getRarityOrdinal)
                                     .thenComparingInt(Pet::getLevel)
                                     .reversed()
@@ -371,7 +373,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withLabel("Default")
                                 .build()
                         )
-                        .withStyle(PageItem.Style.FIELD_INLINE)
+                        .withStyle(Item.Style.FIELD_INLINE)
                         .withAmountPerPage(12)
                         .build()
                 )
@@ -383,8 +385,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .withDescription("If you wish to see missing accessory information, use the /missing command.")
                         .build()
                 )
-                .withItemData(
-                    Page.ItemData.builder(AccessoryData.class)
+                .withItemHandler(
+                    CollectionItemHandler.builder(AccessoryData.class)
                         .withItems(skyBlockIsland.getPlayerStats(member).getAccessoryBag().getFilteredAccessories())
                         .withTransformer(stream -> stream
                             .map(accessoryData -> FieldItem.builder()
@@ -413,23 +415,22 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     emojiReplyEnd,
                                     getEmoji(accessoryData.isRecombobulated() ? "ACTION_ACCEPT" : "ACTION_DENY")
                                         .map(Emoji::asFormat)
-                                        .orElse("?"),
-                                    accessoryData.getRarity().isEnrichable() ?
-                                        accessoryData.getEnrichment()
+                                        .orElse("?"), (
+                                        accessoryData.getRarity().isEnrichable() ? accessoryData.getEnrichment()
                                             .map(AccessoryEnrichmentModel::getStat)
                                             .map(StatModel::getKey)
                                             .map(statKey -> FormatUtil.format("TALISMAN_ENRICHMENT_{0}", statKey))
                                             .flatMap(PlayerCommand::getEmoji)
-                                            .or(() -> getEmoji("TAG_NOT_APPLICABLE"))
-                                            .map(Emoji::asFormat)
-                                            .orElse("N/A") :
-                                        getEmoji("TAG_NOT_APPLICABLE").map(Emoji::asFormat).orElse("N/A")
+                                            .or(() -> getEmoji("TAG_NOT_APPLICABLE")) :
+                                            getEmoji("TAG_NOT_APPLICABLE"))
+                                        .map(Emoji::asFormat)
+                                        .orElse("N/A")
                                 ))
                                 .build()
                             )
                         )
                         .withSorters(
-                            Page.ItemData.Sorter.<AccessoryData>builder()
+                            ItemHandler.Sorter.<AccessoryData>builder()
                                 .withComparators((o1, o2) -> Comparator.comparing(AccessoryData::getRarity)
                                     .reversed()
                                     .thenComparing(accessoryData -> accessoryData.getAccessory().getName())
@@ -438,7 +439,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withLabel("Default")
                                 .build()
                         )
-                        .withStyle(PageItem.Style.FIELD_INLINE)
+                        .withStyle(Item.Style.FIELD_INLINE)
                         .withAmountPerPage(12)
                         .build()
                 )
@@ -468,8 +469,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .build()
                 )
-                .withItemData(
-                    Page.ItemData.builder(SkyBlockAuction.class)
+                .withItemHandler(
+                    CollectionItemHandler.builder(SkyBlockAuction.class)
                         .withItems(skyBlockUser.getAuctions())
                         .withTransformer(stream -> stream
                             .map(skyBlockAuction -> {
@@ -522,7 +523,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     .build();
                             })
                         )
-                        .withStyle(PageItem.Style.FIELD_INLINE)
+                        .withStyle(Item.Style.FIELD_INLINE)
                         .withAmountPerPage(12)
                         .build()
                 )
