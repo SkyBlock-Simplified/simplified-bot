@@ -195,7 +195,7 @@ public class GuildCommand extends Command {
                         Page.builder()
                             .withItemHandler(
                                 CollectionItemHandler.builder(SkyBlockIsland.Member.class)
-                                    .withColumnNames(Triple.of("Skyblock Level Leaderboard", "", ""))
+                                    .withColumnNames(Triple.of("SkyBlock Level Leaderboard", "", ""))
                                     .withItems(guildMemberPlayers)
                                     .withSorters(
                                         ItemHandler.Sorter.<SkyBlockIsland.Member>builder()
@@ -206,7 +206,6 @@ public class GuildCommand extends Command {
                                     .withTransformer(stream ->
                                         StreamUtil.mapWithIndex(
                                             stream, (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                                 .withData(FormatUtil.format(
                                                     " #{0} `{1}` >  **{2}**",
                                                     index + 1,
@@ -320,7 +319,6 @@ public class GuildCommand extends Command {
                                             .build()
                                     )
                                     .withTransformer(stream -> StreamUtil.mapWithIndex(stream, (member, index, size) -> FieldItem.builder()
-                                        .withOptionValue(ignMap.get(member.getUniqueId()))
                                         .withData(FormatUtil.format(
                                             " #{0} `{1}` >  **{2} [{3}]**",
                                             index + 1,
@@ -369,7 +367,6 @@ public class GuildCommand extends Command {
                             .withTransformer(stream -> stream
                                 .map(slayerModel -> FieldItem.builder()
                                     .withEmoji(emojis.get(slayerModel.getKey()))
-                                    .withOptionValue(slayerModel.getKey())
                                     .withData(
                                         FormatUtil.format(
                                             """
@@ -441,7 +438,6 @@ public class GuildCommand extends Command {
                                             StreamUtil.mapWithIndex(
                                                 stream,
                                                 (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                    .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                                     .withData(FormatUtil.format(
                                                         " #{0} `{1}` >  **{2} [{3}]**",
                                                         index + 1,
@@ -557,7 +553,6 @@ public class GuildCommand extends Command {
                                         StreamUtil.mapWithIndex(
                                             stream,
                                             (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                                 .withData(
                                                     FormatUtil.format(
                                                         " #{0} `{1}` >  **{2} [{3}]**",
@@ -611,7 +606,6 @@ public class GuildCommand extends Command {
                                         StreamUtil.mapWithIndex(
                                             stream,
                                             (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                                 .withData(
                                                     FormatUtil.format(
                                                         " #{0} `{1}` >  **{2} [{3}]**",
@@ -668,7 +662,6 @@ public class GuildCommand extends Command {
                                 StreamUtil.mapWithIndex(
                                     stream,
                                     (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                        .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                         .withData(FormatUtil.format(
                                             " #{0} `{1}` >  **{2} [{3}]**",
                                             index + 1,
@@ -719,7 +712,6 @@ public class GuildCommand extends Command {
                                 StreamUtil.mapWithIndex(
                                     stream,
                                     (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                        .withOptionValue(ignMap.get(guildMemberPlayer.getUniqueId()))
                                         .withData(FormatUtil.format(
                                             " #{0} `{1}` >  **{2}**",
                                             index + 1,
