@@ -112,7 +112,7 @@ public class AboutCommand extends Command {
                                 .withOption(
                                     SelectMenu.Option.builder()
                                         .withValue("donors")
-                                        .withLabel("donors")
+                                        .withLabel("Donors")
                                         .withDescription("All legacy donors of the SkyBlock Simplified discord.")
                                         .build()
                                 )
@@ -131,7 +131,7 @@ public class AboutCommand extends Command {
                                         .withTransformer(stream -> stream
                                             .map(legacyDonorModel -> FieldItem.builder()
                                                 .withLabel(FormatUtil.format("<@{0}>", legacyDonorModel.getDiscordId()))
-                                                .withOptionValue(FormatUtil.format("${0,number,#.##}", legacyDonorModel.getAmount()))
+                                                .withData(FormatUtil.format("${0,number,#.##}", legacyDonorModel.getAmount()))
                                                 .build()
                                             )
                                         )
@@ -141,8 +141,8 @@ public class AboutCommand extends Command {
                             Page.builder()
                                 .withOption(
                                     SelectMenu.Option.builder()
-                                        .withValue("patreon")
-                                        .withLabel("patreon")
+                                        .withValue("premium")
+                                        .withLabel("Premium")
                                         .withDescription("Details and list of perks available for Patreon users.")
                                         .build()
                                 )
