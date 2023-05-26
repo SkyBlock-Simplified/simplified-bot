@@ -7,6 +7,7 @@ import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.command.data.Parameter;
 import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.context.ResponseContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.Modal;
@@ -19,6 +20,8 @@ import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
+
+import java.util.function.Function;
 
 @CommandId("75f1762a-4672-48db-83d8-86d953645d08")
 public class DevTestCommand extends Command {
@@ -38,7 +41,7 @@ public class DevTestCommand extends Command {
                     Page.builder()
                         .withContent("test command")
                         .withReactions(Emoji.of("\uD83D\uDC80", reactionContext -> reactionContext.removeUserReaction()
-                            .then(reactionContext.editPage(pageBuilder -> pageBuilder.withContent("reaction: " + reactionContext.getEmoji().asFormat()))))
+                            .then(this.editPage(reactionContext, pageBuilder -> pageBuilder.withContent("reaction: " + reactionContext.getEmoji().asFormat()))))
                         )
                         .withEmbeds(
                             Embed.builder()
@@ -51,13 +54,14 @@ public class DevTestCommand extends Command {
                                     .withStyle(Button.Style.PRIMARY)
                                     .withEmoji(Emoji.of("\uD83C\uDF85"))
                                     .withLabel("Santa")
-                                    .onInteract(buttonContext -> buttonContext.editPage(pageBuilder -> pageBuilder.withContent("santa!")))
+                                    .withDeferEdit()
+                                    .onInteract(buttonContext -> this.editPage(buttonContext, pageBuilder -> pageBuilder.withContent("santa!")))
                                     .build(),
                                 Button.builder()
                                     .withStyle(Button.Style.SECONDARY)
                                     .withEmoji(Emoji.of("\uD83D\uDC31"))
                                     .withLabel("Cat")
-                                    .onInteract(buttonContext -> buttonContext.editPage(pageBuilder -> pageBuilder.withContent("cat!")))
+                                    .onInteract(buttonContext -> this.editPage(buttonContext, pageBuilder -> pageBuilder.withContent("cat!")))
                                     .build(),
                                 Button.builder()
                                     .withStyle(Button.Style.DANGER)
@@ -77,7 +81,7 @@ public class DevTestCommand extends Command {
                                                         .build()
                                                 )
                                             )
-                                            .onInteract(modalContext -> modalContext.editPage(pageBuilder -> pageBuilder.withContent("modal: " + modalContext.getComponent()
+                                            .onInteract(modalContext -> this.editPage(modalContext, pageBuilder -> pageBuilder.withContent("modal: " + modalContext.getComponent()
                                                 .findComponent(TextInput.class, "something")
                                                 .flatMap(TextInput::getValue)
                                                 .orElse("hurdur i'm a failure")
@@ -105,20 +109,20 @@ public class DevTestCommand extends Command {
                                             .withLabel("Neigh")
                                             .withValue("value 1")
                                             .withEmoji(getEmoji("SKYBLOCK_ICON_HORSE"))
-                                            .onInteract(optionContext -> optionContext.editPage(pageBuilder -> pageBuilder.withContent(optionContext.getOption().getValue())))
+                                            .onInteract(optionContext -> this.editPage(optionContext, pageBuilder -> pageBuilder.withContent(optionContext.getOption().getValue())))
                                             .build(),
                                         SelectMenu.Option.builder()
                                             .withLabel("Buni")
                                             .withValue("value 2")
                                             .withDescription("Looking for ores!")
                                             .withEmoji(Emoji.of(769279331875946506L, "Buni", true))
-                                            .onInteract(optionContext -> optionContext.editPage(pageBuilder -> pageBuilder.withContent(optionContext.getOption().getValue())))
+                                            .onInteract(optionContext -> this.editPage(optionContext, pageBuilder -> pageBuilder.withContent(optionContext.getOption().getValue())))
                                             .build(),
                                         SelectMenu.Option.builder()
                                             .withLabel("Yes sir!")
                                             .withValue("value 3")
                                             .withEmoji(Emoji.of(837805777187241985L, "linasalute"))
-                                            .onInteract(optionContext -> optionContext.editPage(pageBuilder -> pageBuilder.withContent(optionContext.getOption().getValue())))
+                                            .onInteract(optionContext -> this.editPage(optionContext, pageBuilder -> pageBuilder.withContent(optionContext.getOption().getValue())))
                                             .build(),
                                         SelectMenu.Option.builder()
                                             .withLabel("I do nothing :)")
@@ -141,6 +145,23 @@ public class DevTestCommand extends Command {
             Parameter.builder("test2", "test parameter", Parameter.Type.WORD)
                 .build()
         );
+    }
+
+    private Mono<Void> editPage(ResponseContext<?> responseContext, Function<Page.Builder, Page.Builder> currentPage) {
+        return responseContext.withResponseCacheEntry(entry -> entry.updateResponse(
+            responseContext.getResponse()
+                .mutate()
+                .editPage(
+                    currentPage.apply(
+                        responseContext.getResponse()
+                            .getHistoryHandler()
+                            .getCurrentPage()
+                            .mutate()
+                    ).build()
+                )
+                .build(),
+            false
+        ));
     }
 
 }
