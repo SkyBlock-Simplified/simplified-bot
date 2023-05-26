@@ -20,7 +20,7 @@ public final class OptimizerResponse {
     @Getter private final Duration duration;
 
     public BigDecimal getScore() {
-        return this.getSolution().getScore().getScore();
+        return this.getSolution().getScore().score();
     }
 
 }

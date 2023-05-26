@@ -36,7 +36,7 @@ public final class Optimizer extends OptimizerHelper {
 
         try {
             DamagePerHitSolution solution = solverJob.getFinalBestSolution();
-            double score = solution.getScore().getScore().doubleValue();
+            double score = solution.getScore().score().doubleValue();
 
             // Damage Multiplier
             double combatBonus = optimizerRequest.getPlayerStats().getDamageMultiplier();
@@ -69,7 +69,7 @@ public final class Optimizer extends OptimizerHelper {
 
         try {
             DamagePerSecondSolution solution = solverJob.getFinalBestSolution();
-            double score = solution.getScore().getScore().doubleValue();
+            double score = solution.getScore().score().doubleValue();
 
             // Damage Multiplier
             double combatBonus = optimizerRequest.getPlayerStats().getDamageMultiplier();
