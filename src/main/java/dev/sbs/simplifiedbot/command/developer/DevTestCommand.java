@@ -159,8 +159,7 @@ public class DevTestCommand extends Command {
                             .mutate()
                     ).build()
                 )
-                .build(),
-            false
+                .build()
         ));
     }
 
