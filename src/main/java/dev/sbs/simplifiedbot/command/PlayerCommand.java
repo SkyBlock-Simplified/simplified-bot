@@ -415,14 +415,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     emojiReplyEnd,
                                     getEmoji(accessoryData.isRecombobulated() ? "ACTION_ACCEPT" : "ACTION_DENY")
                                         .map(Emoji::asFormat)
-                                        .orElse("?"), (
-                                        accessoryData.getRarity().isEnrichable() ? accessoryData.getEnrichment()
-                                            .map(AccessoryEnrichmentModel::getStat)
-                                            .map(StatModel::getKey)
-                                            .map(statKey -> FormatUtil.format("TALISMAN_ENRICHMENT_{0}", statKey))
-                                            .flatMap(PlayerCommand::getEmoji)
-                                            .or(() -> getEmoji("TAG_NOT_APPLICABLE")) :
-                                            getEmoji("TAG_NOT_APPLICABLE"))
+                                        .orElse("?"),
+                                    (accessoryData.getRarity().isEnrichable() ? accessoryData.getEnrichment()
+                                        .map(AccessoryEnrichmentModel::getStat)
+                                        .map(StatModel::getKey)
+                                        .map(statKey -> FormatUtil.format("TALISMAN_ENRICHMENT_{0}", statKey))
+                                        .flatMap(PlayerCommand::getEmoji)
+                                        .or(() -> getEmoji("TAG_NOT_APPLICABLE")) :
+                                        getEmoji("TAG_NOT_APPLICABLE"))
                                         .map(Emoji::asFormat)
                                         .orElse("N/A")
                                 ))
