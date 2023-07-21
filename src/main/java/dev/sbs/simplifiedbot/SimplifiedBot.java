@@ -16,9 +16,10 @@ import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.util.DiscordConfig;
 import dev.sbs.simplifiedbot.util.ItemCache;
+import dev.sbs.simplifiedbot.util.SimplifiedConfig;
 import discord4j.common.util.Snowflake;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.gateway.ShardInfo;
@@ -28,18 +29,20 @@ import discord4j.rest.util.AllowedMentions;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public final class SimplifiedBot extends DiscordBot {
 
-    @Getter private DiscordConfig config;
     @Getter private ItemCache itemCache;
     @Getter private SkyBlockEmojis skyBlockEmojis;
 
     public static void main(final String[] args) {
         new SimplifiedBot();
+    }
+
+    private SimplifiedBot() {
+        super(new SimplifiedConfig("simplified-discord"));
     }
 
     @Override
@@ -71,18 +74,7 @@ public final class SimplifiedBot extends DiscordBot {
         return SimplifiedApi.getRepositoryOf(CommandParentModel.class).findFirst(CommandParentModel::getKey, "sbs");
     }
 
-    @Override
-    protected void loadConfig() {
-        try {
-            File currentDir = new File(SimplifiedApi.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            this.config = new DiscordConfig(currentDir.getParentFile(), "simplified-discord");
-        } catch (Exception exception) {
-            throw new IllegalArgumentException("Unable to retrieve current directory!", exception); // Should never get here
-        }
-    }
-
-    @Override
-    protected void onDatabaseConnected() {
+    private void onDatabaseConnected() {
         // Update Emojis
         this.getLog().info("Updating Emojis");
         ConcurrentList<EmojiModel> allEmojis = SimplifiedApi.getRepositoryOf(EmojiModel.class).findAll();
@@ -130,6 +122,19 @@ public final class SimplifiedBot extends DiscordBot {
             this.getItemCache().getBazaar().update();
             this.getItemCache().getEndedAuctions().update();
         }, 1, 1, TimeUnit.SECONDS);
+    }
+
+    @Override
+    protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
+        this.getLog().info("Connecting to Database");
+        SimplifiedApi.connectDatabase(this.getConfig());
+        this.getLog().debug(
+            "Database Initialized in {0}ms and Cached in {1}ms",
+            SimplifiedApi.getSqlSession().getInitializationTime(),
+            SimplifiedApi.getSqlSession().getStartupTime()
+        );
+
+        this.onDatabaseConnected();
     }
 
     @Override
