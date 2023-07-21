@@ -3,6 +3,7 @@ package dev.sbs.simplifiedbot;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.sbs.request.SkyBlockRequest;
 import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
+import dev.sbs.api.data.DataSession;
 import dev.sbs.api.data.model.discord.command_data.command_parents.CommandParentModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
@@ -127,11 +128,11 @@ public final class SimplifiedBot extends DiscordBot {
     @Override
     protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
         this.getLog().info("Connecting to Database");
-        SimplifiedApi.connectDatabase(this.getConfig());
+        SimplifiedApi.connectSession(DataSession.Type.SQL, this.getConfig());
         this.getLog().debug(
             "Database Initialized in {0}ms and Cached in {1}ms",
-            SimplifiedApi.getSqlSession().getInitializationTime(),
-            SimplifiedApi.getSqlSession().getStartupTime()
+            SimplifiedApi.getSession().getInitializationTime(),
+            SimplifiedApi.getSession().getStartupTime()
         );
 
         this.onDatabaseConnected();
@@ -139,7 +140,7 @@ public final class SimplifiedBot extends DiscordBot {
 
     @Override
     protected void onGatewayDisconnected() {
-        SimplifiedApi.disconnectDatabase();
+        SimplifiedApi.disconnectSession();
     }
 
 }

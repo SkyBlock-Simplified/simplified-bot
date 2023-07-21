@@ -1,6 +1,7 @@
 package dev.sbs.simplifiedbot.optimizer;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.data.DataSession;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
@@ -34,9 +35,9 @@ public class OptimizerTest {
     
     private void initializeDatabase() {
         System.out.println("Database Starting... ");
-        SimplifiedApi.connectDatabase(config);
-        System.out.println("Database initialized in " + SimplifiedApi.getSqlSession().getInitializationTime() + "ms");
-        System.out.println("Database started in " + SimplifiedApi.getSqlSession().getStartupTime() + "ms");
+        SimplifiedApi.connectSession(DataSession.Type.SQL, config);
+        System.out.println("Database initialized in " + SimplifiedApi.getSession().getInitializationTime() + "ms");
+        System.out.println("Database started in " + SimplifiedApi.getSession().getStartupTime() + "ms");
     }
 
     private static final String profileName = "PINEAPPLE";
