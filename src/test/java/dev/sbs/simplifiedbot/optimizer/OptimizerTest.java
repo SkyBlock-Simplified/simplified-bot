@@ -1,13 +1,12 @@
 package dev.sbs.simplifiedbot.optimizer;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.data.DataSession;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
+import dev.sbs.api.data.sql.SqlConfig;
 import dev.sbs.api.util.helper.StringUtil;
-import dev.sbs.discordapi.util.DiscordConfig;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitSolution;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_second.DamagePerSecondSolution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
@@ -16,28 +15,21 @@ import org.junit.jupiter.api.Test;
 import org.optaplanner.benchmark.api.PlannerBenchmark;
 import org.optaplanner.benchmark.api.PlannerBenchmarkFactory;
 
-import java.io.File;
-
 public class OptimizerTest {
 
     private static final PlannerBenchmarkFactory damagePerHitBenchmarker = PlannerBenchmarkFactory.createFromXmlResource("optaplanner/damagePerHitBenchmark.xml");
     private static final PlannerBenchmarkFactory damagePerSecondBenchmarker = PlannerBenchmarkFactory.createFromXmlResource("optaplanner/damagePerSecondBenchmark.xml");
-    private static final DiscordConfig config;
+    private static final SqlConfig sqlConfig;
 
     static {
-        try {
-            File currentDir = new File(SimplifiedApi.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            config = new DiscordConfig(currentDir.getParentFile(), "simplified-discord");
-        } catch (Exception exception) {
-            throw new IllegalArgumentException("Unable to retrieve current directory!", exception); // Should never get here
-        }
+        sqlConfig = new SqlConfig();
     }
     
     private void initializeDatabase() {
         System.out.println("Database Starting... ");
-        SimplifiedApi.connectSession(DataSession.Type.SQL, config);
-        System.out.println("Database initialized in " + SimplifiedApi.getSession().getInitializationTime() + "ms");
-        System.out.println("Database started in " + SimplifiedApi.getSession().getStartupTime() + "ms");
+        SimplifiedApi.getSessionManager().connectSql(sqlConfig);
+        System.out.println("Database initialized in " + SimplifiedApi.getSessionManager().getSession().getInitializationTime() + "ms");
+        System.out.println("Database started in " + SimplifiedApi.getSessionManager().getSession().getStartupTime() + "ms");
     }
 
     private static final String profileName = "PINEAPPLE";
