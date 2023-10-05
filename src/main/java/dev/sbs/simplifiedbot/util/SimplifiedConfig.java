@@ -1,6 +1,7 @@
 package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.data.DataConfig;
 import dev.sbs.api.util.helper.ResourceUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.util.DiscordConfig;
@@ -12,17 +13,18 @@ import java.io.File;
 import java.util.Optional;
 import java.util.UUID;
 
+@Getter
 public class SimplifiedConfig extends DiscordConfig {
 
-    @Getter private Optional<UUID> hypixelApiKey = ResourceUtil.getEnv("HYPIXEL_API_KEY").map(StringUtil::toUUID);
+    private @NotNull Optional<UUID> hypixelApiKey = ResourceUtil.getEnv("HYPIXEL_API_KEY").map(StringUtil::toUUID);
 
-    public SimplifiedConfig(@NotNull String fileName, @NotNull String... header) {
-        this(SimplifiedApi.getCurrentDirectory(), fileName, header);
+    public SimplifiedConfig(@NotNull DataConfig<?> dataConfig, @NotNull String fileName, @NotNull String... header) {
+        this(dataConfig, SimplifiedApi.getCurrentDirectory(), fileName, header);
         this.hypixelApiKey.ifPresent(value -> SimplifiedApi.getKeyManager().add("HYPIXEL_API_KEY", value));
     }
 
-    public SimplifiedConfig(@NotNull File configDir, @NotNull String fileName, @NotNull String... header) {
-        super(configDir, fileName, header);
+    public SimplifiedConfig(@NotNull DataConfig<?> dataConfig, @NotNull File configDir, @NotNull String fileName, @NotNull String... header) {
+        super(dataConfig, configDir, fileName, header);
     }
 
     public void setHypixelApiKey(@Nullable String hypixelApiKey) {

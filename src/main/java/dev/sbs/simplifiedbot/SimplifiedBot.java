@@ -3,24 +3,23 @@ package dev.sbs.simplifiedbot;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.sbs.request.SkyBlockRequest;
 import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
-import dev.sbs.api.data.DataSession;
 import dev.sbs.api.data.model.discord.command_data.command_parents.CommandParentModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildSqlModel;
+import dev.sbs.api.data.sql.SqlConfig;
 import dev.sbs.api.reflection.Reflection;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentSet;
 import dev.sbs.api.util.data.tuple.Pair;
-import dev.sbs.api.util.helper.WordUtil;
+import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.simplifiedbot.util.ItemCache;
 import dev.sbs.simplifiedbot.util.SimplifiedConfig;
 import discord4j.common.util.Snowflake;
-import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.gateway.ShardInfo;
@@ -33,17 +32,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+@Getter
 public final class SimplifiedBot extends DiscordBot {
 
-    @Getter private ItemCache itemCache;
-    @Getter private SkyBlockEmojis skyBlockEmojis;
+    private ItemCache itemCache;
+    private SkyBlockEmojis skyBlockEmojis;
 
     public static void main(final String[] args) {
         new SimplifiedBot();
     }
 
     private SimplifiedBot() {
-        super(new SimplifiedConfig("simplified-discord"));
+        super(new SimplifiedConfig(new SqlConfig(), "simplified-discord"));
     }
 
     @Override
@@ -67,7 +67,7 @@ public final class SimplifiedBot extends DiscordBot {
 
     @Override
     protected @NotNull ClientPresence getInitialPresence(ShardInfo shardInfo) {
-        return ClientPresence.online(ClientActivity.listening("beta"));
+        return ClientPresence.online(ClientActivity.watching("debugging"));
     }
 
     @Override
@@ -75,7 +75,8 @@ public final class SimplifiedBot extends DiscordBot {
         return SimplifiedApi.getRepositoryOf(CommandParentModel.class).findFirst(CommandParentModel::getKey, "sbs");
     }
 
-    private void onDatabaseConnected() {
+    @Override
+    protected void onDatabaseConnected() {
         // Update Emojis
         this.getLog().info("Updating Emojis");
         ConcurrentList<EmojiModel> allEmojis = SimplifiedApi.getRepositoryOf(EmojiModel.class).findAll();
@@ -96,7 +97,7 @@ public final class SimplifiedBot extends DiscordBot {
                 emojiSqlModel.setGuild(guildEmoji.getKey());
                 emojiSqlModel.setEmojiId(guildEmoji.getRight().getId().asLong());
                 emojiSqlModel.setKey(guildEmoji.getRight().getName().replace(" ", "_").toUpperCase());
-                emojiSqlModel.setName(WordUtil.capitalizeFully(guildEmoji.getRight().getName().replace("_", " ")));
+                emojiSqlModel.setName(StringUtil.capitalizeFully(guildEmoji.getRight().getName().replace("_", " ")));
                 emojiSqlModel.setAnimated(guildEmoji.getRight().isAnimated());
                 emojiSqlModel.save();
             });
@@ -126,21 +127,8 @@ public final class SimplifiedBot extends DiscordBot {
     }
 
     @Override
-    protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
-        this.getLog().info("Connecting to Database");
-        SimplifiedApi.connectSession(DataSession.Type.SQL, this.getConfig());
-        this.getLog().debug(
-            "Database Initialized in {0}ms and Cached in {1}ms",
-            SimplifiedApi.getSession().getInitializationTime(),
-            SimplifiedApi.getSession().getStartupTime()
-        );
-
-        this.onDatabaseConnected();
-    }
-
-    @Override
     protected void onGatewayDisconnected() {
-        SimplifiedApi.disconnectSession();
+        SimplifiedApi.getSessionManager().disconnect();
     }
 
 }
