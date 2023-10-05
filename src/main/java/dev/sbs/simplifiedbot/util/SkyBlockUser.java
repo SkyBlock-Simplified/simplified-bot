@@ -17,7 +17,6 @@ import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
-import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
 import dev.sbs.discordapi.context.CommandContext;
@@ -82,7 +81,7 @@ public final class SkyBlockUser {
             // Invalid Profile Name
             if (profileModel == null) {
                 throw SimplifiedException.of(UserInputException.class)
-                    .withMessage("The Hypixel account `{0}` does not contain a profile with name `{1}`.", this.getMojangProfile().getUsername(), WordUtil.capitalizeFully(profileName))
+                    .withMessage("The Hypixel account `{0}` does not contain a profile with name `{1}`.", this.getMojangProfile().getUsername(), StringUtil.capitalizeFully(profileName))
                     .build();
             }
 

@@ -23,7 +23,7 @@ import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.data.tuple.Triple;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
-import dev.sbs.api.util.helper.WordUtil;
+import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandId;
@@ -761,7 +761,7 @@ public class GuildCommand extends Command {
             Parameter.builder("page", "Jump to a specific page", Parameter.Type.TEXT)
                 .withChoices(
                     pageIdentifiers.stream()
-                        .map(pageIdentifier -> Pair.of(WordUtil.capitalizeFully(pageIdentifier.replace("_", " ")), pageIdentifier))
+                        .map(pageIdentifier -> Pair.of(StringUtil.capitalizeFully(pageIdentifier.replace("_", " ")), pageIdentifier))
                         .collect(Concurrent.toLinkedMap())
                 )
                 .build()
@@ -771,6 +771,6 @@ public class GuildCommand extends Command {
     private static SelectMenu.Option.Builder getOptionBuilder(String identifier) {
         return SelectMenu.Option.builder()
             .withValue(identifier)
-            .withLabel(WordUtil.capitalizeFully(identifier.replace("_", " ")));
+            .withLabel(StringUtil.capitalizeFully(identifier.replace("_", " ")));
     }
 }

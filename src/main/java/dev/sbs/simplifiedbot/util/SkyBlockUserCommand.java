@@ -11,7 +11,6 @@ import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiabl
 import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
-import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.Parameter;
@@ -77,7 +76,7 @@ public abstract class SkyBlockUserCommand extends Command {
         return Embed.builder()
             .withAuthor(mojangProfile.getUsername())
             .withColor(Color.DARK_GRAY)
-            .withTitle(WordUtil.capitalizeFully(identifier.replace("_", " ")))
+            .withTitle(StringUtil.capitalizeFully(identifier.replace("_", " ")))
             .withTimestamp(Instant.now())
             .withFooter(Footer.of(
                 skyBlockIsland.getProfileModel()
@@ -134,7 +133,7 @@ public abstract class SkyBlockUserCommand extends Command {
         return startBuilder.withFields(
                 experienceObjects.stream()
                     .map(experienceObject -> Field.builder()
-                        .withName(WordUtil.capitalizeFully(nameFunction.apply(experienceObject).replace("_", " ")))
+                        .withName(StringUtil.capitalizeFully(nameFunction.apply(experienceObject).replace("_", " ")))
                         .withValue(FormatUtil.format(
                             """
                             {0}Level: **{3,number,#.##}**

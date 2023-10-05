@@ -10,7 +10,7 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.FormatUtil;
-import dev.sbs.api.util.helper.WordUtil;
+import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandId;
@@ -82,7 +82,7 @@ public class RepGiveCommand extends Command {
                 """
                     You have given +1 {0} reputation to {1}
                     Reason: {2}""",
-                WordUtil.capitalizeFully(reputationType.replace("_", " ")),
+                StringUtil.capitalizeFully(reputationType.replace("_", " ")),
                 receivingMember.get().getMention(),
                 reason
             ), Color.YELLOW)

@@ -6,7 +6,7 @@ import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildSqlModel;
 import dev.sbs.api.data.sql.SqlRepository;
-import dev.sbs.api.util.helper.WordUtil;
+import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
 import dev.sbs.discordapi.command.data.CommandId;
@@ -38,7 +38,7 @@ public class DevEmojiCommand extends Command {
                     .toStream()
                     .forEach(guildEmoji -> {
                         String key = guildEmoji.getName().toUpperCase();
-                        String name = WordUtil.capitalizeFully(guildEmoji.getName().replace("_", " "));
+                        String name = StringUtil.capitalizeFully(guildEmoji.getName().replace("_", " "));
                         EmojiSqlModel existingEmojiModel = SimplifiedApi.getRepositoryOf(EmojiSqlModel.class).findFirstOrNull(EmojiModel::getKey, key);
 
                         if (Objects.nonNull(existingEmojiModel)) {

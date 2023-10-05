@@ -34,7 +34,6 @@ import dev.sbs.api.util.collection.search.function.SearchFunction;
 import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
-import dev.sbs.api.util.helper.WordUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
@@ -669,7 +668,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
     private static SelectMenu.Option.Builder getOptionBuilder(String identifier) {
         return SelectMenu.Option.builder()
             .withValue(identifier)
-            .withLabel(WordUtil.capitalizeFully(identifier.replace("_", " ")));
+            .withLabel(StringUtil.capitalizeFully(identifier.replace("_", " ")));
     }
 
 }
