@@ -9,7 +9,6 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.data.tuple.Pair;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
@@ -105,21 +104,20 @@ public abstract class SkyBlockUserCommand extends Command {
         Function<T, Optional<Emoji>> emojiFunction,
         boolean details
     ) {
-        String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
+        String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
         String emojiReplyLine = getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
-        String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
+        String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
         Embed.EmbedBuilder startBuilder;
 
         if (details) {
             startBuilder = getEmbedBuilder(mojangProfile, skyBlockIsland, value)
                 .withField(
                     "Details",
-                    FormatUtil.format(
+                    String.format(
                         """
-                            {0}Average Level: **{2,number,#.##}**
-                            {0}Total Experience: **{3,number,#,###}**
-                            {1}Total Progress: **{4,number,#.##}%**
-                            """,
+                            %1$sAverage Level: **%3$.2f**
+                            %1$sTotal Experience: **%4$,f**
+                            %2$sTotal Progress: **%5$.2f%%**""",
                         emojiReplyStem,
                         emojiReplyEnd,
                         average,
@@ -134,18 +132,17 @@ public abstract class SkyBlockUserCommand extends Command {
                 experienceObjects.stream()
                     .map(experienceObject -> Field.builder()
                         .withName(StringUtil.capitalizeFully(nameFunction.apply(experienceObject).replace("_", " ")))
-                        .withValue(FormatUtil.format(
+                        .withValue(String.format(
                             """
-                            {0}Level: **{3,number,#.##}**
-                            {0}Experience:
-                            {1}**{4,number,#,###}**
-                            {2}Progress: **{5,number,#.##}%**
-                            """,
+                                %1$sLevel: **%4$s**
+                                %1$sExperience:
+                                %2$s**%5$.2f**
+                                %3$sProgress: **%6$.2f%%**""",
                             emojiReplyStem,
                             emojiReplyLine,
                             emojiReplyEnd,
                             experienceObject.getLevel(),
-                            (long) experienceObject.getExperience(),
+                            experienceObject.getExperience(),
                             experienceObject.getTotalProgressPercentage()
                         ))
                         .withEmoji(emojiFunction.apply(experienceObject))

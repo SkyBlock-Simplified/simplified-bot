@@ -2,7 +2,6 @@ package dev.sbs.simplifiedbot.command.developer;
 
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
@@ -60,27 +59,34 @@ public class DevStatsCommand extends Command {
 
             embedBuilder.withAuthor("Server Information", getEmoji("STATUS_INFO").map(Emoji::getUrl))
                 .withFooter(
-                    guild.getVanityUrlCode().map(vanityCode -> FormatUtil.format("https://discord.gg/{0}", vanityCode)).orElse(""),
+                    guild.getVanityUrlCode().map(vanityCode -> String.format("https://discord.gg/%s", vanityCode)).orElse(""),
                     this.getDiscordBot().getMainGuild().getIconUrl(discord4j.rest.util.Image.Format.GIF)
                 )
-                .withTitle("Server :: {0}", guild.getName())
+                .withTitle("Server :: %s", guild.getName())
                 .withDescription(guild.getDescription())
                 .withThumbnailUrl(guild.getIconUrl(animatedIcon ? discord4j.rest.util.Image.Format.GIF : discord4j.rest.util.Image.Format.PNG))
                 .withField(
                     "About",
-                    FormatUtil.format(
+                    String.format(
                         """
-                        {0}Owner: {2}
-                        {0}Created: <t:{3,number,#}:D>
-                        {0}Members: {4} / {5}
-                        {0}Roles: {6}
-                        {1}Channels: {7}
+                        %1$sOwner: %3$s
+                        %1$sCreated: <t:%4$s:D>
+                        %1$sMembers: %5$s / %6$s
+                        %1$sRoles: %7$s
+                        %2$sChannels: %8$s
                         """,
                         emojiReplyStem,
                         emojiReplyEnd,
                         guild.getOwner().map(Member::getMention).blockOptional().orElse("Unknown"),
                         guild.getId().getTimestamp().getEpochSecond(),
-                        this.getDiscordBot().getGateway().getRestClient().restGuild(guild.getData()).getData().blockOptional().flatMap(guildUpdateData -> guildUpdateData.approximatePresenceCount().toOptional()).orElse(0),
+                        this.getDiscordBot()
+                            .getGateway()
+                            .getRestClient()
+                            .restGuild(guild.getData())
+                            .getData()
+                            .blockOptional()
+                            .flatMap(guildUpdateData -> guildUpdateData.approximatePresenceCount().toOptional())
+                            .orElse(0),
                         guild.getMemberCount(),
                         guild.getRoles().toStream().collect(Concurrent.toList()).size(),
                         channels.size()
@@ -88,12 +94,12 @@ public class DevStatsCommand extends Command {
                 )
                 .withField(
                     "Security",
-                    FormatUtil.format(
+                    String.format(
                         """
-                        {0}Verification Level: {2}
-                        {0}Content Filter: {3}
-                        {0}Default Notifications: {4}
-                        {1}Two-Factor Authentication: {5}
+                        %1$sVerification Level: %3$s
+                        %1$sContent Filter: %4$s
+                        %1$sDefault Notifications: %5$s
+                        %2$sTwo-Factor Authentication: %6$s
                         """,
                         emojiReplyStem,
                         emojiReplyEnd,

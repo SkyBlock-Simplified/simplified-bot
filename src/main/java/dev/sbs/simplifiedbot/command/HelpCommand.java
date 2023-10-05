@@ -77,7 +77,7 @@ public class HelpCommand extends Command {
                                     .withEmbeds(
                                         Embed.builder()
                                             .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
-                                            .withTitle("Category :: {0}", commandCategory.getName())
+                                            .withTitle("Category :: %s", commandCategory.getName())
                                             .withDescription(commandCategory.getDescription())
                                             .withTimestamp(Instant.now())
                                             .withColor(Color.DARK_GRAY)

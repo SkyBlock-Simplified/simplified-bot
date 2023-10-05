@@ -46,7 +46,7 @@ public class DevEmojiCommand extends Command {
                                 existingEmojiModel.setEmojiId(guildEmoji.getId().asLong());
 
                                 ((SqlRepository<EmojiSqlModel>) SimplifiedApi.getRepositoryOf(EmojiSqlModel.class)).update(existingEmojiModel);
-                                this.getLog().info("Updating emoji: {0} :: {1,number,#} :: {2}", guild.getName(), guildEmoji.getId().asLong(), name);
+                                this.getLog().info("Updating emoji: {} :: {} :: {}", guild.getName(), guildEmoji.getId().asLong(), name);
                             }
                         } else {
                             EmojiSqlModel newEmojiModel = new EmojiSqlModel();
@@ -56,7 +56,7 @@ public class DevEmojiCommand extends Command {
                             newEmojiModel.setName(name);
                             newEmojiModel.setAnimated(guildEmoji.isAnimated());
                             ((SqlRepository<EmojiSqlModel>) SimplifiedApi.getRepositoryOf(EmojiSqlModel.class)).save(newEmojiModel);
-                            this.getLog().info("Saving new emoji: {0} :: {1,number,#} :: {2}", guild.getName(), guildEmoji.getId().asLong(), name);
+                            this.getLog().info("Saving new emoji: {} :: {} :: {}", guild.getName(), guildEmoji.getId().asLong(), name);
                         }
                     })
                 )

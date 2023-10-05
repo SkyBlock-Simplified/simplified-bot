@@ -9,7 +9,6 @@ import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.data.tuple.Pair;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
@@ -58,7 +57,7 @@ public class RepGiveCommand extends Command {
 
         // Check Reputation Type
         if (reputationTypeSqlModel.isEmpty())
-            return commandContext.reply(genericResponse(FormatUtil.format("The provided reputation type ''{0}'' is invalid!", reputationType), Color.RED));
+            return commandContext.reply(genericResponse(String.format("The provided reputation type '%s' is invalid!", reputationType), Color.RED));
 
         long lastReceivedId = SimplifiedApi.getRepositoryOf(GuildReputationModel.class)
             .findLast(GuildReputationModel::getSubmitterDiscordId, submitterDiscordId)
@@ -78,10 +77,10 @@ public class RepGiveCommand extends Command {
         ((SqlRepository<GuildReputationSqlModel>) SimplifiedApi.getRepositoryOf(GuildReputationSqlModel.class)).save(entry);
 
         return commandContext.reply(
-            genericResponse(FormatUtil.format(
+            genericResponse(String.format(
                 """
-                    You have given +1 {0} reputation to {1}
-                    Reason: {2}""",
+                    You have given +1 %s reputation to %s
+                    Reason: %s""",
                 StringUtil.capitalizeFully(reputationType.replace("_", " ")),
                 receivingMember.get().getMention(),
                 reason

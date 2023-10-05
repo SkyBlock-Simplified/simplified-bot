@@ -67,7 +67,7 @@ public final class SkyBlockUser {
         // Empty Profile
         if (ListUtil.isEmpty(this.profiles.getIslands())) {
             throw SimplifiedException.of(UserInputException.class)
-                .withMessage("The Hypixel account `{0}` has either never played SkyBlock or has been profile wiped.", this.getMojangProfile().getUsername())
+                .withMessage("The Hypixel account `%s` has either never played SkyBlock or has been profile wiped.", this.getMojangProfile().getUsername())
                 .build();
         }
 
@@ -81,7 +81,7 @@ public final class SkyBlockUser {
             // Invalid Profile Name
             if (profileModel == null) {
                 throw SimplifiedException.of(UserInputException.class)
-                    .withMessage("The Hypixel account `{0}` does not contain a profile with name `{1}`.", this.getMojangProfile().getUsername(), StringUtil.capitalizeFully(profileName))
+                    .withMessage("The Hypixel account `%s` does not contain a profile with name `%s`.", this.getMojangProfile().getUsername(), StringUtil.capitalizeFully(profileName))
                     .build();
             }
 

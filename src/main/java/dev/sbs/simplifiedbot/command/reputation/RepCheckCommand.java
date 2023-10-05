@@ -10,7 +10,6 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.collection.search.function.SearchFunction;
 import dev.sbs.api.util.data.tuple.Pair;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
@@ -52,8 +51,8 @@ public class RepCheckCommand extends Command {
         // Load Nickname (Tag) or Tag
         String userName = receivingMember.get()
             .getNickname()
-            .map(nick -> FormatUtil.format(
-                "{0} ({1})",
+            .map(nick -> String.format(
+                "%s (%s)",
                 nick,
                 receivingMember.get().getTag()
             ))

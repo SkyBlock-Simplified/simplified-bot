@@ -9,7 +9,6 @@ import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_floors.DungeonFloorM
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.data.CommandId;
 import dev.sbs.discordapi.context.CommandContext;
@@ -36,8 +35,8 @@ public class DungeonsCommand extends SkyBlockUserCommand {
 
     @Override
     protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
-        String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
-        String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
+        String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         SkyBlockIsland.Member member = skyBlockUser.getMember();
@@ -95,13 +94,13 @@ public class DungeonsCommand extends SkyBlockUserCommand {
     }
 
     private static @NotNull ConcurrentList<Page> getDungeonPages(@NotNull SkyBlockUser skyBlockUser, boolean masterMode) {
-        String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
-        String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
+        String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         SkyBlockIsland.Member member = skyBlockUser.getMember();
-        Function<DungeonModel, String> identifierFunction = dungeonModel -> FormatUtil.format(
-            "dungeon_{0}_{1}",
+        Function<DungeonModel, String> identifierFunction = dungeonModel -> String.format(
+            "dungeon_%s_%s",
             dungeonModel.getKey(),
             (masterMode ? "master" : "_normal")
         );
@@ -151,10 +150,10 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 .withName(dungeonModel.getName())
                                 .withValue(
                                     """
-                                        {0}Level: **{2}** / **{3}**
-                                        {0}Experience: **{4,number,#,###}**
-                                        {0}Progress to next Level: **{5,number,#.##}%**
-                                        {1}Total Progress: **{6, number, #.##}%**
+                                        %1$sLevel: **%3$s** / **%4$s**
+                                        %1$sExperience: **%5$,f**
+                                        %1$sProgress to next Level: **%6$.2f%%**
+                                        %2$sTotal Progress: **%7$.2f%%**
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,

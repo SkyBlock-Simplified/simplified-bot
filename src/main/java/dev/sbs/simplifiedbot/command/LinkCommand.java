@@ -12,7 +12,6 @@ import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.data.tuple.Pair;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
@@ -56,7 +55,7 @@ public class LinkCommand extends Command {
                     user.getMojangUniqueIds().contains(mojangProfileResponse.getUniqueId())
             );
 
-            String message = FormatUtil.format("You have linked `{0}` to your Discord account.", mojangProfileResponse.getUsername());
+            String message = String.format("You have linked `%s` to your Discord account.", mojangProfileResponse.getUsername());
 
             if (userModel == null) {
                 // Create New User
@@ -72,7 +71,7 @@ public class LinkCommand extends Command {
                 // Update Existing User
                 if (!userModel.getDiscordIds().contains(commandContext.getInteractUserId().asLong())) {
                     userModel.getDiscordIds().add(commandContext.getInteractUserId().asLong());
-                    message = FormatUtil.format("You have linked your new Discord account to `{0}`.", mojangProfileResponse.getUsername());
+                    message = String.format("You have linked your new Discord account to `%s`.", mojangProfileResponse.getUsername());
                 } else if (!userModel.getMojangUniqueIds().contains(mojangProfileResponse.getUniqueId()))
                     userModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
                 else
@@ -100,7 +99,7 @@ public class LinkCommand extends Command {
                 else {
                     throw SimplifiedException.of(UserVerificationException.class)
                         .addData("MESSAGE", true)
-                        .withMessage("Your Discord account is already linked to `{0}`!", mojangProfileResponse.getUsername())
+                        .withMessage("Your Discord account is already linked to `%s`!", mojangProfileResponse.getUsername())
                         .build();
                 }
             }
@@ -132,11 +131,11 @@ public class LinkCommand extends Command {
                 userInputError.withFields(
                     Pair.of(
                         "Expected",
-                        FormatUtil.format("`{0}`", interactDiscordTag)
+                        String.format("`%s`", interactDiscordTag)
                     ),
                     Pair.of(
                         "Found",
-                        FormatUtil.format("`{0}`", hypixelDiscordTag)
+                        String.format("`%s`", hypixelDiscordTag)
                     )
                 );
             }

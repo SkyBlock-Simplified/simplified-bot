@@ -32,6 +32,9 @@ public class DevTestCommand extends Command {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+        // TODO: https://en.wikipedia.org/wiki/ISO_8601#Durations
+        //  Duration.parse
+
         return commandContext.reply(
             Response.builder()
                 .withReference(commandContext)

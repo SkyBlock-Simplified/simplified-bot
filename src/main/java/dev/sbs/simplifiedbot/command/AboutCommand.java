@@ -4,7 +4,6 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.model.discord.sbs_data.sbs_developers.SbsDeveloperModel;
 import dev.sbs.api.data.model.discord.sbs_data.sbs_legacy_donors.SbsLegacyDonorModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Command;
@@ -73,7 +72,7 @@ public class AboutCommand extends Command {
                                             StringUtil.join(
                                                 SimplifiedApi.getRepositoryOf(SbsDeveloperModel.class)
                                                     .stream()
-                                                    .map(sbsDeveloperModel -> FormatUtil.format("<@{0,number,#}>", sbsDeveloperModel.getDiscordId()))
+                                                    .map(sbsDeveloperModel -> String.format("<@%s>", sbsDeveloperModel.getDiscordId()))
                                                     .collect(Concurrent.toList()),
                                                 "\n"
                                             )
@@ -130,8 +129,8 @@ public class AboutCommand extends Command {
                                         .withItems(SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class).findAll())
                                         .withTransformer(stream -> stream
                                             .map(legacyDonorModel -> FieldItem.builder()
-                                                .withLabel(FormatUtil.format("<@{0}>", legacyDonorModel.getDiscordId()))
-                                                .withData(FormatUtil.format("${0,number,#.##}", legacyDonorModel.getAmount()))
+                                                .withLabel(String.format("<@%s>", legacyDonorModel.getDiscordId()))
+                                                .withData(String.format("$%.2f", legacyDonorModel.getAmount()))
                                                 .build()
                                             )
                                         )
