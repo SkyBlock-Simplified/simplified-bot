@@ -4,6 +4,7 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.util.Experience;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
+import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
@@ -11,9 +12,8 @@ import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiabl
 import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.Parameter;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.parameter.Parameter;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
@@ -25,10 +25,11 @@ import reactor.core.publisher.Mono;
 import java.awt.*;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public abstract class SkyBlockUserCommand extends Command {
+public abstract class SkyBlockUserCommand extends SqlSlashCommand {
 
     public static final Pattern MOJANG_NAME = Pattern.compile("[\\w]{3,16}");
 
@@ -37,11 +38,11 @@ public abstract class SkyBlockUserCommand extends Command {
     }
 
     @Override
-    protected final @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected final @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) throws DiscordException {
         return this.subprocess(commandContext, new SkyBlockUser(commandContext));
     }
 
-    protected abstract @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser);
+    protected abstract @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser);
 
     @Override
     public @NotNull ConcurrentUnmodifiableList<String> getExampleArguments() {
@@ -153,6 +154,10 @@ public abstract class SkyBlockUserCommand extends Command {
             )
             .withEmptyField(true)
             .build();
+    }
+
+    public final boolean isUserVerified(@NotNull UUID uniqueId) {
+        return SimplifiedApi.getRepositoryOf(UserModel.class).matchFirst(userModel -> userModel.getMojangUniqueIds().contains(uniqueId)).isPresent();
     }
 
 }
