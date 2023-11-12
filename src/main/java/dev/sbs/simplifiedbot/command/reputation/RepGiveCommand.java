@@ -11,14 +11,14 @@ import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiabl
 import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.command.data.Parameter;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.parameter.Parameter;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
+import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -28,14 +28,14 @@ import java.awt.*;
 import java.util.Optional;
 
 @CommandId("6f97994d-a09b-45f2-9275-66d5028d5b39")
-public class RepGiveCommand extends Command {
+public class RepGiveCommand extends SqlSlashCommand {
 
     protected RepGiveCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) throws DiscordException {
         final long submitterDiscordId = commandContext.getInteractUserId().asLong();
         final long receiverDiscordId = Long.parseLong(commandContext.getArgument("user").getValue().orElseThrow());
         String reputationType = commandContext.getArgument("type").getValue().orElseThrow();

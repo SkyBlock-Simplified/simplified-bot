@@ -12,15 +12,15 @@ import dev.sbs.api.util.collection.search.function.SearchFunction;
 import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.command.data.Parameter;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.parameter.Parameter;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
+import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -31,14 +31,14 @@ import java.util.Objects;
 import java.util.Optional;
 
 @CommandId("01cd83a4-cc84-4b76-9e16-dbdab43e80ff")
-public class RepCheckCommand extends Command {
+public class RepCheckCommand extends SqlSlashCommand {
 
     protected RepCheckCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) throws DiscordException {
         final long receiverDiscordId = Long.parseLong(commandContext.getArgument("user").getValue().orElseThrow());
         Optional<Member> receivingMember = commandContext.getGuild()
             .flatMap(guild -> guild.getMemberById(Snowflake.of(receiverDiscordId)))
@@ -99,10 +99,11 @@ public class RepCheckCommand extends Command {
                                 .withColor(Color.YELLOW)
                                 .withTitle("Reputation")
                                 .withDescription(
-                                    """
+                                        """
                                         Total: All verified and unverified reputation a user has been given.
                                         Verified: The total reputation confirmed by the staff team.
-                                        Unverified: The total reputation not yet confirmed by the staff team."""
+                                        Unverified: The total reputation not yet confirmed by the staff team.
+                                        """
                                 )
                                 .withField("Total", String.valueOf(receiverReputation.values().stream().mapToInt(ConcurrentList::size).sum()), true)
                                 .withField("Verified", String.valueOf(
