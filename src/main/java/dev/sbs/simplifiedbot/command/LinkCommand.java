@@ -14,30 +14,30 @@ import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiabl
 import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.command.data.Parameter;
+import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.parameter.Parameter;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 @CommandId("48b8f351-4e74-4010-b1ef-9b3d18c9833a")
-public class LinkCommand extends Command {
+public class LinkCommand extends SqlSlashCommand {
 
     protected LinkCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
+    protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         String playerID = commandContext.getArgument("name").getValue().orElseThrow(); // Will never throw
         MojangRequest mojangRequest = SimplifiedApi.getWebApi(MojangRequest.class);
         MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
@@ -106,7 +106,6 @@ public class LinkCommand extends Command {
 
             return commandContext.reply(
                 Response.builder()
-                    .withReference(commandContext)
                     .isInteractable(false)
                     .withPages(
                         Page.builder()

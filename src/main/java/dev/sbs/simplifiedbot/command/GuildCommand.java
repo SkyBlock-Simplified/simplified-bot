@@ -21,14 +21,12 @@ import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiabl
 import dev.sbs.api.util.collection.sort.SortOrder;
 import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.data.tuple.Triple;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.command.data.Parameter;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.parameter.Parameter;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -38,6 +36,7 @@ import dev.sbs.discordapi.response.page.handler.item.CollectionItemHandler;
 import dev.sbs.discordapi.response.page.handler.item.ItemHandler;
 import dev.sbs.discordapi.response.page.item.FieldItem;
 import dev.sbs.discordapi.response.page.item.Item;
+import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -46,7 +45,7 @@ import java.text.DecimalFormat;
 import java.util.UUID;
 
 @CommandId("b04d133d-3532-447b-8782-37d1036f3957")
-public class GuildCommand extends Command {
+public class GuildCommand extends SqlSlashCommand {
 
     protected GuildCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
@@ -65,7 +64,7 @@ public class GuildCommand extends Command {
     );
 
     @Override
-    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
+    protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         String guildName = commandContext.getArgument("name").getValue().orElseThrow();
 
         HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getGuildByName(guildName);
@@ -135,8 +134,8 @@ public class GuildCommand extends Command {
         emojis.put("skyblock", getEmoji("SKYBLOCK").orElseThrow());
         emojis.put("slayer", getEmoji("SLAYER").orElseThrow());
 
-        String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
-        String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> FormatUtil.format("{0} ", emoji.asFormat())).orElse("");
+        String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
 
         Color tagColor = guild.getTagColor().orElse(ChatFormat.YELLOW).getColor();
         String guildDescription = guild.getDescription().orElse(guild.getName() + " doesn't have a description set.");
@@ -146,7 +145,6 @@ public class GuildCommand extends Command {
         String pageIdentifier = commandContext.getArgument("page").getValue().orElse("general_information");
 
         return commandContext.reply(Response.builder()
-            .withReference(commandContext)
             .isInteractable()
             .withTimeToLive(120)
             .withPages(
@@ -158,14 +156,14 @@ public class GuildCommand extends Command {
                     .withEmbeds(
                         Embed.builder()
                             .withTitle(guild.getName())
-                            .withDescription(
+                            .withDescription(String.format(
                                 """
-                                {0}
+                                %s
                                 
-                                Average Weight: **{1}** (Without Overflow: **{2}**)
-                                Average Networth: **{3}**
-                                Average Skill Level: **{4}**
-                                Average Skyblock Level: **{5}**
+                                Average Weight: **%s** (Without Overflow: **%s**)
+                                Average Networth: **%s**
+                                Average Skill Level: **%s**
+                                Average Skyblock Level: **%s**
                                 """,
                                 guildDescription,
                                 (int) guildMemberPlayers.stream().mapToDouble(
@@ -184,7 +182,7 @@ public class GuildCommand extends Command {
                                     .filter(level -> level > 0)
                                     .average()
                                     .orElse(0)
-                            )
+                            ))
                             .withField("Tag", guildTag, true)
                             .withField("Guild Level", String.valueOf(guildLevel), true)
                             .withField("Guild Owner", guildOwner, true)
@@ -206,8 +204,8 @@ public class GuildCommand extends Command {
                                     .withTransformer(stream ->
                                         StreamUtil.mapWithIndex(
                                             stream, (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                .withData(FormatUtil.format(
-                                                    " #{0} `{1}` >  **{2}**",
+                                                .withData(String.format(
+                                                    " #%s `%s` >  **%s**",
                                                     index + 1,
                                                     ignMap.get(guildMemberPlayer.getUniqueId()),
                                                     guildMemberPlayer.getLeveling().getLevel()
@@ -228,15 +226,15 @@ public class GuildCommand extends Command {
                             .withEmbeds(Embed.builder()
                                 .withColor(tagColor)
                                 .withTitle(guild.getName())
-                                .withDescription(
+                                .withDescription(String.format(
                                     """
-                                    Skyblock Level Average: **{0}**
+                                    Skyblock Level Average: **%s**
                                     """,
                                     guildMemberPlayers.stream()
                                         .mapToDouble(member -> member.getLeveling().getLevel())
                                         .average()
                                         .orElse(0)
-                                )
+                                ))
                                 .build()
                             )
                             .build()
@@ -250,11 +248,11 @@ public class GuildCommand extends Command {
                                 .map(skillModel -> FieldItem.builder()
                                     .withEmoji(emojis.get(skillModel.getKey()))
                                     .withData(
-                                        FormatUtil.format(
+                                        String.format(
                                             """
-                                                {0}Average Level: **{2}**
-                                                {0}Total Experience:
-                                                {1}**{3}**
+                                                %1$sAverage Level: **%3$s**
+                                                %1$sTotal Experience:
+                                                %2$s**%4$s**
                                                 """,
                                             emojiReplyStem,
                                             emojiReplyEnd,
@@ -285,10 +283,10 @@ public class GuildCommand extends Command {
                     .withEmbeds(
                         Embed.builder()
                             .withTitle(guild.getName())
-                            .withDescription(
+                            .withDescription(String.format(
                                 """
-                                Average Weight: **{0}** (Without Overflow: **{1}**)
-                                Average Networth: **{2}**
+                                Average Weight: **%s** (Without Overflow: **%s**)
+                                Average Networth: **%s**
                                 """,
                                 (int) guildMemberPlayers.stream().mapToDouble(
                                     guildMember -> totalWeights.get(guildMember).getTotal()
@@ -299,7 +297,7 @@ public class GuildCommand extends Command {
                                 (long) guildMemberPlayers.stream().mapToLong(
                                     networths::get
                                 ).average().orElseThrow()
-                            )
+                            ))
                             .withColor(tagColor)
                             .build()
                     )
@@ -319,8 +317,8 @@ public class GuildCommand extends Command {
                                             .build()
                                     )
                                     .withTransformer(stream -> StreamUtil.mapWithIndex(stream, (member, index, size) -> FieldItem.builder()
-                                        .withData(FormatUtil.format(
-                                            " #{0} `{1}` >  **{2} [{3}]**",
+                                        .withData(String.format(
+                                            " #%s `%s` >  **%s [%s]**",
                                             index + 1,
                                             ignMap.get(member.getUniqueId()),
                                             (long) skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel)).findFirst().orElseThrow().getExperience(),
@@ -342,9 +340,9 @@ public class GuildCommand extends Command {
                                 Embed.builder()
                                     .withColor(tagColor)
                                     .withTitle(guild.getName())
-                                    .withDescription(FormatUtil.format(
+                                    .withDescription(String.format(
                                         """
-                                        {0} Average: **{1}** / {2}
+                                        %s Average: **%s** / %s
                                         """,
                                         skillModel.getName(),
                                         df.format(guildMemberPlayers.stream()
@@ -367,21 +365,19 @@ public class GuildCommand extends Command {
                             .withTransformer(stream -> stream
                                 .map(slayerModel -> FieldItem.builder()
                                     .withEmoji(emojis.get(slayerModel.getKey()))
-                                    .withData(
-                                        FormatUtil.format(
-                                            """
-                                                {0}Average Level: **{2}**
-                                                {0}Total Experience:
-                                                {1}**{3}**
-                                                """,
-                                            emojiReplyStem,
-                                            emojiReplyEnd,
-                                            df.format(guildMemberPlayers.stream()
-                                                .mapToDouble(member -> member.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
-                                            (long) guildMemberPlayers.stream()
-                                                .mapToDouble(member -> member.getSlayer(slayerModel).getExperience()).sum()
-                                        )
-                                    )
+                                    .withData(String.format(
+                                        """
+                                        %1$sAverage Level: **%3$s**
+                                        %1$sTotal Experience:
+                                        %2$s**%4$s**
+                                        """,
+                                        emojiReplyStem,
+                                        emojiReplyEnd,
+                                        df.format(guildMemberPlayers.stream()
+                                            .mapToDouble(member -> member.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
+                                        (long) guildMemberPlayers.stream()
+                                            .mapToDouble(member -> member.getSlayer(slayerModel).getExperience()).sum()
+                                    ))
                                     .withOption(
                                         getOptionBuilder(slayerModel.getName().replace(" ", "_").toLowerCase())
                                             .withEmoji(emojis.get(slayerModel.getKey()))
@@ -403,10 +399,10 @@ public class GuildCommand extends Command {
                     .withEmbeds(
                         Embed.builder()
                             .withTitle(guild.getName())
-                            .withDescription(
+                            .withDescription(String.format(
                                 """
-                                Average Weight: **{0}** (Without Overflow: **{1}**)
-                                Average Networth: **{2}**
+                                Average Weight: **%s** (Without Overflow: **%s**)
+                                Average Networth: **%s**
                                 """,
                                 (int) guildMemberPlayers.stream().mapToDouble(
                                     guildMember -> totalWeights.get(guildMember).getTotal()
@@ -417,7 +413,7 @@ public class GuildCommand extends Command {
                                 (long) guildMemberPlayers.stream().mapToLong(
                                     networths::get
                                 ).average().orElseThrow()
-                            )
+                            ))
                             .withColor(tagColor)
                             .build()
                     )
@@ -438,8 +434,8 @@ public class GuildCommand extends Command {
                                             StreamUtil.mapWithIndex(
                                                 stream,
                                                 (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                    .withData(FormatUtil.format(
-                                                        " #{0} `{1}` >  **{2} [{3}]**",
+                                                    .withData(String.format(
+                                                        " #%s `%s` >  **%s [%s]**",
                                                         index + 1,
                                                         ignMap.get(guildMemberPlayer.getUniqueId()),
                                                         (long) guildMemberPlayer.getSlayer(slayerModel).getExperience(),
@@ -461,15 +457,15 @@ public class GuildCommand extends Command {
                                     Embed.builder()
                                         .withColor(tagColor)
                                         .withTitle(guild.getName())
-                                        .withDescription(
+                                        .withDescription(String.format(
                                             """
-                                            {0} Average: **{1}** / {2}
+                                            %s Average: **%s** / %s
                                             """,
                                             slayerModel.getName(),
                                             df.format(guildMemberPlayers.stream()
                                                 .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
-                                            9
-                                        )
+                                            9 // TODO: Get max level
+                                        ))
                                         .build()
                                 )
                                 .build()
@@ -484,21 +480,19 @@ public class GuildCommand extends Command {
                             .withTransformer(stream -> stream
                                 .map(dungeonClassModel -> FieldItem.builder()
                                     .withEmoji(emojis.get(dungeonClassModel.getKey()))
-                                    .withData(
-                                        FormatUtil.format(
-                                            """
-                                                {0}Average Level: **{2}**
-                                                {0}Total Experience:
-                                                {1}**{3}**
-                                                """,
-                                            emojiReplyStem,
-                                            emojiReplyEnd,
-                                            df.format(guildMemberPlayers.stream()
-                                                .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getLevel()).average().orElseThrow()),
-                                            (long) guildMemberPlayers.stream()
-                                                .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getExperience()).sum()
-                                        )
-                                    )
+                                    .withData(String.format(
+                                        """
+                                        %1$sAverage Level: **%3$s**
+                                        %1$sTotal Experience:
+                                        %2$s**%4$s**
+                                        """,
+                                        emojiReplyStem,
+                                        emojiReplyEnd,
+                                        df.format(guildMemberPlayers.stream()
+                                            .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getLevel()).average().orElseThrow()),
+                                        (long) guildMemberPlayers.stream()
+                                            .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getExperience()).sum()
+                                    ))
                                     .withOption(
                                         getOptionBuilder(dungeonClassModel.getKey().toLowerCase())
                                             .withEmoji(emojis.get(dungeonClassModel.getKey()))
@@ -519,10 +513,10 @@ public class GuildCommand extends Command {
                     .withEmbeds(
                         Embed.builder()
                             .withTitle(guild.getName())
-                            .withDescription(
+                            .withDescription(String.format(
                                 """
-                                Average Weight: **{0}** (Without Overflow: **{1}**)
-                                Average Networth: **{2}**
+                                Average Weight: **%s** (Without Overflow: **%s**)
+                                Average Networth: **%s**
                                 """,
                                 (int) guildMemberPlayers.stream().mapToDouble(
                                     guildMember -> totalWeights.get(guildMember).getTotal()
@@ -533,7 +527,7 @@ public class GuildCommand extends Command {
                                 (long) guildMemberPlayers.stream().mapToLong(
                                     networths::get
                                 ).average().orElseThrow()
-                            )
+                            ))
                             .withColor(tagColor)
                             .build()
                     )
@@ -553,15 +547,13 @@ public class GuildCommand extends Command {
                                         StreamUtil.mapWithIndex(
                                             stream,
                                             (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                .withData(
-                                                    FormatUtil.format(
-                                                        " #{0} `{1}` >  **{2} [{3}]**",
-                                                        index + 1,
-                                                        ignMap.get(guildMemberPlayer.getUniqueId()),
-                                                        (long) guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience(),
-                                                        guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()
-                                                    )
-                                                )
+                                                .withData(String.format(
+                                                    " #%s `%s` >  **%s [%s]**",
+                                                    index + 1,
+                                                    ignMap.get(guildMemberPlayer.getUniqueId()),
+                                                    (long) guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience(),
+                                                    guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()
+                                                ))
                                                 .build()
                                         )
                                     )
@@ -578,13 +570,13 @@ public class GuildCommand extends Command {
                                 Embed.builder()
                                     .withColor(tagColor)
                                     .withTitle(guild.getName())
-                                    .withDescription(
+                                    .withDescription(String.format(
                                         """
-                                        Catacombs Average: **{0}** / 50
+                                        Catacombs Average: **%s** / 50
                                         """,
                                         df.format(guildMemberPlayers.stream()
                                             .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()).average().orElseThrow())
-                                    )
+                                    ))
                                     .build()
                             )
 
@@ -606,15 +598,13 @@ public class GuildCommand extends Command {
                                         StreamUtil.mapWithIndex(
                                             stream,
                                             (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                .withData(
-                                                    FormatUtil.format(
-                                                        " #{0} `{1}` >  **{2} [{3}]**",
-                                                        index + 1,
-                                                        ignMap.get(guildMemberPlayer.getUniqueId()),
-                                                        (long) guildMemberPlayer.getDungeons().getClass(classModel).getExperience(),
-                                                        guildMemberPlayer.getDungeons().getClass(classModel).getLevel()
-                                                    )
-                                                )
+                                                .withData(String.format(
+                                                    " #%s `%s` >  **%s [%s]**",
+                                                    index + 1,
+                                                    ignMap.get(guildMemberPlayer.getUniqueId()),
+                                                    (long) guildMemberPlayer.getDungeons().getClass(classModel).getExperience(),
+                                                    guildMemberPlayer.getDungeons().getClass(classModel).getLevel()
+                                                ))
                                                 .build()
                                         )
                                     )
@@ -631,15 +621,15 @@ public class GuildCommand extends Command {
                                 Embed.builder()
                                     .withColor(tagColor)
                                     .withTitle(guild.getName())
-                                    .withDescription(
+                                    .withDescription(String.format(
                                         """
-                                        {0} Average: **{1}** / {2}
+                                        %s Average: **%s** / %s
                                         """,
                                         classModel.getName(),
                                         df.format(guildMemberPlayers.stream()
                                             .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getLevel()).average().orElseThrow()),
                                         50
-                                    )
+                                    ))
                                     .build()
                             )
                             .build()
@@ -662,8 +652,8 @@ public class GuildCommand extends Command {
                                 StreamUtil.mapWithIndex(
                                     stream,
                                     (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                        .withData(FormatUtil.format(
-                                            " #{0} `{1}` >  **{2} [{3}]**",
+                                        .withData(String.format(
+                                            " #%s `%s` >  **%s [%s]**",
                                             index + 1,
                                             ignMap.get(guildMemberPlayer.getUniqueId()),
                                             (int) totalWeights.get(guildMemberPlayer).getTotal(),
@@ -685,15 +675,15 @@ public class GuildCommand extends Command {
                         Embed.builder()
                             .withColor(tagColor)
                             .withTitle(guild.getName())
-                            .withDescription(
+                            .withDescription(String.format(
                                 """
-                                Average Weight: **{0}** (Without Overflow: **{1}**)
+                                Average Weight: **%s** (Without Overflow: **%s**)
                                 """,
                                 (int) (guildMemberPlayers.stream()
                                     .mapToDouble(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal()).average().orElseThrow()),
                                 (int) (guildMemberPlayers.stream()
                                     .mapToDouble(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getValue()).average().orElseThrow())
-                            )
+                            ))
                             .build()
                     )
                     .build(),
@@ -712,8 +702,8 @@ public class GuildCommand extends Command {
                                 StreamUtil.mapWithIndex(
                                     stream,
                                     (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                        .withData(FormatUtil.format(
-                                            " #{0} `{1}` >  **{2}**",
+                                        .withData(String.format(
+                                            " #%s `%s` >  **%s**",
                                             index + 1,
                                             ignMap.get(guildMemberPlayer.getUniqueId()),
                                             (int) guildMemberPlayer.getPurse()
@@ -734,10 +724,10 @@ public class GuildCommand extends Command {
                         Embed.builder()
                             .withColor(tagColor)
                             .withTitle(guild.getName())
-                            .withDescription(FormatUtil.format("""
-                                Average Networth: **{0}**
-                                Total Networth: **{1}**
-                            """,
+                            .withDescription(String.format(
+                                """
+                                    Average Networth: **%s**
+                                    Total Networth: **%s**""",
                                 (long) (guildMemberPlayers.stream()
                                     .mapToDouble(networths::get).average().orElseThrow()),
                                 (long) (guildMemberPlayers.stream()

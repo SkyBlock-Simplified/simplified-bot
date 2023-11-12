@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
@@ -18,10 +18,9 @@ public class OptimizerCommand extends SkyBlockUserCommand {
     }
 
     @Override
-    protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
+    protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
         return commandContext.reply(
             Response.builder()
-                .withReference(commandContext)
                 .withPages(
                     Page.builder()
                         .withContent("optimizer command")

@@ -6,9 +6,8 @@ import dev.sbs.api.data.model.discord.sbs_data.sbs_legacy_donors.SbsLegacyDonorM
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -17,6 +16,7 @@ import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.handler.item.CollectionItemHandler;
 import dev.sbs.discordapi.response.page.item.FieldItem;
+import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -24,18 +24,17 @@ import java.awt.*;
 import java.time.Instant;
 
 @CommandId("1b072a71-2045-457a-a9f7-354b936567cb")
-public class AboutCommand extends Command {
+public class AboutCommand extends SqlSlashCommand {
 
     protected AboutCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) {
+    protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         return commandContext.reply(
             Response.builder()
                 .replyMention()
-                .withReference(commandContext)
                 .isInteractable()
                 .withTimeToLive(60)
                 .withPages(
@@ -56,7 +55,7 @@ public class AboutCommand extends Command {
                                 .withDescription(
                                     "The official SkyBlock Simplified bot. Optimize your gear with `/optimizer`, " +
                                         "lookup guilds with `/guild`, lookup data on players such as general details, " +
-                                        "net worth, skills, dungeons, slayers and more with `/player`. Look for hypixel " +
+                                        "net worth, skills, dungeons, slayers and more with `/player`. Look for Hypixel " +
                                         "reports on players like scamlist, macros, and irl trading using `/report`. Add and " +
                                         "receive reputation with `/rep`, host giveaways, and much more."
                                 )

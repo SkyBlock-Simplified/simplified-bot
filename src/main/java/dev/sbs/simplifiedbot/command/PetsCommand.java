@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
@@ -17,12 +17,11 @@ public class PetsCommand extends SkyBlockUserCommand {
     }
 
     @Override
-    protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
+    protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
         return commandContext.reply(
             Response.builder()
                 .isInteractable()
                 .replyMention()
-                .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(PlayerCommand.buildPages(skyBlockUser))
                 .withDefaultPage("pets")

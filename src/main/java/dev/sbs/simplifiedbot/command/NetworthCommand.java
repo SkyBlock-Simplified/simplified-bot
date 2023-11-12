@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ public class NetworthCommand extends SkyBlockUserCommand {
     }
 
     @Override
-    protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
+    protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
         return Mono.empty();
     }
 

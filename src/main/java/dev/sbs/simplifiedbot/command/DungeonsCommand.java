@@ -10,8 +10,8 @@ import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -34,7 +34,7 @@ public class DungeonsCommand extends SkyBlockUserCommand {
     }
 
     @Override
-    protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
+    protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
@@ -46,7 +46,6 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                 .withTimeToLive(60)
                 .isInteractable()
                 .replyMention()
-                .withReference(commandContext)
                 .withPages(getDungeonPages(skyBlockUser, false))
                 .withPages(getDungeonPages(skyBlockUser, true))
                 .withPages(
@@ -71,12 +70,12 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 false
                             )
                                 .mutate()
-                                .withDescription(
+                                .withDescription(String.format(
                                     """
-                                        {0}Selected Class: {2}
-                                        {0}Average Class Level: {3,number,#.##}
-                                        {0}Total Class Experience: {4,number,#.##}
-                                        {1}Total Class Progress: {5,number,#.##}%
+                                        %1$sSelected Class: %3$s
+                                        %1$sAverage Class Level: {3,number,#.##}
+                                        %1$sTotal Class Experience: {4,number,#.##}
+                                        %2$sTotal Class Progress: {5,number,#.##}%
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
@@ -84,7 +83,7 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                     member.getDungeonClassAverage(),
                                     member.getDungeonClassExperience(),
                                     member.getDungeonClassProgressPercentage()
-                                )
+                                ))
                                 .build()
                         )
                         .build()

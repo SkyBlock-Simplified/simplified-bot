@@ -8,8 +8,8 @@ import dev.sbs.api.data.model.skyblock.accessory_data.accessories.AccessoryModel
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.search.function.SearchFunction;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -33,13 +33,12 @@ public class MissingCommand extends SkyBlockUserCommand {
     }
 
     @Override
-    protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
+    protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
         PlayerStats playerStats = skyBlockUser.getSelectedIsland().getPlayerStats(skyBlockUser.getMember());
         ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).matchAll(accessoryModel -> accessoryModel.getItem().isObtainable());
 
         return commandContext.reply(
             Response.builder()
-                .withReference(commandContext)
                 .isInteractable()
                 .withTimeToLive(30)
                 .withPages(
