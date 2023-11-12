@@ -5,15 +5,15 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.base.DiscordHelper;
 import dev.sbs.discordapi.util.exception.DiscordException;
+import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
@@ -26,14 +26,14 @@ import java.time.Instant;
 import java.util.Optional;
 
 @CommandId("2ce215ee-1d4e-4c7a-bb77-82f6c39eb02d")
-public class DevStatsCommand extends Command {
+public class DevStatsCommand extends SqlSlashCommand {
 
     protected DevStatsCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) throws DiscordException {
         Optional<Snowflake> optionalGuildId = Optional.empty();
 
         // Handle DMs
@@ -127,7 +127,6 @@ public class DevStatsCommand extends Command {
         return commandContext.reply(
             Response.builder()
                 .isInteractable(false)
-                .withReference(commandContext)
                 .withPages(
                     Page.builder()
                         .withEmbeds(embedBuilder.build())

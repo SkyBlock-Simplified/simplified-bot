@@ -8,10 +8,10 @@ import dev.sbs.api.data.model.discord.guild_data.guilds.GuildSqlModel;
 import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
+import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -19,14 +19,14 @@ import reactor.core.publisher.Mono;
 import java.util.Objects;
 
 @CommandId("1287dda9-ded3-4c7e-9e42-33bfd79043f8")
-public class DevEmojiCommand extends Command {
+public class DevEmojiCommand extends SqlSlashCommand {
 
     protected DevEmojiCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    protected @NotNull Mono<Void> process(@NotNull CommandContext<?> commandContext) throws DiscordException {
+    protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) throws DiscordException {
         return Mono.fromRunnable(() -> SimplifiedApi.getRepositoryOf(GuildModel.class)
             .matchAll(GuildModel::isEmojiServer)
             .sorted(GuildModel::getId)
