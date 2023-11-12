@@ -7,13 +7,21 @@ import dev.sbs.discordapi.command.impl.SlashCommand;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public abstract class SqlSlashCommand extends SlashCommand {
 
     @Getter private final @NotNull CommandModel config;
+    @Getter private final @NotNull Optional<Parent> parent;
+    @Getter private final @NotNull Optional<Group> group;
+    @Getter private final @NotNull Optional<Category> category;
 
     public SqlSlashCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
         this.config = SimplifiedApi.getRepositoryOf(CommandModel.class).findFirstOrNull(CommandModel::getUniqueId, this.getUniqueId());
+        this.parent = Optional.ofNullable(this.config.getParent()).map(parentModel -> Parent.of(parentModel.getKey(), parentModel.getDescription()));
+        this.group = Optional.ofNullable(this.config.getGroup()).map(parentModel -> Group.of(parentModel.getKey(), parentModel.getDescription()));
+        this.category = Optional.ofNullable(this.config.getCategory()).map(parentModel -> Category.of(parentModel.getKey(), parentModel.getDescription()));
     }
 
     @Override
