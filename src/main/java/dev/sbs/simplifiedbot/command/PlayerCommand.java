@@ -35,8 +35,8 @@ import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.data.CommandId;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -65,12 +65,11 @@ public class PlayerCommand extends SkyBlockUserCommand {
     }
 
     @Override
-    protected @NotNull Mono<Void> subprocess(@NotNull CommandContext<?> commandContext, @NotNull SkyBlockUser skyBlockUser) {
+    protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
         return commandContext.reply(
             Response.builder()
                 .isInteractable()
                 .replyMention()
-                .withReference(commandContext)
                 .withTimeToLive(30)
                 .withPages(buildPages(skyBlockUser))
                 .build()
@@ -145,8 +144,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         StreamUtil.prependEach(
                                                 SimplifiedApi.getRepositoryOf(ShopProfileUpgradeModel.class)
                                                     .stream()
-                                                    .map(shopProfileUpgradeModel -> FormatUtil.format(
-                                                        "{0}: {1} / {2}",
+                                                    .map(shopProfileUpgradeModel -> String.format(
+                                                        "%s: %s / %s",
                                                         shopProfileUpgradeModel.getName(),
                                                         skyBlockIsland.getCommunityUpgrades()
                                                             .map(communityUpgrades -> communityUpgrades.getHighestTier(shopProfileUpgradeModel))
@@ -231,13 +230,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .withOption(getOptionBuilder("weight").withEmoji(getEmoji("WEIGHT")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "weight")
-                        .withDescription(
+                        .withDescription(String.format(
                             """
-                                {0}Total Weight: **{2}** (**{3}** + **{4}**)
-                                {0}Total Skill Weight: **{5}** (**{6}** + **{7}**)
-                                {0}Total Slayer Weight: **{8}** (**{9}** + **{10}**)
-                                {0}Total Dungeon Weight: **{11}** (**{12}** + **{13}**)
-                                {1}Total Dungeon Class Weight: **{14}** (**{15}** + **{16}**)""",
+                            %1$sTotal Weight: **%3$s** (**%4$s** + **%5$s**)
+                            %1$sTotal Skill Weight: **%6$s** (**%7$s** + **%8$s**)
+                            %1$sTotal Slayer Weight: **%9$s** (**%10$s** + **%11$s**)
+                            %1$sTotal Dungeon Weight: **%12$s** (**%13$s** + **%14$s**)
+                            %2$sTotal Dungeon Class Weight: **%15$s** (**%16$s** + **%17$s**)
+                            """,
                             emojiReplyStem,
                             emojiReplyEnd,
                             totalWeight.getTotal(),
@@ -255,7 +255,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getTotal).sum(),
                             dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
                             dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getOverflow).sum()
-                        )
+                        ))
                         .withFields(
                             getWeightFields(
                                 "Skills",
@@ -303,10 +303,11 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .withOption(getOptionBuilder("pets").withEmoji(getEmoji("PETS")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "pets")
-                        .withDescription(
+                        .withDescription(String.format(
                             """
-                                Unique Pets: **{0}** / **{1}**
-                                Pet Score: **{2}** (+{3} Magic Find)""",
+                            Unique Pets: **%s** / **%s**
+                            Pet Score: **%s** (+%s Magic Find)
+                            """,
                             member.getPetData()
                                 .getPets()
                                 .stream()
@@ -318,7 +319,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .size(),
                             member.getPetData().getPetScore(),
                             member.getPetData().getPetScoreMagicFind()
-                        )
+                        ))
                         .build()
                 )
                 .withItemHandler(
@@ -329,9 +330,9 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withOption(
                                     SelectMenu.Option.builder()
                                         .withLabel(
-                                            "{0}{1}",
+                                            "%s%s",
                                             pet.getPet().map(PetModel::getName).orElse(pet.getPrettyName()),
-                                            getEmoji(FormatUtil.format("RARITY_{0}", pet.getRarity().getKey()))
+                                            getEmoji(String.format("RARITY_%s", pet.getRarity().getKey()))
                                                 .map(Emoji::asPreSpacedFormat)
                                                 .orElse("")
                                         )
@@ -343,12 +344,12 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .withValue(pet.getPet().map(PetModel::getKey).orElse(pet.getName()))
                                         .build()
                                 )
-                                .withData(FormatUtil.format(
+                                .withData(String.format(
                                     """
-                                        {0}Level: **{3}** / **{4}**
-                                        {0}Experience:
-                                        {1}**{5}**
-                                        {2}Progress: **{6}%**
+                                        %1$sLevel: **%4$d** / **%5$d**
+                                        %1$sExperience:
+                                        %2$s**%6$f**
+                                        %3$sProgress: **%7$f%%**
                                         """,
                                     emojiReplyStem,
                                     emojiReplyLine,
@@ -394,7 +395,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .withLabel(
                                             "{0}{1}",
                                             accessoryData.getAccessory().getName(),
-                                            getEmoji(FormatUtil.format("RARITY_{0}", accessoryData.getRarity().getKey()))
+                                            getEmoji(String.format("RARITY_%s", accessoryData.getRarity().getKey()))
                                                 .map(Emoji::asPreSpacedFormat)
                                                 .orElse("")
                                         )
@@ -418,7 +419,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     (accessoryData.getRarity().isEnrichable() ? accessoryData.getEnrichment()
                                         .map(AccessoryEnrichmentModel::getStat)
                                         .map(StatModel::getKey)
-                                        .map(statKey -> FormatUtil.format("TALISMAN_ENRICHMENT_{0}", statKey))
+                                        .map(statKey -> String.format("TALISMAN_ENRICHMENT_%s", statKey))
                                         .flatMap(PlayerCommand::getEmoji)
                                         .or(() -> getEmoji("TAG_NOT_APPLICABLE")) :
                                         getEmoji("TAG_NOT_APPLICABLE"))
@@ -447,12 +448,12 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .withOption(getOptionBuilder("auctions").withEmoji(getEmoji("AUCTIONS")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "auctions")
-                        .withDescription(
+                        .withDescription(String.format(
                             """
-                                {0}Unclaimed Auctions: **{2}**
-                                {0}Expired Auctions: **{3}**
-                                {1}Total Coins: **{4}**
-                                """,
+                            %1$sUnclaimed Auctions: **%3$s**
+                            %1$sExpired Auctions: **%4$s**
+                            %2$sTotal Coins: **%5$s**
+                            """,
                             emojiReplyStem,
                             emojiReplyEnd,
                             skyBlockUser.getAuctions()
@@ -465,7 +466,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .stream()
                                 .mapToDouble(SkyBlockAuction::getHighestBid)
                                 .sum()
-                        )
+                        ))
                         .build()
                 )
                 .withItemHandler(
@@ -485,7 +486,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                                     .findFirst(ItemModel::getItemId, itemId)
                                                     .map(ItemModel::getName)
                                                     .orElse("Unknown"),
-                                                getEmoji(FormatUtil.format("RARITY_{0}", skyBlockAuction.getRarity().getKey()))
+                                                getEmoji(String.format("RARITY_%s", skyBlockAuction.getRarity().getKey()))
                                                     .map(Emoji::asPreSpacedFormat)
                                                     .orElse("")
                                             )
@@ -536,8 +537,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withName("Medals")
                                 .withValue(
                                     Arrays.stream(JacobsFarming.Medal.values())
-                                        .map(farmingMedal -> FormatUtil.format(
-                                            "{0}{1}: {2}",
+                                        .map(farmingMedal -> String.format(
+                                            "%s%s: %s",
                                             "",
                                             capitalizeEnum(farmingMedal),
                                             member.getJacobsFarming().getMedals(farmingMedal)
@@ -552,9 +553,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withName("Upgrades")
                                 .withValue(
                                     Arrays.stream(JacobsFarming.Perk.values())
-                                        .map(farmingPerk -> FormatUtil.format(
-                                            "{0}: {1}",
-                                            "",
+                                        .map(farmingPerk -> String.format(
+                                            "%s: %s",
                                             capitalizeEnum(farmingPerk),
                                             member.getJacobsFarming().getPerk(farmingPerk)
                                         ))
@@ -571,10 +571,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     SimplifiedApi.getRepositoryOf(CollectionItemModel.class)
                                         .findAll(CollectionItemModel::isFarmingEvent, true)
                                         .stream()
-                                        .map(collectionItemModel -> FormatUtil.format(
-                                            "{0}",
-                                            collectionItemModel.getItem().getName()
-                                        ))
+                                        .map(collectionItemModel -> collectionItemModel.getItem().getName())
                                         .collect(StreamUtil.toStringBuilder(true))
                                         .build()
                                 )
@@ -644,7 +641,6 @@ public class PlayerCommand extends SkyBlockUserCommand {
                     weightMap.stream()
                         .map(Map.Entry::getValue)
                         .map(Experience.Weight::getValue)
-                        .map(value -> FormatUtil.format("{0}", value))
                         .collect(StreamUtil.toStringBuilder(true))
                         .build()
                 )
@@ -656,7 +652,6 @@ public class PlayerCommand extends SkyBlockUserCommand {
                     weightMap.stream()
                         .map(Map.Entry::getValue)
                         .map(Experience.Weight::getOverflow)
-                        .map(value -> FormatUtil.format("{0}", value))
                         .collect(StreamUtil.toStringBuilder(true))
                         .build()
                 )
