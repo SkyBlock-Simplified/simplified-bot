@@ -31,7 +31,6 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.search.function.SearchFunction;
-import dev.sbs.api.util.helper.FormatUtil;
 import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
@@ -407,10 +406,11 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .withValue(accessoryData.getAccessory().getItem().getItemId())
                                         .build()
                                 )
-                                .withData(FormatUtil.format(
+                                .withData(String.format(
                                     """
-                                        {0}Recombobulator: **{2}**
-                                        {1}Enrichment: **{3}**""",
+                                    %1$sRecombobulator: **%3$s**
+                                    %2$sEnrichment: **%4$s**
+                                    """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
                                     getEmoji(accessoryData.isRecombobulated() ? "ACTION_ACCEPT" : "ACTION_DENY")
@@ -498,12 +498,15 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                             .withValue(skyBlockAuction.getAuctionId().toString())
                                             .build()
                                     )
-                                    .withData(FormatUtil.format(
+                                    .withData(String.format(
                                         """
-                                            {0}Starting Bid: **{2}**
-                                            {0}Highest Bid: **{3}**
-                                            {0}Ends: **{4}**
-                                            {1}Highest BIN: **{5}**""",
+                                        %1$sStarting Bid: **%3$s**
+                                        %1$sHighest Bid: **%4$s**
+                                        %1$sEnds: **%5$s**
+                                        %2$sHighest BIN: **%6$s**
+                                        """,
+                                        emojiReplyStem,
+                                        emojiReplyEnd,
                                         skyBlockAuction.getStartingBid(),
                                         skyBlockAuction.getHighestBid(),
                                         new DiscordDate(skyBlockAuction.getEndsAt().getRealTime()).asFormat(DiscordDate.Type.RELATIVE),
