@@ -40,11 +40,6 @@ public abstract class SqlSlashCommand extends SlashCommand {
     }
 
     @Override
-    public final long getId() {
-        return 0; // TODO: Get command id
-    }
-
-    @Override
     public final @NotNull String getName() {
         return this.getConfig().getName();
     }
