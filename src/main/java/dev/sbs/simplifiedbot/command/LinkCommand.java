@@ -17,6 +17,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
+import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
@@ -38,7 +39,7 @@ public class LinkCommand extends SqlSlashCommand {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
-        String playerID = commandContext.getArgument("name").getValue().orElseThrow(); // Will never throw
+        String playerID = commandContext.getArgument("name").map(Argument::asString).orElseThrow(); // Will never throw
         MojangRequest mojangRequest = SimplifiedApi.getWebApi(MojangRequest.class);
         MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
         HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getPlayer(mojangProfileResponse.getUniqueId());

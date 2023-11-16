@@ -25,6 +25,7 @@ import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
@@ -65,7 +66,7 @@ public class GuildCommand extends SqlSlashCommand {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
-        String guildName = commandContext.getArgument("name").getValue().orElseThrow();
+        String guildName = commandContext.getArgument("name").map(Argument::asString).orElseThrow();
 
         HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getGuildByName(guildName);
 
@@ -142,7 +143,7 @@ public class GuildCommand extends SqlSlashCommand {
         String guildTag = guild.getTag().orElse("Tag was not found.");
         int guildLevel = guild.getLevel();
         String guildOwner = ignMap.get(guild.getGuildMaster().getUniqueId());
-        String pageIdentifier = commandContext.getArgument("page").getValue().orElse("general_information");
+        String pageIdentifier = commandContext.getArgument("page").map(Argument::asString).orElse("general_information");
 
         return commandContext.reply(Response.builder()
             .isInteractable()

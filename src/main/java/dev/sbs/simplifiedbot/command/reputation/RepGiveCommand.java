@@ -12,6 +12,7 @@ import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
@@ -37,9 +38,9 @@ public class RepGiveCommand extends SqlSlashCommand {
     @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) throws DiscordException {
         final long submitterDiscordId = commandContext.getInteractUserId().asLong();
-        final long receiverDiscordId = Long.parseLong(commandContext.getArgument("user").getValue().orElseThrow());
-        String reputationType = commandContext.getArgument("type").getValue().orElseThrow();
-        String reason = commandContext.getArgument("reason").getValue().orElseThrow();
+        final long receiverDiscordId = commandContext.getArgument("user").map(Argument::asLong).orElseThrow();
+        String reputationType = commandContext.getArgument("type").map(Argument::asString).orElseThrow();
+        String reason = commandContext.getArgument("reason").map(Argument::asString).orElseThrow();
         Optional<Member> receivingMember = commandContext.getGuild()
             .flatMap(guild -> guild.getMemberById(Snowflake.of(receiverDiscordId)))
             .blockOptional();

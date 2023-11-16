@@ -13,6 +13,7 @@ import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
@@ -39,7 +40,7 @@ public class RepCheckCommand extends SqlSlashCommand {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) throws DiscordException {
-        final long receiverDiscordId = Long.parseLong(commandContext.getArgument("user").getValue().orElseThrow());
+        final long receiverDiscordId = commandContext.getArgument("user").map(Argument::asLong).orElseThrow();
         Optional<Member> receivingMember = commandContext.getGuild()
             .flatMap(guild -> guild.getMemberById(Snowflake.of(receiverDiscordId)))
             .blockOptional();
