@@ -3,7 +3,6 @@ package dev.sbs.simplifiedbot;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.sbs.request.SkyBlockRequest;
 import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
-import dev.sbs.api.data.model.discord.command_data.command_parents.CommandParentModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
@@ -16,10 +15,11 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentSet;
 import dev.sbs.api.util.data.tuple.Pair;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.Command;
+import dev.sbs.discordapi.command.reference.CommandReference;
 import dev.sbs.simplifiedbot.util.ItemCache;
 import dev.sbs.simplifiedbot.util.SimplifiedConfig;
 import discord4j.common.util.Snowflake;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.gateway.ShardInfo;
@@ -27,12 +27,13 @@ import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import discord4j.rest.util.AllowedMentions;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Getter
+@Log4j2
 public final class SimplifiedBot extends DiscordBot {
 
     private ItemCache itemCache;
@@ -47,11 +48,11 @@ public final class SimplifiedBot extends DiscordBot {
     }
 
     @Override
-    protected @NotNull ConcurrentSet<Class<? extends Command>> getCommands() {
+    protected @NotNull ConcurrentSet<Class<? extends CommandReference>> getCommands() {
         return Concurrent.newUnmodifiableSet(
             Reflection.getResources()
                 .filterPackage("dev.sbs.simplifiedbot.command")
-                .getSubtypesOf(Command.class)
+                .getSubtypesOf(CommandReference.class)
         );
     }
 
@@ -71,14 +72,9 @@ public final class SimplifiedBot extends DiscordBot {
     }
 
     @Override
-    protected @NotNull Optional<CommandParentModel> getPrefix() {
-        return SimplifiedApi.getRepositoryOf(CommandParentModel.class).findFirst(CommandParentModel::getKey, "sbs");
-    }
-
-    @Override
     protected void onDatabaseConnected() {
         // Update Emojis
-        this.getLog().info("Updating Emojis");
+        log.info("Updating Emojis");
         ConcurrentList<EmojiModel> allEmojis = SimplifiedApi.getRepositoryOf(EmojiModel.class).findAll();
         SimplifiedApi.getRepositoryOf(GuildSqlModel.class)
             .matchAll(GuildModel::isEmojiServer)
@@ -103,7 +99,7 @@ public final class SimplifiedBot extends DiscordBot {
             });
 
         // Update Caches
-        this.getLog().info("Building Caches");
+        log.info("Building Caches");
         this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockRequest.class).getItemEmojis();
         this.itemCache = new ItemCache();
         this.getItemCache().getAuctionHouse().update();
@@ -124,6 +120,18 @@ public final class SimplifiedBot extends DiscordBot {
             this.getItemCache().getBazaar().update();
             this.getItemCache().getEndedAuctions().update();
         }, 1, 1, TimeUnit.SECONDS);
+    }
+
+    @Override
+    protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
+        log.info("Creating Database Session");
+        SimplifiedApi.getSessionManager().connectSql((SqlConfig) this.getConfig().getDataConfig());
+        log.info(
+            "Database Connected. (Initialized in {}ms, Started in {}ms",
+            SimplifiedApi.getSessionManager().getSession().getInitializationTime(),
+            SimplifiedApi.getSessionManager().getSession().getStartupTime()
+        );
+        this.onDatabaseConnected();
     }
 
     @Override
