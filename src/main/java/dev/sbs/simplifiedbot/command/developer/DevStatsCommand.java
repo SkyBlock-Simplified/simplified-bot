@@ -2,10 +2,13 @@ package dev.sbs.simplifiedbot.command.developer;
 
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
+import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.parameter.Argument;
+import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -33,6 +36,14 @@ public class DevStatsCommand extends SqlSlashCommand {
     }
 
     @Override
+    public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
+        return Concurrent.newUnmodifiableList(
+            Parameter.builder("guild", "Discord Guild Name", Parameter.Type.TEXT)
+                .build()
+        );
+    }
+
+    @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) throws DiscordException {
         Optional<Snowflake> optionalGuildId = Optional.empty();
 
@@ -41,7 +52,7 @@ public class DevStatsCommand extends SqlSlashCommand {
             if (!commandContext.isPrivateChannel())
                 optionalGuildId = commandContext.getGuild().map(Guild::getId).blockOptional();
         } else
-            optionalGuildId = commandContext.getArguments().get(0).getValue().map(Snowflake::of);
+            optionalGuildId = commandContext.getArgument("guild").map(Argument::asSnowflake);
 
         Embed.EmbedBuilder embedBuilder = Embed.builder()
             .withTimestamp(Instant.now())
