@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public final class SimplifiedBot extends DiscordBot {
 
+    private final SqlConfig sqlConfig = new SqlConfig();
     private ItemCache itemCache;
     private SkyBlockEmojis skyBlockEmojis;
 
@@ -44,7 +45,7 @@ public final class SimplifiedBot extends DiscordBot {
     }
 
     private SimplifiedBot() {
-        super(new SimplifiedConfig(new SqlConfig(), "simplified-discord"));
+        super(new SimplifiedConfig("simplified-bot"));
     }
 
     @Override
@@ -125,7 +126,7 @@ public final class SimplifiedBot extends DiscordBot {
     @Override
     protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
         log.info("Creating Database Session");
-        SimplifiedApi.getSessionManager().connectSql((SqlConfig) this.getConfig().getDataConfig());
+        SimplifiedApi.getSessionManager().connectSql(this.getConfig(SimplifiedConfig.class).getSqlConfig());
         log.info(
             "Database Connected. (Initialized in {}ms, Started in {}ms",
             SimplifiedApi.getSessionManager().getSession().getInitializationTime(),
