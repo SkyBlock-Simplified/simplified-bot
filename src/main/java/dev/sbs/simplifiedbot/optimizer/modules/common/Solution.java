@@ -1,11 +1,11 @@
 package dev.sbs.simplifiedbot.optimizer.modules.common;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.PlayerStats;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.AccessoryData;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.ItemData;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.ObjectData;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.PlayerDataHelper;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.AccessoryData;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.ItemData;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.ObjectData;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_item_stats.BonusItemStatModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_reforge_stats.BonusReforgeStatModel;
@@ -32,7 +32,7 @@ public abstract class Solution<T extends ItemEntity> {
 
     @Getter private final ConcurrentList<ReforgeStatModel> allReforgeStatModels = SimplifiedApi.getRepositoryOf(ReforgeStatModel.class).findAll();
     @Getter private final Map<String, Double> computedStats = new ConcurrentMap<>();
-    @Getter private PlayerStats playerStats;
+    @Getter private ProfileStats profileStats;
     @Getter private OptimizerRequest optimizerRequest;
     @Getter private ConcurrentList<StatModel> importantStats;
 
@@ -43,12 +43,12 @@ public abstract class Solution<T extends ItemEntity> {
     protected Solution(@NotNull OptimizerRequest optimizerRequest, @NotNull ConcurrentList<StatModel> importantStats) {
         this.optimizerRequest = optimizerRequest;
         this.importantStats = importantStats;
-        this.playerStats = optimizerRequest.getPlayerStats();
+        this.profileStats = optimizerRequest.getProfileStats();
 
         // Handle Constant Stats
         this.getImportantStats().forEach(statModel -> {
             MutableDouble value = new MutableDouble();
-            value.add(getConstSum(this.getPlayerStats(), statModel)); // Add Player, Accessory and Item Stats
+            value.add(getConstSum(this.getProfileStats(), statModel)); // Add Player, Accessory and Item Stats
             this.getOptimizerRequest().getWeapon().ifPresent(weaponData -> value.add(getConstSum(weaponData, statModel))); // Add Weapon Stats
             this.computedStats.put(statModel.getKey(), value.get());
         });
@@ -76,7 +76,7 @@ public abstract class Solution<T extends ItemEntity> {
 
         // Handle Armor
         this.getOptimizerRequest()
-            .getPlayerStats()
+            .getProfileStats()
             .getArmor()
             .stream()
             .flatMap(Optional::stream)
@@ -103,24 +103,24 @@ public abstract class Solution<T extends ItemEntity> {
 
     public abstract @NotNull List<T> getAvailableItems();
 
-    private static double getConstSum(@NotNull PlayerStats playerStats, @NotNull StatModel statModel) {
+    private static double getConstSum(@NotNull ProfileStats profileStats, @NotNull StatModel statModel) {
         double total = 0.0;
 
         // Player Stats
-        total += Arrays.stream(PlayerStats.Type.values())
-            .filter(PlayerStats.Type::isOptimizerConstant)
-            .mapToDouble(type -> playerStats.getStatsOf(type).get(statModel).getTotal())
+        total += Arrays.stream(ProfileStats.Type.values())
+            .filter(ProfileStats.Type::isOptimizerConstant)
+            .mapToDouble(type -> profileStats.getStatsOf(type).get(statModel).getTotal())
             .sum();
 
         // Armor Stats
-        total += playerStats.getArmor()
+        total += profileStats.getArmor()
             .stream()
             .flatMap(Optional::stream)
             .mapToDouble(armorData -> getDataSum(armorData, statModel, ItemData.Type.values()))
             .sum();
 
         // Accessory Stats
-        total += playerStats.getAccessoryBag()
+        total += profileStats.getAccessoryBag()
             .getFilteredAccessories()
             .stream()
             .mapToDouble(accessoryData -> getDataSum(accessoryData, statModel, AccessoryData.Type.values()))
@@ -221,7 +221,7 @@ public abstract class Solution<T extends ItemEntity> {
                     }
 
                     // Handle Bonus Pet Ability Effects
-                    for (BonusPetAbilityStatModel bonusPetAbilityStatModel : this.getPlayerStats().getBonusPetAbilityStatModels()) {
+                    for (BonusPetAbilityStatModel bonusPetAbilityStatModel : this.getProfileStats().getBonusPetAbilityStatModels()) {
                         if (bonusPetAbilityStatModel.isPercentage()) {
                             if (bonusPetAbilityStatModel.noRequiredItem() && bonusPetAbilityStatModel.noRequiredMobType()) {
                                 thisStat = PlayerDataHelper.handleBonusEffects(
@@ -290,7 +290,7 @@ public abstract class Solution<T extends ItemEntity> {
                     )));
 
                 // Handle Bonus Pet Ability Effects
-                this.getPlayerStats()
+                this.getProfileStats()
                     .getBonusPetAbilityStatModels()
                     .stream()
                     .filter(BonusPetAbilityStatModel::isPercentage)

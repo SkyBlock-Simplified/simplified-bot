@@ -39,7 +39,7 @@ public final class Optimizer extends OptimizerHelper {
             double score = solution.getScore().score().doubleValue();
 
             // Damage Multiplier
-            double combatBonus = optimizerRequest.getPlayerStats().getDamageMultiplier();
+            double combatBonus = optimizerRequest.getProfileStats().getDamageMultiplier();
             double enchantBonus = getEnchantBonus(optimizerRequest);
             double abilityBonus = 0.0;
             double damageMultiplier = 1.0 + (combatBonus + enchantBonus + abilityBonus);
@@ -72,7 +72,7 @@ public final class Optimizer extends OptimizerHelper {
             double score = solution.getScore().score().doubleValue();
 
             // Damage Multiplier
-            double combatBonus = optimizerRequest.getPlayerStats().getDamageMultiplier();
+            double combatBonus = optimizerRequest.getProfileStats().getDamageMultiplier();
             double enchantBonus = getEnchantBonus(optimizerRequest);
             double weaponBonus = 0.0;
             double damageMultiplier = 1.0 + (combatBonus + enchantBonus + weaponBonus);
