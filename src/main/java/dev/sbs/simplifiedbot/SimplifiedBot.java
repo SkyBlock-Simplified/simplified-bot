@@ -11,18 +11,19 @@ import dev.sbs.api.data.sql.SqlConfig;
 import dev.sbs.api.reflection.Reflection;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.collection.concurrent.ConcurrentSet;
 import dev.sbs.api.util.data.tuple.Pair;
+import dev.sbs.api.util.helper.NumberUtil;
+import dev.sbs.api.util.helper.ResourceUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.reference.CommandReference;
+import dev.sbs.discordapi.util.DiscordConfig;
 import dev.sbs.simplifiedbot.util.ItemCache;
-import dev.sbs.simplifiedbot.util.SimplifiedConfig;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
-import discord4j.gateway.ShardInfo;
+import discord4j.core.shard.MemberRequestFilter;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import discord4j.rest.util.AllowedMentions;
@@ -36,40 +37,32 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public final class SimplifiedBot extends DiscordBot {
 
-    private final SqlConfig sqlConfig = new SqlConfig();
     private ItemCache itemCache;
     private SkyBlockEmojis skyBlockEmojis;
 
+    private SimplifiedBot(@NotNull DiscordConfig discordConfig) {
+        super(discordConfig);
+    }
+
     public static void main(final String[] args) {
-        new SimplifiedBot();
-    }
-
-    private SimplifiedBot() {
-        super(new SimplifiedConfig("simplified-bot"));
-    }
-
-    @Override
-    protected @NotNull ConcurrentSet<Class<? extends CommandReference>> getCommands() {
-        return Concurrent.newUnmodifiableSet(
-            Reflection.getResources()
-                .filterPackage("dev.sbs.simplifiedbot.command")
-                .getSubtypesOf(CommandReference.class)
+        new SimplifiedBot(
+            DiscordConfig.builder()
+                .withFileName("config")
+                .withToken(ResourceUtil.getEnv("DISCORD_TOKEN"))
+                .withMainGuildId(652148034448261150L)
+                .withDebugChannelId(ResourceUtil.getEnv("DEVELOPER_ERROR_LOG_CHANNEL_ID").map(NumberUtil::tryParseLong))
+                .withDataConfig(SqlConfig.defaultSql())
+                .withCommands(
+                    Reflection.getResources()
+                        .filterPackage("dev.sbs.simplifiedbot.command")
+                        .getSubtypesOf(CommandReference.class)
+                )
+                .withAllowedMentions(AllowedMentions.suppressEveryone())
+                .withDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES))
+                .withClientPresence(ClientPresence.online(ClientActivity.watching("commands")))
+                .withMemberRequestFilter(MemberRequestFilter.withLargeGuilds())
+                .build()
         );
-    }
-
-    @Override
-    protected @NotNull AllowedMentions getDefaultAllowedMentions() {
-        return AllowedMentions.suppressEveryone();
-    }
-
-    @Override
-    public @NotNull IntentSet getDisabledIntents() {
-        return IntentSet.of(Intent.GUILD_PRESENCES);
-    }
-
-    @Override
-    protected @NotNull ClientPresence getInitialPresence(ShardInfo shardInfo) {
-        return ClientPresence.online(ClientActivity.watching("debugging"));
     }
 
     @Override
@@ -125,14 +118,9 @@ public final class SimplifiedBot extends DiscordBot {
 
     @Override
     protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
-        log.info("Creating Database Session");
-        SimplifiedApi.getSessionManager().connectSql(this.getConfig(SimplifiedConfig.class).getSqlConfig());
-        log.info(
-            "Database Connected. (Initialized in {}ms, Started in {}ms",
-            SimplifiedApi.getSessionManager().getSession().getInitializationTime(),
-            SimplifiedApi.getSessionManager().getSession().getStartupTime()
-        );
-        this.onDatabaseConnected();
+        ResourceUtil.getEnv("HYPIXEL_API_KEY")
+            .map(StringUtil::toUUID)
+            .ifPresent(value -> SimplifiedApi.getKeyManager().add("HYPIXEL_API_KEY", value));
     }
 
     @Override

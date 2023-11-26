@@ -19,15 +19,10 @@ public class OptimizerTest {
 
     private static final PlannerBenchmarkFactory damagePerHitBenchmarker = PlannerBenchmarkFactory.createFromXmlResource("optaplanner/damagePerHitBenchmark.xml");
     private static final PlannerBenchmarkFactory damagePerSecondBenchmarker = PlannerBenchmarkFactory.createFromXmlResource("optaplanner/damagePerSecondBenchmark.xml");
-    private static final SqlConfig sqlConfig;
-
-    static {
-        sqlConfig = new SqlConfig();
-    }
     
     private void initializeDatabase() {
         System.out.println("Database Starting... ");
-        SimplifiedApi.getSessionManager().connectSql(sqlConfig);
+        SimplifiedApi.getSessionManager().connect(SqlConfig.defaultSql());
         System.out.println("Database initialized in " + SimplifiedApi.getSessionManager().getSession().getInitializationTime() + "ms");
         System.out.println("Database started in " + SimplifiedApi.getSessionManager().getSession().getStartupTime() + "ms");
     }
