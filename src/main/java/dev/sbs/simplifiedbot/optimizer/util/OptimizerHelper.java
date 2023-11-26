@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.Data;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.PlayerDataHelper;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.Data;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_item_stats.BonusItemStatModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.enchantment_data.enchantment_stats.EnchantmentStatModel;
@@ -40,7 +40,7 @@ public abstract class OptimizerHelper {
 
     protected static void debugRequest(@NotNull Solution<?> solution, @NotNull OptimizerRequest optimizerRequest) {
         // --- KNOWN PLAYER AND WEAPON STATS ---
-        ConcurrentLinkedMap<String, Double> playerStats = optimizerRequest.getPlayerStats()
+        ConcurrentLinkedMap<String, Double> playerStats = optimizerRequest.getProfileStats()
             .getCombinedStats()
             .stream()
             .filter(entry -> entry.getKey().getOrdinal() <= 6)
@@ -63,7 +63,7 @@ public abstract class OptimizerHelper {
         playerStats.forEach((key, value) -> System.out.println("Player & Weapon: " + key + ": " + value));
 
         // --- OPTIMIZER PLAYER STATS ---
-        ConcurrentLinkedMap<String, Double> stats = optimizerRequest.getPlayerStats()
+        ConcurrentLinkedMap<String, Double> stats = optimizerRequest.getProfileStats()
             .getCombinedStats(true)
             .stream()
             .filter(entry -> entry.getKey().getOrdinal() <= 6)
@@ -98,7 +98,7 @@ public abstract class OptimizerHelper {
     }
 
     public static double getArmorBonus(@NotNull OptimizerRequest optimizerRequest) {
-        return optimizerRequest.getPlayerStats()
+        return optimizerRequest.getProfileStats()
             .getArmor()
             .stream()
             .flatMap(Optional::stream)
@@ -119,7 +119,7 @@ public abstract class OptimizerHelper {
     }
 
     public static double getPetAbilityBonus(@NotNull OptimizerRequest optimizerRequest) {
-        return optimizerRequest.getPlayerStats()
+        return optimizerRequest.getProfileStats()
             .getBonusPetAbilityStatModels()
             .stream()
             .filter(BonusPetAbilityStatModel::isPercentage)
@@ -138,7 +138,7 @@ public abstract class OptimizerHelper {
     }
 
     public static double getEnchantBonus(@NotNull OptimizerRequest optimizerRequest) {
-        double enchantBonus = optimizerRequest.getPlayerStats()
+        double enchantBonus = optimizerRequest.getProfileStats()
             .getArmor()
             .stream()
             .flatMap(Optional::stream)
@@ -200,7 +200,7 @@ public abstract class OptimizerHelper {
             .collect(Collectors.groupingBy(it -> it))
             .entrySet()
             .stream()
-            .collect(Concurrent.toMap(Map.Entry::getKey, it -> it.getValue().size()));
+            .collect(Concurrent.toMap(Map.Entry::getKey, o2 -> o2.getValue().size()));
     }
 
     public static double getWeaponBonus(@NotNull OptimizerRequest optimizerRequest) {
