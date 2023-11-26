@@ -81,7 +81,7 @@ public abstract class OptimizerHelper {
             )
             .collect(Concurrent.toLinkedMap(Double::sum))
             .stream()
-            .map(entry -> Pair.of((String)entry.getKey(), entry.getValue()))
+            .map(Pair::from)
             .forEach(statEntry -> stats.put(statEntry.getKey(), stats.getOrDefault(statEntry.getKey(), 0.0) + statEntry.getValue()))
         );
 

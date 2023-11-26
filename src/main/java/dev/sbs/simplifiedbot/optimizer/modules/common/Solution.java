@@ -28,13 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Getter
 public abstract class Solution<T extends ItemEntity> {
 
-    @Getter private final ConcurrentList<ReforgeStatModel> allReforgeStatModels = SimplifiedApi.getRepositoryOf(ReforgeStatModel.class).findAll();
-    @Getter private final Map<String, Double> computedStats = new ConcurrentMap<>();
-    @Getter private ProfileStats profileStats;
-    @Getter private OptimizerRequest optimizerRequest;
-    @Getter private ConcurrentList<StatModel> importantStats;
+    private final ConcurrentList<ReforgeStatModel> allReforgeStatModels = SimplifiedApi.getRepositoryOf(ReforgeStatModel.class).findAll();
+    private final Map<String, Double> computedStats = new ConcurrentMap<>();
+    private ProfileStats profileStats;
+    private OptimizerRequest optimizerRequest;
+    private ConcurrentList<StatModel> importantStats;
 
     protected Solution() {
 

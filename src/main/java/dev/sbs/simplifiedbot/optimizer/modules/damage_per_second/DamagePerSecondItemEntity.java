@@ -19,15 +19,15 @@ import java.util.UUID;
 /**
  * A {@link PlanningEntity} to which Optaplanner allocates a {@link ReforgeFact}
  */
+@Getter
 @PlanningEntity
 public final class DamagePerSecondItemEntity implements ItemEntity {
 
     @PlanningId
-    @Getter private UUID uniqueId;
-    @Getter private ItemTypeModel type;
-    @Getter private ObjectData<?> objectData;
+    private UUID uniqueId;
+    private ItemTypeModel type;
+    private ObjectData<?> objectData;
 
-    @Getter
     @Setter
     @PlanningVariable(
             valueRangeProviderRefs = {"reforgeRange"},
@@ -35,7 +35,6 @@ public final class DamagePerSecondItemEntity implements ItemEntity {
     )
     private ReforgeFact reforgeFact;
 
-    @Getter
     @ValueRangeProvider(id = "reforgeRange")
     @ProblemFactCollectionProperty
     private List<ReforgeFact> availableReforges;

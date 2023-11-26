@@ -21,18 +21,16 @@ import java.util.List;
 /**
  * Holds every {@link DamagePerSecondItemEntity} and {@link ReforgeFact}
  */
+@Getter
 @PlanningSolution
 public class DamagePerSecondSolution extends Solution<DamagePerSecondItemEntity> {
 
-    @Getter
     @PlanningEntityCollectionProperty
     private List<DamagePerSecondItemEntity> availableItems;
 
-    @Getter
     @ProblemFactCollectionProperty
     private List<ReforgeFact> allReforges;
 
-    @Getter
     @PlanningScore
     private SimpleBigDecimalScore score;
 

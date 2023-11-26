@@ -4,10 +4,10 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.request.HypixelSkyBlockRequest;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.ItemData;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.util.NbtContent;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.PlayerStats;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.ItemData;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.PlayerDataHelper;
 import dev.sbs.api.client.sbs.request.MojangRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
@@ -17,12 +17,10 @@ import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.minecraft.nbt.tags.collection.CompoundTag;
 import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
-import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.api.util.builder.Builder;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
-import dev.sbs.simplifiedbot.optimizer.exception.OptimizerException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -32,32 +30,28 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+@Getter
 public final class OptimizerRequest {
 
     private static final ConcurrentList<SkyBlockIsland.Storage> WEAPON_STORAGE = Concurrent.newList(SkyBlockIsland.Storage.INVENTORY, SkyBlockIsland.Storage.ENDER_CHEST);
-    @Getter private final SkyBlockIsland.Member member;
-    @Getter private final PlayerStats playerStats;
-    @Getter private final ConcurrentMap<String, Double> expressionVariables;
-    @Getter private final Optional<WeaponData> weapon;
-    @Getter private final ConcurrentList<ReforgeStatModel> allowedReforges;
-    @Getter private final Type type;
-    @Getter private final OptimizerMobTypeModel mobType;
-    @Getter private final double playerDamage;
-    @Getter private final double weaponDamage;
-    @Getter private final double weaponBonus;
+    private final SkyBlockIsland.Member member;
+    private final ProfileStats profileStats;
+    private final ConcurrentMap<String, Double> expressionVariables;
+    private final Optional<WeaponData> weapon;
+    private final ConcurrentList<ReforgeStatModel> allowedReforges;
+    private final Type type;
+    private final OptimizerMobTypeModel mobType;
+    private final double playerDamage;
+    private final double weaponDamage;
+    private final double weaponBonus;
 
     private OptimizerRequest(OptimizerRequestBuilder optimizerRequestBuilder) {
         SkyBlockIsland island = optimizerRequestBuilder.skyBlockProfilesResponse.getIslands().get(optimizerRequestBuilder.islandIndex);
-        Optional<SkyBlockIsland.Member> optionalMember = island.getMember(optimizerRequestBuilder.uniqueId);
-        SkyBlockIsland.Member member = optionalMember.orElseThrow(
-            () -> SimplifiedException.of(OptimizerException.class)
-                .withMessage("No member found!")
-                .build()
-        );
+        SkyBlockIsland.Member member = island.getMembers().get(optimizerRequestBuilder.uniqueId);
 
         this.member = member;
-        this.playerStats = island.getPlayerStats(member);
-        this.expressionVariables = this.playerStats.getExpressionVariables();
+        this.profileStats = island.getProfileStats(member);
+        this.expressionVariables = this.profileStats.getExpressionVariables();
         this.allowedReforges = optimizerRequestBuilder.allowedReforges;
         this.type = optimizerRequestBuilder.type;
         this.mobType = optimizerRequestBuilder.mobType;
@@ -97,7 +91,7 @@ public final class OptimizerRequest {
         }
 
         this.weapon = optionalWeapon;
-        this.playerDamage = this.getPlayerStats().getCombinedStats().get(OptimizerHelper.DAMAGE_STAT_MODEL).getTotal();
+        this.playerDamage = this.getProfileStats().getCombinedStats().get(OptimizerHelper.DAMAGE_STAT_MODEL).getTotal();
         this.weaponDamage = OptimizerHelper.getWeaponDamage(this);
         this.weaponBonus = OptimizerHelper.getWeaponBonus(this);
     }
@@ -130,7 +124,7 @@ public final class OptimizerRequest {
         }
 
         public OptimizerRequestBuilder withIsland(@NotNull ProfileModel profileModel) {
-            return this.withIsland(this.skyBlockProfilesResponse.getIsland(profileModel)
+            return this.withIsland(this.skyBlockProfilesResponse.getIsland(profileModel.getKey())
                 .map(skyBlockIsland -> skyBlockProfilesResponse.getIslands().indexOf(skyBlockIsland))
                 .orElse(0)
             );
@@ -187,7 +181,7 @@ public final class OptimizerRequest {
 
             // Add Pet Ability Stats
             this.getOptimizerRequest()
-                .getPlayerStats()
+                .getProfileStats()
                 .getBonusPetAbilityStatModels()
                 .stream()
                 .filter(BonusPetAbilityStatModel::notPercentage)
@@ -216,7 +210,7 @@ public final class OptimizerRequest {
             super.calculateBonus(expressionVariables);
 
             this.getOptimizerRequest()
-                .getPlayerStats()
+                .getProfileStats()
                 .getBonusPetAbilityStatModels()
                 .stream()
                 .filter(BonusPetAbilityStatModel::isPercentage)
