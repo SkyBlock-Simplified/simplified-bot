@@ -7,6 +7,7 @@ import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.optaplanner.core.api.solver.SolverManager;
 import org.optaplanner.core.config.constructionheuristic.ConstructionHeuristicPhaseConfig;
 import org.optaplanner.core.config.constructionheuristic.ConstructionHeuristicType;
@@ -18,17 +19,18 @@ import org.optaplanner.core.config.solver.termination.TerminationConfig;
 
 import java.util.UUID;
 
+@Getter
 public final class OptimizerSolver {
 
-    @Getter private final Class<? extends ItemEntity> itemEntityClass;
-    @Getter private final Class<? extends Solution<? extends ItemEntity>> solutionClass;
-    @Getter private final Class<? extends Calculator<? extends ItemEntity, ? extends Solution<? extends ItemEntity>>> calculatorClass;
-    @Getter private final String moveThreadCount;
-    @Getter private final long terminateAfterSecondsUnimproved;
-    @Getter private final long terminateAfterSecondsSpent;
-    @Getter private final EnvironmentMode environmentMode;
-    @Getter private final ConstructionHeuristicType heuristicType;
-    @Getter private final LocalSearchType searchType;
+    private final Class<? extends ItemEntity> itemEntityClass;
+    private final Class<? extends Solution<? extends ItemEntity>> solutionClass;
+    private final Class<? extends Calculator<? extends ItemEntity, ? extends Solution<? extends ItemEntity>>> calculatorClass;
+    private final String moveThreadCount;
+    private final long terminateAfterSecondsUnimproved;
+    private final long terminateAfterSecondsSpent;
+    private final EnvironmentMode environmentMode;
+    private final ConstructionHeuristicType heuristicType;
+    private final LocalSearchType searchType;
 
     private OptimizerSolver(SolverBuilder solverBuilder) {
         this.itemEntityClass = solverBuilder.itemEntityClass;
@@ -117,7 +119,7 @@ public final class OptimizerSolver {
         }
 
         @Override
-        public OptimizerSolver build() {
+        public @NotNull OptimizerSolver build() {
             return new OptimizerSolver(this);
         }
 
