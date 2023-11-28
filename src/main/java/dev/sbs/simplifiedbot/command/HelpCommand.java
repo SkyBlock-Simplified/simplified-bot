@@ -12,7 +12,9 @@ import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.Field;
+import dev.sbs.discordapi.response.embed.structure.Author;
+import dev.sbs.discordapi.response.embed.structure.Field;
+import dev.sbs.discordapi.response.embed.structure.Footer;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
@@ -41,10 +43,14 @@ public class HelpCommand extends SqlSlashCommand {
                     Page.builder()
                         .withEmbeds(
                             Embed.builder()
-                                .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                .withAuthor(
+                                    Author.builder()
+                                        .withName("Help")
+                                        .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                        .build()
+                                )
                                 .withTitle("Categories")
                                 .withDescription("Select a category in the select menu to view a list of commands.")
-                                .withTimestamp(Instant.now())
                                 .withColor(Color.DARK_GRAY)
                                 .withFields(
                                     SimplifiedApi.getRepositoryOf(CommandCategoryModel.class)
@@ -57,6 +63,11 @@ public class HelpCommand extends SqlSlashCommand {
                                             .build()
                                         )
                                         .collect(Concurrent.toList())
+                                )
+                                .withFooter(
+                                    Footer.builder()
+                                        .withTimestamp(Instant.now())
+                                        .build()
                                 )
                                 .build()
                         )
@@ -74,16 +85,19 @@ public class HelpCommand extends SqlSlashCommand {
                                     )
                                     .withEmbeds(
                                         Embed.builder()
-                                            .withAuthor("Help", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                            .withAuthor(
+                                                Author.builder()
+                                                    .withName("Help")
+                                                    .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                                    .build()
+                                            )
                                             .withTitle("Category :: %s", commandCategory.getName())
                                             .withDescription(commandCategory.getDescription())
-                                            .withTimestamp(Instant.now())
                                             .withColor(Color.DARK_GRAY)
                                             .withFields(
                                                 this.getDiscordBot()
                                                     .getCommandRegistrar()
                                                     .getSlashCommands()
-                                                    .values()
                                                     .stream()
                                                     .filter(command -> command.getCategory()
                                                         .map(category -> category.getName().equals(commandCategory.getKey()))
@@ -98,13 +112,17 @@ public class HelpCommand extends SqlSlashCommand {
                                                     )
                                                     .collect(Concurrent.toList())
                                             )
+                                            .withFooter(
+                                                Footer.builder()
+                                                    .withTimestamp(Instant.now())
+                                                    .build()
+                                            )
                                             .build()
                                     )
                                     .withPages(
                                         this.getDiscordBot()
                                             .getCommandRegistrar()
                                             .getSlashCommands()
-                                            .values()
                                             .stream()
                                             .filter(command -> command.getCategory()
                                                 .map(category -> category.getName().equals(commandCategory.getKey()))
