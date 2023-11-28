@@ -8,7 +8,7 @@ import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildRep
 import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.util.data.tuple.Pair;
+import dev.sbs.api.util.data.tuple.pair.Pair;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;

@@ -8,8 +8,8 @@ import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.util.collection.search.function.SearchFunction;
-import dev.sbs.api.util.data.tuple.Pair;
+import dev.sbs.api.util.collection.search.SearchFunction;
+import dev.sbs.api.util.data.tuple.pair.Pair;
 import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
@@ -18,7 +18,8 @@ import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.Field;
+import dev.sbs.discordapi.response.embed.structure.Author;
+import dev.sbs.discordapi.response.embed.structure.Field;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
@@ -96,7 +97,12 @@ public class RepCheckCommand extends SqlSlashCommand {
                     Page.builder()
                         .withEmbeds(
                             Embed.builder()
-                                .withAuthor(userName, receivingMember.get().getAvatarUrl())
+                                .withAuthor(
+                                    Author.builder()
+                                        .withName(userName)
+                                        .withIconUrl(receivingMember.get().getAvatarUrl())
+                                        .build()
+                                )
                                 .withColor(Color.YELLOW)
                                 .withTitle("Reputation")
                                 .withDescription(

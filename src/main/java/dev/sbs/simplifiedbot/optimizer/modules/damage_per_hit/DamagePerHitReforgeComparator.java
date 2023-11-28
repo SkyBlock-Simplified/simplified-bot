@@ -3,7 +3,7 @@ package dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit;
 import dev.sbs.api.data.model.skyblock.stats.StatModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.util.data.tuple.Pair;
+import dev.sbs.api.util.data.tuple.pair.Pair;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeComparator;
 
 import java.util.Map;
