@@ -3,8 +3,8 @@ package dev.sbs.simplifiedbot.util;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.request.HypixelPlayerRequest;
 import dev.sbs.api.client.hypixel.request.HypixelSkyBlockRequest;
-import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
-import dev.sbs.api.client.hypixel.response.hypixel.HypixelStatusResponse;
+import dev.sbs.api.client.hypixel.response.hypixel.implementation.HypixelGuild;
+import dev.sbs.api.client.hypixel.response.hypixel.implementation.HypixelSession;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.SkyBlockAuction;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
@@ -24,6 +24,7 @@ import dev.sbs.discordapi.context.CommandContext;
 import dev.sbs.simplifiedbot.SimplifiedBot;
 import discord4j.common.util.Snowflake;
 import lombok.Getter;
+import org.intellij.lang.annotations.PrintFormat;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -37,10 +38,11 @@ public final class SkyBlockUser {
     @Getter private final SkyBlockEmojis skyBlockEmojis;
     @Getter private final ConcurrentList<SkyBlockAuction> auctions;
     @Getter private final ItemCache.AuctionHouse auctionHouse;
-    @Getter private final Optional<HypixelGuildResponse.Guild> guild;
-    @Getter private final HypixelStatusResponse.Session session;
+    @Getter private final Optional<HypixelGuild> guild;
+    @Getter private final HypixelSession session;
 
-    public SkyBlockUser(CommandContext<?> commandContext) {
+    @PrintFormat
+    public SkyBlockUser(@NotNull CommandContext<?> commandContext) {
         this.auctionHouse = ((SimplifiedBot) commandContext.getDiscordBot()).getItemCache().getAuctionHouse();
         this.skyBlockEmojis = ((SimplifiedBot) commandContext.getDiscordBot()).getSkyBlockEmojis();
         Optional<String> optionalPlayerID = commandContext.getArgument("name").map(Argument::asString);
@@ -86,33 +88,33 @@ public final class SkyBlockUser {
                     .build();
             }
 
-            optionalSkyBlockIsland = this.profiles.getIsland(profileModel);
+            optionalSkyBlockIsland = this.profiles.getIsland(profileModel.getKey());
         }
 
-        this.selectedIsland = optionalSkyBlockIsland.orElse(this.profiles.getLastPlayed());
+        this.selectedIsland = optionalSkyBlockIsland.orElse(this.profiles.getSelected());
     }
 
-    public ConcurrentList<SkyBlockIsland> getIslands() {
+    public @NotNull ConcurrentList<SkyBlockIsland> getIslands() {
         return this.profiles.getIslands();
     }
 
     public Optional<SkyBlockIsland> getIsland(@NotNull ProfileModel profileModel) {
-        return this.profiles.getIsland(profileModel);
+        return this.profiles.getIsland(profileModel.getKey());
     }
 
-    public SkyBlockIsland getLastPlayed() {
-        return this.profiles.getLastPlayed();
+    public @NotNull SkyBlockIsland getSelected() {
+        return this.profiles.getSelected();
     }
 
-    public SkyBlockIsland.Member getMember() {
-        return this.getMember(this.getMojangProfile().getUniqueId()).orElseThrow(); // Will never get here
+    public @NotNull SkyBlockIsland.Member getMember() {
+        return this.getMember(this.getMojangProfile().getUniqueId());
     }
 
-    public Optional<SkyBlockIsland.Member> getMember(UUID uniqueId) {
-        return this.selectedIsland.getMember(uniqueId);
+    public SkyBlockIsland.Member getMember(@NotNull UUID uniqueId) {
+        return this.selectedIsland.getMembers().get(uniqueId);
     }
 
-    public boolean isVerified(Snowflake userId) {
+    public boolean isVerified(@NotNull Snowflake userId) {
         return SimplifiedApi.getRepositoryOf(UserModel.class).matchFirst(userModel -> userModel.getDiscordIds().contains(userId.asLong())).isPresent();
     }
 

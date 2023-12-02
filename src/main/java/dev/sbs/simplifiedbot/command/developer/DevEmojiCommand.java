@@ -9,7 +9,7 @@ import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
-import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
+import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
@@ -29,7 +29,7 @@ public class DevEmojiCommand extends SqlSlashCommand {
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) throws DiscordException {
         return Mono.fromRunnable(() -> SimplifiedApi.getRepositoryOf(GuildModel.class)
             .matchAll(GuildModel::isEmojiServer)
-            .sorted(GuildModel::getId)
+            .sorted(GuildModel::getSubmittedAt)
             .forEach(guildModel -> this.getDiscordBot()
                 .getGateway()
                 .getGuildById(Snowflake.of(guildModel.getGuildId()))

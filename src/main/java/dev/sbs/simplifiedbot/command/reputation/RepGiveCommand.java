@@ -14,7 +14,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
+import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
@@ -114,9 +114,10 @@ public class RepGiveCommand extends SqlSlashCommand {
             Parameter.builder("type", "Type of the given Rep", Parameter.Type.WORD)
                 .isRequired()
                 .withChoices(
-                    SimplifiedApi.getRepositoryOf(GuildReputationTypeModel.class).findAll()
-                        .stream().map(reputationType -> Pair.of(reputationType.getName(), reputationType.getKey().toLowerCase()))
-                        .collect(Concurrent.toLinkedMap())
+                    SimplifiedApi.getRepositoryOf(GuildReputationTypeModel.class)
+                        .stream()
+                        .map(reputationType -> Pair.of(reputationType.getName(), reputationType.getKey().toLowerCase()))
+                        .collect(Concurrent.toWeakLinkedMap())
                 )
                 .build(),
             Parameter.builder("reason", "Reason for the Rep", Parameter.Type.TEXT)
