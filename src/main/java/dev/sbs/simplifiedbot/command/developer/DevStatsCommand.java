@@ -9,10 +9,12 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
+import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.response.embed.structure.Author;
+import dev.sbs.discordapi.response.embed.structure.Footer;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.util.base.DiscordHelper;
 import dev.sbs.discordapi.util.exception.DiscordException;
@@ -54,9 +56,13 @@ public class DevStatsCommand extends SqlSlashCommand {
         } else
             optionalGuildId = commandContext.getArgument("guild").map(Argument::asSnowflake);
 
-        Embed.EmbedBuilder embedBuilder = Embed.builder()
-            .withTimestamp(Instant.now())
-            .withColor(Color.DARK_GRAY);
+        Embed.Builder builder = Embed.builder()
+            .withColor(Color.DARK_GRAY)
+            .withFooter(
+                Footer.builder()
+                    .withTimestamp(Instant.now())
+                    .build()
+            );
 
         optionalGuildId.flatMap(guildId -> this.getDiscordBot()
             .getGateway()
@@ -68,10 +74,17 @@ public class DevStatsCommand extends SqlSlashCommand {
             ConcurrentList<Channel> channels = guild.getChannels().toStream().collect(Concurrent.toList());
             boolean animatedIcon = guild.getData().icon().map(value -> value.startsWith("a_")).orElse(false);
 
-            embedBuilder.withAuthor("Server Information", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+            builder.withAuthor(
+                    Author.builder()
+                        .withName("Server Information")
+                        .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                        .build()
+                )
                 .withFooter(
-                    guild.getVanityUrlCode().map(vanityCode -> String.format("https://discord.gg/%s", vanityCode)).orElse(""),
-                    this.getDiscordBot().getMainGuild().getIconUrl(discord4j.rest.util.Image.Format.GIF)
+                    Footer.builder()
+                        .withText(guild.getVanityUrlCode().map(vanityCode -> String.format("https://discord.gg/%s", vanityCode)).orElse(""))
+                        .withIconUrl(this.getDiscordBot().getMainGuild().getIconUrl(discord4j.rest.util.Image.Format.GIF))
+                        .build()
                 )
                 .withTitle("Server :: %s", guild.getName())
                 .withDescription(guild.getDescription())
@@ -122,7 +135,7 @@ public class DevStatsCommand extends SqlSlashCommand {
                 );
 
             if (ListUtil.notEmpty(guild.getFeatures())) {
-                embedBuilder.withField(
+                builder.withField(
                     "Features",
                     StringUtil.join(
                         guild.getFeatures()
@@ -133,14 +146,14 @@ public class DevStatsCommand extends SqlSlashCommand {
                     )
                 );
             }
-        }, () -> embedBuilder.withDescription("This isn't a Guild."));
+        }, () -> builder.withDescription("This isn't a Guild."));
 
         return commandContext.reply(
             Response.builder()
                 .isInteractable(false)
                 .withPages(
                     Page.builder()
-                        .withEmbeds(embedBuilder.build())
+                        .withEmbeds(builder.build())
                         .build()
                 )
                 .build()

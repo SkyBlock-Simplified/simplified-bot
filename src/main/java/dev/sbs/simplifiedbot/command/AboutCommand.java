@@ -1,21 +1,23 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.data.model.discord.sbs_data.sbs_developers.SbsDeveloperModel;
 import dev.sbs.api.data.model.discord.sbs_data.sbs_legacy_donors.SbsLegacyDonorModel;
+import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
-import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
+import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.Field;
+import dev.sbs.discordapi.response.embed.structure.Author;
+import dev.sbs.discordapi.response.embed.structure.Field;
+import dev.sbs.discordapi.response.embed.structure.Footer;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.handler.item.CollectionItemHandler;
-import dev.sbs.discordapi.response.page.item.FieldItem;
+import dev.sbs.discordapi.response.page.item.field.FieldItem;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -48,9 +50,13 @@ public class AboutCommand extends SqlSlashCommand {
                         )
                         .withEmbeds(
                             Embed.builder()
-                                .withAuthor("Bot Information", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                .withAuthor(
+                                    Author.builder()
+                                        .withName("Bot Information")
+                                        .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                        .build()
+                                )
                                 .withTitle("About :: General")
-                                .withTimestamp(Instant.now())
                                 .withColor(Color.DARK_GRAY)
                                 .withDescription(
                                     "The official SkyBlock Simplified bot. Optimize your gear with `/optimizer`, " +
@@ -69,9 +75,10 @@ public class AboutCommand extends SqlSlashCommand {
                                         .withName("Developers")
                                         .withValue(
                                             StringUtil.join(
-                                                SimplifiedApi.getRepositoryOf(SbsDeveloperModel.class)
+                                                SimplifiedApi.getRepositoryOf(UserModel.class)
+                                                    .matchAll(UserModel::isDeveloper)
                                                     .stream()
-                                                    .map(sbsDeveloperModel -> String.format("<@%s>", sbsDeveloperModel.getDiscordId()))
+                                                    .map(userModel -> String.format("<@%s>", userModel.getDiscordIds().get(0)))
                                                     .collect(Concurrent.toList()),
                                                 "\n"
                                             )
@@ -103,6 +110,11 @@ public class AboutCommand extends SqlSlashCommand {
                                         The full details of available perks can be seen on the Patreon page in the menu below.
                                         Sign up here: N/A"""
                                 )
+                                .withFooter(
+                                    Footer.builder()
+                                        .withTimestamp(Instant.now())
+                                        .build()
+                                )
                                 .build()
                         )
                         .withPages(
@@ -116,22 +128,29 @@ public class AboutCommand extends SqlSlashCommand {
                                 )
                                 .withEmbeds(
                                     Embed.builder()
-                                        .withAuthor("Bot Information", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                        .withAuthor(
+                                            Author.builder()
+                                                .withName("Bot Information")
+                                                .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                                .build()
+                                        )
                                         .withTitle("About :: Donors")
-                                        .withTimestamp(Instant.now())
                                         .withColor(Color.DARK_GRAY)
                                         .withDescription("A big thank you goes out to those who donated early on in the development of the SkyBlock Simplified discord and bot!")
+                                        .withFooter(
+                                            Footer.builder()
+                                                .withTimestamp(Instant.now())
+                                                .build()
+                                        )
                                         .build()
                                 )
                                 .withItemHandler(
                                     CollectionItemHandler.builder(SbsLegacyDonorModel.class)
                                         .withItems(SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class).findAll())
-                                        .withTransformer(stream -> stream
-                                            .map(legacyDonorModel -> FieldItem.builder()
-                                                .withLabel(String.format("<@%s>", legacyDonorModel.getDiscordId()))
-                                                .withData(String.format("$%.2f", legacyDonorModel.getAmount()))
-                                                .build()
-                                            )
+                                        .withTransformer((legacyDonorModel, index, size) -> FieldItem.builder()
+                                            .withLabel(String.format("<@%s>", legacyDonorModel.getDiscordId()))
+                                            .withData(String.format("$%.2f", legacyDonorModel.getAmount()))
+                                            .build()
                                         )
                                         .build()
                                 )
@@ -146,11 +165,20 @@ public class AboutCommand extends SqlSlashCommand {
                                 )
                                 .withEmbeds(
                                     Embed.builder()
-                                        .withAuthor("Bot Information", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                        .withAuthor(
+                                            Author.builder()
+                                                .withName("Bot Information")
+                                                .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                                .build()
+                                        )
                                         .withTitle("About :: Patreon")
-                                        .withTimestamp(Instant.now())
                                         .withColor(Color.DARK_GRAY)
                                         .withDescription("Perks will be listed here as they become available. The Patreon system is not live yet.")
+                                        .withFooter(
+                                            Footer.builder()
+                                                .withTimestamp(Instant.now())
+                                                .build()
+                                        )
                                         .build()
                                 )
                                 .build()

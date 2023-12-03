@@ -3,6 +3,7 @@ package dev.sbs.simplifiedbot.command;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.request.HypixelPlayerRequest;
 import dev.sbs.api.client.hypixel.response.hypixel.HypixelPlayerResponse;
+import dev.sbs.api.client.hypixel.response.hypixel.implementation.HypixelSocial;
 import dev.sbs.api.client.sbs.request.MojangRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.users.UserModel;
@@ -11,7 +12,7 @@ import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.util.data.tuple.Pair;
+import dev.sbs.api.util.data.tuple.pair.Pair;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
@@ -19,10 +20,11 @@ import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
+import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
@@ -48,7 +50,7 @@ public class LinkCommand extends SqlSlashCommand {
         String hypixelDiscordTag = hypixelPlayerResponse.getPlayer()
             .getSocialMedia()
             .getLinks()
-            .getOrDefault(HypixelPlayerResponse.SocialMedia.Service.DISCORD, "");
+            .getOrDefault(HypixelSocial.Type.DISCORD, "");
 
         if (interactDiscordTag.equals(hypixelDiscordTag)) {
             UserModel userModel = SimplifiedApi.getRepositoryOf(UserModel.class).matchFirstOrNull(user ->
@@ -112,7 +114,12 @@ public class LinkCommand extends SqlSlashCommand {
                         Page.builder()
                             .withEmbeds(
                                 Embed.builder()
-                                    .withAuthor("Hypixel Verification", getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                    .withAuthor(
+                                        Author.builder()
+                                            .withName("Hypixel Verification")
+                                            .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                            .build()
+                                    )
                                     .withDescription(message)
                                     .build()
                             )
