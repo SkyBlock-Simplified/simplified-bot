@@ -9,15 +9,16 @@ import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.util.data.tuple.Pair;
+import dev.sbs.api.util.data.tuple.pair.Pair;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
+import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.Field;
-import dev.sbs.discordapi.response.embed.Footer;
+import dev.sbs.discordapi.response.embed.structure.Author;
+import dev.sbs.discordapi.response.embed.structure.Field;
+import dev.sbs.discordapi.response.embed.structure.Footer;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -66,29 +67,38 @@ public abstract class SkyBlockUserCommand extends SqlSlashCommand {
                         .findAll()
                         .stream()
                         .map(profileModel -> Pair.of(profileModel.getName(), profileModel.getKey()))
-                        .collect(Concurrent.toMap())
+                        .collect(Concurrent.toWeakLinkedMap())
                 )
                 .build()
         );
     }
 
-    protected static Embed.EmbedBuilder getEmbedBuilder(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, String identifier) {
+    protected static Embed.Builder getEmbedBuilder(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, String identifier) {
         return Embed.builder()
-            .withAuthor(mojangProfile.getUsername())
+            .withAuthor(
+                Author.builder()
+                    .withName(mojangProfile.getUsername())
+                    .build()
+            )
             .withColor(Color.DARK_GRAY)
             .withTitle(StringUtil.capitalizeFully(identifier.replace("_", " ")))
-            .withTimestamp(Instant.now())
-            .withFooter(Footer.of(
-                skyBlockIsland.getProfileModel()
-                    .map(ProfileModel::getName)
-                    .orElse(""),
-                skyBlockIsland.getProfileModel()
-                    .map(ProfileModel::getEmoji)
-                    .flatMap(Emoji::of)
-                    .map(Emoji::getUrl)
-            ))
+            .withFooter(
+                Footer.builder()
+                    .withText(skyBlockIsland.getProfileName().orElse(""))
+                    .withIconUrl(
+                        skyBlockIsland.getProfileName()
+                            .flatMap(profileName -> SimplifiedApi.getRepositoryOf(ProfileModel.class)
+                                .findFirst(ProfileModel::getKey, profileName)
+                            )
+                            .map(ProfileModel::getEmoji)
+                            .flatMap(Emoji::of)
+                            .map(Emoji::getUrl)
+                    )
+                    .withTimestamp(Instant.now())
+                    .build()
+            )
             .withThumbnailUrl(
-                "https://crafatar.com/avatars/{0}?overlay",
+                "https://crafatar.com/avatars/%s?overlay",
                 mojangProfile.getUniqueId()
             );
     }
@@ -108,7 +118,7 @@ public abstract class SkyBlockUserCommand extends SqlSlashCommand {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
         String emojiReplyLine = getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
-        Embed.EmbedBuilder startBuilder;
+        Embed.Builder startBuilder;
 
         if (details) {
             startBuilder = getEmbedBuilder(mojangProfile, skyBlockIsland, value)
