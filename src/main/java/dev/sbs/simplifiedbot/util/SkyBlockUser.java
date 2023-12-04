@@ -8,6 +8,7 @@ import dev.sbs.api.client.hypixel.response.hypixel.implementation.HypixelSession
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.SkyBlockAuction;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.member.Member;
 import dev.sbs.api.client.sbs.request.MojangRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
 import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
@@ -106,11 +107,11 @@ public final class SkyBlockUser {
         return this.profiles.getSelected();
     }
 
-    public @NotNull SkyBlockIsland.Member getMember() {
+    public @NotNull Member getMember() {
         return this.getMember(this.getMojangProfile().getUniqueId());
     }
 
-    public SkyBlockIsland.Member getMember(@NotNull UUID uniqueId) {
+    public Member getMember(@NotNull UUID uniqueId) {
         return this.selectedIsland.getMembers().get(uniqueId);
     }
 
