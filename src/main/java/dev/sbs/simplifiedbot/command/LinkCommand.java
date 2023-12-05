@@ -109,7 +109,7 @@ public class LinkCommand extends SqlSlashCommand {
 
             return commandContext.reply(
                 Response.builder()
-                    .isInteractable(false)
+                    .isNotInteractable()
                     .withPages(
                         Page.builder()
                             .withEmbeds(
