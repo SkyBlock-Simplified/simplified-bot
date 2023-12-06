@@ -123,9 +123,4 @@ public final class SimplifiedBot extends DiscordBot {
             .ifPresent(value -> SimplifiedApi.getKeyManager().add("HYPIXEL_API_KEY", value));
     }
 
-    @Override
-    protected void onGatewayDisconnected() {
-        SimplifiedApi.getSessionManager().disconnect();
-    }
-
 }
