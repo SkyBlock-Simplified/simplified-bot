@@ -21,7 +21,7 @@ import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
 import dev.sbs.discordapi.command.parameter.Argument;
-import dev.sbs.discordapi.context.CommandContext;
+import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
 import dev.sbs.simplifiedbot.SimplifiedBot;
 import discord4j.common.util.Snowflake;
 import lombok.Getter;
@@ -43,7 +43,7 @@ public final class SkyBlockUser {
     @Getter private final HypixelSession session;
 
     @PrintFormat
-    public SkyBlockUser(@NotNull CommandContext<?> commandContext) {
+    public SkyBlockUser(@NotNull SlashCommandContext commandContext) {
         this.auctionHouse = ((SimplifiedBot) commandContext.getDiscordBot()).getItemCache().getAuctionHouse();
         this.skyBlockEmojis = ((SimplifiedBot) commandContext.getDiscordBot()).getSkyBlockEmojis();
         Optional<String> optionalPlayerID = commandContext.getArgument("name").map(Argument::asString);
