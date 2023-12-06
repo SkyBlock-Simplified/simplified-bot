@@ -155,7 +155,10 @@ public class HelpCommand extends SqlSlashCommand {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            Parameter.builder("command", "The command you want help with.", Parameter.Type.WORD)
+            Parameter.builder()
+                .withName("command")
+                .withDescription("The command you want help with.")
+                .withType(Parameter.Type.WORD)
                 .build()
         );
     }

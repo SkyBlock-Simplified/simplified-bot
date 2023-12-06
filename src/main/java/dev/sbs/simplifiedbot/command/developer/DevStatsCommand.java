@@ -40,7 +40,10 @@ public class DevStatsCommand extends SqlSlashCommand {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            Parameter.builder("guild", "Discord Guild Name", Parameter.Type.TEXT)
+            Parameter.builder()
+                .withName("guild")
+                .withDescription("Discord Guild Name")
+                .withType(Parameter.Type.TEXT)
                 .build()
         );
     }

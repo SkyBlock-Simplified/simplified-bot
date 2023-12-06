@@ -56,15 +56,21 @@ public abstract class SkyBlockUserCommand extends SqlSlashCommand {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            Parameter.builder("name", "Minecraft Username or UUID", Parameter.Type.WORD)
+            Parameter.builder()
+                .withName("name")
+                .withDescription("Minecraft Username or UUID")
+                .withType(Parameter.Type.WORD)
                 .withValidator((argument, commandContext) -> StringUtil.isUUID(argument) || MOJANG_NAME.matcher(argument).matches())
                 .isRequired()
                 .build(),
-            Parameter.builder("profile", "SkyBlock Profile Name", Parameter.Type.WORD)
+            Parameter.builder()
+                .withName("profile")
+                .withDescription("SkyBlock Profile Name")
+                .withType(Parameter.Type.WORD)
                 .withValidator((argument, commandContext) -> SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent())
                 .withChoices(
                     SimplifiedApi.getRepositoryOf(ProfileModel.class)
-                        .findAll()
+                        .findCached()
                         .stream()
                         .map(profileModel -> Pair.of(profileModel.getName(), profileModel.getKey()))
                         .collect(Concurrent.toWeakLinkedMap())

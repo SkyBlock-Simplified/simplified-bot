@@ -108,10 +108,16 @@ public class RepGiveCommand extends SqlSlashCommand {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            Parameter.builder("user", "Discord User", Parameter.Type.USER)
+            Parameter.builder()
+                .withName("user")
+                .withDescription("SkyBlock Profile Name")
+                .withType(Parameter.Type.USER)
                 .isRequired()
                 .build(),
-            Parameter.builder("type", "Type of the given Rep", Parameter.Type.WORD)
+            Parameter.builder()
+                .withName("type")
+                .withDescription("Type of the given Rep")
+                .withType(Parameter.Type.WORD)
                 .isRequired()
                 .withChoices(
                     SimplifiedApi.getRepositoryOf(GuildReputationTypeModel.class)
@@ -120,7 +126,10 @@ public class RepGiveCommand extends SqlSlashCommand {
                         .collect(Concurrent.toWeakLinkedMap())
                 )
                 .build(),
-            Parameter.builder("reason", "Reason for the Rep", Parameter.Type.TEXT)
+            Parameter.builder()
+                .withName("reason")
+                .withDescription("Reason for the Rep")
+                .withType(Parameter.Type.TEXT)
                 .isRequired()
                 .build()
         );

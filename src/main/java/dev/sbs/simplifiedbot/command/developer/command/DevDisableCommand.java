@@ -26,10 +26,17 @@ public class DevDisableCommand extends SqlSlashCommand {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            Parameter.builder("command", "The command to disable.", Parameter.Type.WORD)
+            Parameter.builder()
+                .withName("command")
+                .withDescription("The command to disable.")
+                .withType(Parameter.Type.WORD)
                 .isRequired()
                 .build(),
-            Parameter.builder("reason", "The reason the command is being disabled.", Parameter.Type.TEXT).build()
+            Parameter.builder()
+                .withName("reason")
+                .withDescription("The reason the command is being disabled.")
+                .withType(Parameter.Type.TEXT)
+                .build()
         );
     }
 

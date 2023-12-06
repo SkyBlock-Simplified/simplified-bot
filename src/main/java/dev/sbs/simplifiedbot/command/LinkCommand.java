@@ -154,7 +154,10 @@ public class LinkCommand extends SqlSlashCommand {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            Parameter.builder("name", "Minecraft Username or UUID", Parameter.Type.WORD)
+            Parameter.builder()
+                .withName("name")
+                .withDescription("Minecraft Username or UUID")
+                .withType(Parameter.Type.WORD)
                 .withValidator((argument, commandContext) -> StringUtil.isUUID(argument) || PlayerCommand.MOJANG_NAME.matcher(argument).matches())
                 .isRequired()
                 .build()

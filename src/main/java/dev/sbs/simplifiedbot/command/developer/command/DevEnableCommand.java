@@ -26,7 +26,10 @@ public class DevEnableCommand extends SqlSlashCommand {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            Parameter.builder("command", "The command to enable.", Parameter.Type.WORD)
+            Parameter.builder()
+                .withName("command")
+                .withDescription("The command to enable.")
+                .withType(Parameter.Type.WORD)
                 .isRequired()
                 .build()
         );
