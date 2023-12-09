@@ -15,7 +15,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
@@ -154,7 +154,10 @@ public class RepCheckCommand extends SqlSlashCommand {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            Parameter.builder("user", "Discord User", Parameter.Type.USER)
+            Parameter.builder()
+                .withName("user")
+                .withDescription("Discord User")
+                .withType(Parameter.Type.USER)
                 .isRequired()
                 .build()
         );

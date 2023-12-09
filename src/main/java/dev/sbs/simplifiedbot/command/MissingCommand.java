@@ -8,7 +8,7 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.search.SearchFunction;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
-import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;

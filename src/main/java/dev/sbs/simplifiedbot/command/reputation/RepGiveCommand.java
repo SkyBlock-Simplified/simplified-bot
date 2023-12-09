@@ -14,7 +14,7 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;

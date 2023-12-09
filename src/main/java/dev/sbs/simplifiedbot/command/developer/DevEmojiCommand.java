@@ -9,7 +9,7 @@ import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
-import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;

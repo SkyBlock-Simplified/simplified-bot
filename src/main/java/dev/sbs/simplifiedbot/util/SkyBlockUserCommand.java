@@ -13,7 +13,7 @@ import dev.sbs.api.util.data.tuple.pair.Pair;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
