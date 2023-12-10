@@ -17,10 +17,10 @@ import dev.sbs.api.util.helper.ResourceUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.reference.CommandReference;
+import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.util.DiscordConfig;
 import dev.sbs.simplifiedbot.util.ItemCache;
 import discord4j.common.util.Snowflake;
-import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.shard.MemberRequestFilter;
@@ -45,28 +45,35 @@ public final class SimplifiedBot extends DiscordBot {
     }
 
     public static void main(final String[] args) {
-        new SimplifiedBot(
-            DiscordConfig.builder()
-                .withFileName("config")
-                .withToken(ResourceUtil.getEnv("DISCORD_TOKEN"))
-                .withMainGuildId(652148034448261150L)
-                .withDebugChannelId(ResourceUtil.getEnv("DEVELOPER_ERROR_LOG_CHANNEL_ID").map(NumberUtil::tryParseLong))
-                .withDataConfig(SqlConfig.defaultSql())
-                .withCommands(
-                    Reflection.getResources()
-                        .filterPackage("dev.sbs.simplifiedbot.command")
-                        .getSubtypesOf(CommandReference.class)
-                )
-                .withAllowedMentions(AllowedMentions.suppressEveryone())
-                .withDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES))
-                .withClientPresence(ClientPresence.online(ClientActivity.watching("commands")))
-                .withMemberRequestFilter(MemberRequestFilter.withLargeGuilds())
-                .build()
-        );
+        DiscordConfig.builder()
+            .withFileName("config")
+            .withToken(ResourceUtil.getEnv("DISCORD_TOKEN"))
+            .withMainGuildId(652148034448261150L)
+            .withDebugChannelId(ResourceUtil.getEnv("DEVELOPER_ERROR_LOG_CHANNEL_ID").map(NumberUtil::tryParseLong))
+            .withDataConfig(SqlConfig.defaultSql())
+            .withEmojiLocator(key -> SimplifiedApi.getRepositoryOf(EmojiModel.class)
+                .findFirst(EmojiModel::getKey, key)
+                .flatMap(Emoji::of)
+            )
+            .withCommands(
+                Reflection.getResources()
+                    .filterPackage("dev.sbs.simplifiedbot.command")
+                    .getSubtypesOf(CommandReference.class)
+            )
+            .withAllowedMentions(AllowedMentions.suppressEveryone())
+            .withDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES))
+            .withClientPresence(ClientPresence.online(ClientActivity.watching("commands")))
+            .withMemberRequestFilter(MemberRequestFilter.withLargeGuilds())
+            .onGatewayConnected(gatewayDiscordClient -> ResourceUtil.getEnv("HYPIXEL_API_KEY")
+                .map(StringUtil::toUUID)
+                .ifPresent(value -> SimplifiedApi.getKeyManager().add("HYPIXEL_API_KEY", value))
+            )
+            //.onDatabaseConnected(SimplifiedBot::onDatabaseConnected)
+            .build()
+            .createBot(SimplifiedBot::new);
     }
 
-    @Override
-    protected void onDatabaseConnected() {
+    private void onDatabaseConnected() {
         // Update Emojis
         log.info("Updating Emojis");
         ConcurrentList<EmojiModel> allEmojis = SimplifiedApi.getRepositoryOf(EmojiModel.class).findAll();
@@ -114,13 +121,6 @@ public final class SimplifiedBot extends DiscordBot {
             this.getItemCache().getBazaar().update();
             this.getItemCache().getEndedAuctions().update();
         }, 1, 1, TimeUnit.SECONDS);
-    }
-
-    @Override
-    protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
-        ResourceUtil.getEnv("HYPIXEL_API_KEY")
-            .map(StringUtil::toUUID)
-            .ifPresent(value -> SimplifiedApi.getKeyManager().add("HYPIXEL_API_KEY", value));
     }
 
 }
