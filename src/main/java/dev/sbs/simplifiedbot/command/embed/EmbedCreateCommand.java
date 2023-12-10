@@ -16,15 +16,6 @@ public class EmbedCreateCommand extends SqlSlashCommand {
 
     @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
-//        Page.builder()
-//            .withItems(
-//                FooterItem.builder()
-//                    .isEditable()
-//                    .withName("yee haw") //TODO: yee haw
-//                    .build()
-//            )
-//            .build();
-
         return Mono.empty();
     }
 
