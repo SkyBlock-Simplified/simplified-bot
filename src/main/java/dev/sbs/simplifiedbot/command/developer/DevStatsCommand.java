@@ -16,7 +16,7 @@ import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.embed.structure.Footer;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.util.base.DiscordHelper;
+import dev.sbs.discordapi.util.DiscordReference;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
@@ -143,7 +143,7 @@ public class DevStatsCommand extends SqlSlashCommand {
                     StringUtil.join(
                         guild.getFeatures()
                             .stream()
-                            .map(DiscordHelper::capitalizeFully)
+                            .map(DiscordReference::capitalizeFully)
                             .collect(Concurrent.toList()),
                         ", "
                     )
