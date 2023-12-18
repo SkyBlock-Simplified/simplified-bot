@@ -4,12 +4,13 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.hypixel.request.HypixelSkyBlockRequest;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.member.Member;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.ItemData;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.util.NbtContent;
-import dev.sbs.api.client.sbs.request.MojangRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
+import dev.sbs.api.client.sbs.request.SbsMojangRequest;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
@@ -33,8 +34,7 @@ import java.util.UUID;
 @Getter
 public final class OptimizerRequest {
 
-    private static final ConcurrentList<SkyBlockIsland.Storage> WEAPON_STORAGE = Concurrent.newList(SkyBlockIsland.Storage.INVENTORY, SkyBlockIsland.Storage.ENDER_CHEST);
-    private final SkyBlockIsland.Member member;
+    private final Member member;
     private final ProfileStats profileStats;
     private final ConcurrentMap<String, Double> expressionVariables;
     private final Optional<WeaponData> weapon;
@@ -47,7 +47,7 @@ public final class OptimizerRequest {
 
     private OptimizerRequest(OptimizerRequestBuilder optimizerRequestBuilder) {
         SkyBlockIsland island = optimizerRequestBuilder.skyBlockProfilesResponse.getIslands().get(optimizerRequestBuilder.islandIndex);
-        SkyBlockIsland.Member member = island.getMembers().get(optimizerRequestBuilder.uniqueId);
+        Member member = island.getMembers().get(optimizerRequestBuilder.uniqueId);
 
         this.member = member;
         this.profileStats = island.getProfileStats(member);
@@ -97,13 +97,13 @@ public final class OptimizerRequest {
     }
 
     public static OptimizerRequestBuilder of(String username) {
-        MojangProfileResponse mojangProfileResponse = SimplifiedApi.getWebApi(MojangRequest.class).getProfileFromUsername(username);
-        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getWebApi(HypixelSkyBlockRequest.class).getProfiles(mojangProfileResponse.getUniqueId());
+        MojangProfileResponse mojangProfileResponse = SimplifiedApi.getApiRequest(SbsMojangRequest.class).getProfileFromUsername(username);
+        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getApiRequest(HypixelSkyBlockRequest.class).getProfiles(mojangProfileResponse.getUniqueId());
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, mojangProfileResponse.getUniqueId());
     }
 
     public static OptimizerRequestBuilder of(UUID uniqueId) {
-        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getWebApi(HypixelSkyBlockRequest.class).getProfiles(uniqueId);
+        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getApiRequest(HypixelSkyBlockRequest.class).getProfiles(uniqueId);
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, uniqueId);
     }
 
