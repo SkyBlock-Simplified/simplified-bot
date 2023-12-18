@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.sbs.request.SkyBlockRequest;
+import dev.sbs.api.client.sbs.request.SbsRequest;
 import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
@@ -103,7 +103,7 @@ public final class SimplifiedBot extends DiscordBot {
 
         // Update Caches
         log.info("Building Caches");
-        this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockRequest.class).getItemEmojis();
+        this.skyBlockEmojis = SimplifiedApi.getApiRequest(SbsRequest.class).getItemEmojis();
         this.itemCache = new ItemCache();
         this.getItemCache().getAuctionHouse().update();
         this.getItemCache().getBazaar().update();
@@ -111,7 +111,7 @@ public final class SimplifiedBot extends DiscordBot {
 
         // Schedule SkyBlock Emoji Cache Updates
         this.getScheduler().scheduleAsync(
-            () -> this.skyBlockEmojis = SimplifiedApi.getWebApi(SkyBlockRequest.class).getItemEmojis(),
+            () -> this.skyBlockEmojis = SimplifiedApi.getApiRequest(SbsRequest.class).getItemEmojis(),
             10,
             10,
             TimeUnit.MINUTES

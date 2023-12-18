@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.request.HypixelSkyBlockRequest;
+import dev.sbs.api.client.hypixel.request.HypixelRequest;
 import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.member.Member;
@@ -9,8 +9,8 @@ import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profil
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.ItemData;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
 import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.util.NbtContent;
+import dev.sbs.api.client.sbs.request.SbsRequest;
 import dev.sbs.api.client.sbs.response.MojangProfileResponse;
-import dev.sbs.api.client.sbs.request.SbsMojangRequest;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
@@ -97,13 +97,13 @@ public final class OptimizerRequest {
     }
 
     public static OptimizerRequestBuilder of(String username) {
-        MojangProfileResponse mojangProfileResponse = SimplifiedApi.getApiRequest(SbsMojangRequest.class).getProfileFromUsername(username);
-        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getApiRequest(HypixelSkyBlockRequest.class).getProfiles(mojangProfileResponse.getUniqueId());
+        MojangProfileResponse mojangProfileResponse = SimplifiedApi.getApiRequest(SbsRequest.class).getProfileFromUsername(username);
+        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getApiRequest(HypixelRequest.class).getProfiles(mojangProfileResponse.getUniqueId());
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, mojangProfileResponse.getUniqueId());
     }
 
     public static OptimizerRequestBuilder of(UUID uniqueId) {
-        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getApiRequest(HypixelSkyBlockRequest.class).getProfiles(uniqueId);
+        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getApiRequest(HypixelRequest.class).getProfiles(uniqueId);
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, uniqueId);
     }
 
