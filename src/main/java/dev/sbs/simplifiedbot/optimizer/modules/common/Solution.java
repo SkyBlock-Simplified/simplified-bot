@@ -1,11 +1,11 @@
 package dev.sbs.simplifiedbot.optimizer.modules.common;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.AccessoryData;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.ItemData;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.ObjectData;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.AccessoryData;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.ItemData;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.ObjectData;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_item_stats.BonusItemStatModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_reforge_stats.BonusReforgeStatModel;

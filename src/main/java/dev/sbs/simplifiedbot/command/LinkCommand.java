@@ -1,11 +1,11 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.request.HypixelPlayerRequest;
-import dev.sbs.api.client.hypixel.response.hypixel.HypixelPlayerResponse;
-import dev.sbs.api.client.hypixel.response.hypixel.implementation.HypixelSocial;
-import dev.sbs.api.client.sbs.request.MojangRequest;
-import dev.sbs.api.client.sbs.response.MojangProfileResponse;
+import dev.sbs.api.client.impl.hypixel.request.HypixelRequest;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.HypixelPlayerResponse;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelSocial;
+import dev.sbs.api.client.impl.sbs.request.SbsRequest;
+import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.discord.users.UserSqlModel;
 import dev.sbs.api.data.sql.SqlRepository;
@@ -42,9 +42,9 @@ public class LinkCommand extends SqlSlashCommand {
     @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         String playerID = commandContext.getArgument("name").map(Argument::asString).orElseThrow(); // Will never throw
-        MojangRequest mojangRequest = SimplifiedApi.getWebApi(MojangRequest.class);
+        SbsRequest mojangRequest = SimplifiedApi.getApiRequest(SbsRequest.class);
         MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
-        HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getPlayer(mojangProfileResponse.getUniqueId());
+        HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getApiRequest(HypixelRequest.class).getPlayer(mojangProfileResponse.getUniqueId());
         String interactDiscordTag = commandContext.getInteractUser().getTag();
 
         String hypixelDiscordTag = hypixelPlayerResponse.getPlayer()

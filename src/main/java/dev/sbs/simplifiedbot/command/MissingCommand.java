@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.AccessoryData;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.AccessoryData;
 import dev.sbs.api.data.model.skyblock.accessory_data.accessories.AccessoryModel;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.search.SearchFunction;

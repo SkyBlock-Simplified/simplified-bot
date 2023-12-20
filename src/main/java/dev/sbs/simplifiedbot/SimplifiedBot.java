@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.sbs.request.SbsRequest;
-import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
+import dev.sbs.api.client.impl.sbs.request.SbsRequest;
+import dev.sbs.api.client.impl.sbs.response.SkyBlockEmojis;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;

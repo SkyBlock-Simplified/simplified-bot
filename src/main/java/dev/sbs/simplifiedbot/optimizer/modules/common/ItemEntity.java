@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.modules.common;
 
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.ObjectData;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.ObjectData;
 import dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel;
 import dev.sbs.api.data.model.skyblock.rarities.RarityModel;
 

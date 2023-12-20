@@ -1,16 +1,16 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.request.HypixelRequest;
-import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.member.Member;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.ItemData;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.util.NbtContent;
-import dev.sbs.api.client.sbs.request.SbsRequest;
-import dev.sbs.api.client.sbs.response.MojangProfileResponse;
+import dev.sbs.api.client.impl.hypixel.request.HypixelRequest;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.SkyBlockProfilesResponse;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.Member;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.ItemData;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.NbtContent;
+import dev.sbs.api.client.impl.sbs.request.SbsRequest;
+import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
