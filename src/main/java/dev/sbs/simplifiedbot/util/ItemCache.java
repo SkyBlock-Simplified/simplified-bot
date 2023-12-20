@@ -113,7 +113,7 @@ public class ItemCache {
                         if (skyBlockAuctionsPageResponse.getLastUpdated().getRealTime() > lastUpdated)
                             lastUpdated = skyBlockAuctionsPageResponse.getLastUpdated().getRealTime();
                     } catch (HypixelApiException hypixelApiException) {
-                        if (hypixelApiException.getResponse().getStatus().getCode() == 404)
+                        if (hypixelApiException.getStatus().getCode() == 404)
                             break;
                         else
                             throw hypixelApiException;
