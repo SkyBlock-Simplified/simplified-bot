@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.sbs.request.SbsRequest;
-import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
+import dev.sbs.api.client.impl.sbs.request.SbsRequest;
+import dev.sbs.api.client.impl.sbs.response.SkyBlockEmojis;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
@@ -81,7 +81,6 @@ public final class SimplifiedBot extends DiscordBot {
         ConcurrentList<EmojiModel> allEmojis = SimplifiedApi.getRepositoryOf(EmojiModel.class).findAll();
         SimplifiedApi.getRepositoryOf(GuildSqlModel.class)
             .matchAll(GuildModel::isEmojiServer)
-            .stream()
             .flatMap(guildModel -> this.getGateway()
                 .getGuildEmojis(Snowflake.of(guildModel.getGuildId()))
                 .filter(guildEmoji -> allEmojis.stream().noneMatch(emojiModel -> guildEmoji.getId().asLong() == emojiModel.getEmojiId()))

@@ -1,16 +1,16 @@
 package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.request.HypixelRequest;
-import dev.sbs.api.client.hypixel.response.hypixel.implementation.HypixelGuild;
-import dev.sbs.api.client.hypixel.response.hypixel.implementation.HypixelSession;
-import dev.sbs.api.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.SkyBlockAuction;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.member.Member;
-import dev.sbs.api.client.sbs.request.SbsRequest;
-import dev.sbs.api.client.sbs.response.MojangProfileResponse;
-import dev.sbs.api.client.sbs.response.SkyBlockEmojis;
+import dev.sbs.api.client.impl.hypixel.request.HypixelRequest;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelGuild;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelSession;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.SkyBlockProfilesResponse;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.SkyBlockAuction;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.Member;
+import dev.sbs.api.client.impl.sbs.request.SbsRequest;
+import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
+import dev.sbs.api.client.impl.sbs.response.SkyBlockEmojis;
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.SimplifiedException;
