@@ -4,6 +4,7 @@ import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.ProfileStats;
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.AccessoryData;
 import dev.sbs.api.data.model.skyblock.accessory_data.accessories.AccessoryModel;
+import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.search.SearchFunction;
 import dev.sbs.discordapi.DiscordBot;
@@ -34,7 +35,9 @@ public class MissingCommand extends SkyBlockUserCommand {
     @Override
     protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
         ProfileStats profileStats = skyBlockUser.getSelectedIsland().getProfileStats(skyBlockUser.getMember());
-        ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class).matchAll(accessoryModel -> accessoryModel.getItem().isObtainable());
+        ConcurrentList<AccessoryModel> allAccessories = SimplifiedApi.getRepositoryOf(AccessoryModel.class)
+            .matchAll(accessoryModel -> accessoryModel.getItem().isObtainable())
+            .collect(Concurrent.toList());
 
         return commandContext.reply(
             Response.builder()
@@ -110,7 +113,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                     SearchFunction.Match.ANY,
                                     accessoryModel -> accessoryModel.getFamily().isStatsStackable(),
                                     accessoryModel -> accessoryModel.getFamily().isReforgesStackable()
-                                ))
+                                ).collect(Concurrent.toList()))
                                 .withFilters((accessoryModel, index, size) -> !profileStats.getAccessoryBag()
                                     .getFilteredAccessories()
                                     .contains(accessoryData -> accessoryData.getAccessory().equals(accessoryModel), true)

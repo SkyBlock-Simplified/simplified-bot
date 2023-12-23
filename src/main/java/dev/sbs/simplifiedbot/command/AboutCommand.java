@@ -36,7 +36,6 @@ public class AboutCommand extends SqlSlashCommand {
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         return commandContext.reply(
             Response.builder()
-                .replyMention()
                 .isInteractable()
                 .withTimeToLive(60)
                 .withPages(
@@ -77,7 +76,6 @@ public class AboutCommand extends SqlSlashCommand {
                                             StringUtil.join(
                                                 SimplifiedApi.getRepositoryOf(UserModel.class)
                                                     .matchAll(UserModel::isDeveloper)
-                                                    .stream()
                                                     .map(userModel -> String.format("<@%s>", userModel.getDiscordIds().get(0)))
                                                     .collect(Concurrent.toList()),
                                                 "\n"

@@ -9,8 +9,8 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.collection.search.SearchFunction;
-import dev.sbs.api.util.data.tuple.pair.Pair;
 import dev.sbs.api.util.helper.ListUtil;
+import dev.sbs.api.util.mutable.tuple.pair.Pair;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Argument;
@@ -62,7 +62,8 @@ public class RepCheckCommand extends SqlSlashCommand {
 
         // Get reputation types for current Guild
         ConcurrentList<GuildReputationTypeModel> reputationTypes = SimplifiedApi.getRepositoryOf(GuildReputationTypeModel.class)
-            .findAll(SearchFunction.combine(GuildReputationTypeModel::getGuild, GuildModel::getGuildId), commandContext.getGuildId().orElseThrow());
+            .findAll(SearchFunction.combine(GuildReputationTypeModel::getGuild, GuildModel::getGuildId), commandContext.getGuildId().orElseThrow())
+            .collect(Concurrent.toList());
 
         // Check if reputation types have been created
         if (ListUtil.isEmpty(reputationTypes))
@@ -76,6 +77,7 @@ public class RepCheckCommand extends SqlSlashCommand {
                         Pair.of(GuildReputationModel::getType, reputationType),
                         Pair.of(GuildReputationModel::getReceiverDiscordId, receiverDiscordId)
                     )
+                    .collect(Concurrent.toList())
             ))
             .collect(Concurrent.toMap());
 
