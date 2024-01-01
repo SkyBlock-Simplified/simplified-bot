@@ -16,8 +16,8 @@ import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.embed.structure.Field;
 import dev.sbs.discordapi.response.embed.structure.Footer;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.handler.item.CollectionItemHandler;
-import dev.sbs.discordapi.response.page.item.field.FieldItem;
+import dev.sbs.discordapi.response.page.handler.ItemHandler;
+import dev.sbs.discordapi.response.page.item.field.StringItem;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -143,11 +143,11 @@ public class AboutCommand extends SqlSlashCommand {
                                         .build()
                                 )
                                 .withItemHandler(
-                                    CollectionItemHandler.builder(SbsLegacyDonorModel.class)
+                                    ItemHandler.builder(SbsLegacyDonorModel.class)
                                         .withItems(SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class).findAll())
-                                        .withTransformer((legacyDonorModel, index, size) -> FieldItem.builder()
-                                            .withLabel(String.format("<@%s>", legacyDonorModel.getDiscordId()))
-                                            .withData(String.format("$%.2f", legacyDonorModel.getAmount()))
+                                        .withTransformer((legacyDonorModel, index, size) -> StringItem.builder()
+                                            .withLabel("<@%s>", legacyDonorModel.getDiscordId())
+                                            .withValue("$%.2f", legacyDonorModel.getAmount())
                                             .build()
                                         )
                                         .build()
