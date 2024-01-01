@@ -7,7 +7,7 @@ import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiabl
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.interaction.deferrable.application.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.application.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -36,7 +36,6 @@ public class HelpCommand extends SqlSlashCommand {
         return commandContext.reply(
             Response.builder()
                 .withTimeToLive(60)
-                .replyMention()
                 .isInteractable()
                 .isEphemeral()
                 .withPages(
