@@ -70,7 +70,6 @@ public abstract class SkyBlockUserCommand extends SqlSlashCommand {
                 .withValidator((argument, commandContext) -> SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent())
                 .withChoices(
                     SimplifiedApi.getRepositoryOf(ProfileModel.class)
-                        .findCached()
                         .stream()
                         .map(profileModel -> Pair.of(profileModel.getName(), profileModel.getKey()))
                         .collect(Concurrent.toWeakLinkedMap())
