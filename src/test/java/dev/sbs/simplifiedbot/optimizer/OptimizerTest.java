@@ -23,8 +23,8 @@ public class OptimizerTest {
     private void initializeDatabase() {
         System.out.println("Database Starting... ");
         SimplifiedApi.getSessionManager().connect(SqlConfig.defaultSql());
-        System.out.println("Database initialized in " + SimplifiedApi.getSessionManager().getSession().getInitializationTime() + "ms");
-        System.out.println("Database started in " + SimplifiedApi.getSessionManager().getSession().getStartupTime() + "ms");
+        System.out.println("Database initialized in " + SimplifiedApi.getSessionManager().getSession().getInitialization() + "ms");
+        System.out.println("Database started in " + SimplifiedApi.getSessionManager().getSession().getStartup() + "ms");
     }
 
     private static final String profileName = "PINEAPPLE";
