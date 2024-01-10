@@ -1,18 +1,21 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.SkyBlockAuction;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.account.Banking;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Dungeon;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.JacobsFarming;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Skill;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Slayer;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.pets.Pet;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.util.Experience;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.playerstats.data.AccessoryData;
-import dev.sbs.api.client.sbs.response.MojangProfileResponse;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelGuild;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.SkyBlockAuction;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.EnhancedSkyBlockIsland;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.JacobsContest;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.Slayer;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.account.Banking;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.dungeon.Dungeon;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.EnhancedMember;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.pet.EnhancedPet;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.pet.Pet;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.AccessoryData;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.Experience;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.skill.Skill;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.weight.Weight;
+import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.accessory_data.accessory_enrichments.AccessoryEnrichmentModel;
 import dev.sbs.api.data.model.skyblock.collection_data.collection_items.CollectionItemModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_classes.DungeonClassModel;
@@ -30,22 +33,24 @@ import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.util.collection.search.function.SearchFunction;
-import dev.sbs.api.util.helper.StreamUtil;
+import dev.sbs.api.util.collection.search.SearchFunction;
 import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.util.stream.StreamUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
-import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
-import dev.sbs.discordapi.response.embed.Field;
+import dev.sbs.discordapi.response.embed.structure.Field;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.handler.item.CollectionItemHandler;
-import dev.sbs.discordapi.response.page.handler.item.ItemHandler;
-import dev.sbs.discordapi.response.page.item.FieldItem;
+import dev.sbs.discordapi.response.page.handler.ItemHandler;
+import dev.sbs.discordapi.response.page.handler.search.Search;
+import dev.sbs.discordapi.response.page.handler.sorter.Sorter;
 import dev.sbs.discordapi.response.page.item.Item;
+import dev.sbs.discordapi.response.page.item.field.StringItem;
 import dev.sbs.discordapi.util.DiscordDate;
+import dev.sbs.discordapi.util.DiscordReference;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
@@ -68,35 +73,31 @@ public class PlayerCommand extends SkyBlockUserCommand {
         return commandContext.reply(
             Response.builder()
                 .isInteractable()
-                .replyMention()
                 .withTimeToLive(30)
                 .withPages(buildPages(skyBlockUser))
                 .build()
         );
     }
 
-    public static @NotNull ConcurrentList<Page> buildPages(@NotNull SkyBlockUser skyBlockUser) {
+    public @NotNull ConcurrentList<Page> buildPages(@NotNull SkyBlockUser skyBlockUser) {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asPreSpacedFormat).orElse("");
         String emojiReplyLine = getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asPreSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
-        SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
-        SkyBlockIsland.Member member = skyBlockUser.getMember();
-        int uniqueMinions = skyBlockIsland.getMinions()
-            .stream()
-            .mapToInt(minion -> minion.getUnlocked().size())
-            .sum();
+        EnhancedSkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland().asEnhanced();
+        EnhancedMember member = skyBlockUser.getMember().asEnhanced();
+        int uniqueMinions = skyBlockIsland.getUniqueMinions();
 
         // Weights
-        Experience.Weight totalWeight = member.getTotalWeight();
-        ConcurrentMap<Skill, Experience.Weight> skillWeight = member.getSkillWeight();
-        ConcurrentMap<Slayer, Experience.Weight> slayerWeight = member.getSlayerWeight();
-        ConcurrentMap<Dungeon, Experience.Weight> dungeonWeight = member.getDungeonWeight();
-        ConcurrentMap<Dungeon.Class, Experience.Weight> dungeonClassWeight = member.getDungeonClassWeight();
+        Weight totalWeight = member.getTotalWeight();
+        ConcurrentMap<Skill.Type, Weight> skillWeight = member.getSkillWeight();
+        ConcurrentMap<Slayer.Type, Weight> slayerWeight = member.getSlayerWeight();
+        ConcurrentMap<Dungeon.Type, Weight> dungeonWeight = member.getDungeonWeight();
+        ConcurrentMap<Dungeon.Class.Type, Weight> dungeonClassWeight = member.getDungeonClassWeight();
 
         return Concurrent.newList(
             Page.builder()
-                .withOption(getOptionBuilder("stats").withEmoji(Emoji.of(skyBlockIsland.getProfileModel().map(ProfileModel::getEmoji).get())).build())
+                .withOption(getOptionBuilder("stats").withEmoji(Emoji.of(skyBlockIsland.getProfileTypeModel().map(ProfileModel::getEmoji).get())).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "stats")
                         .withFields(
@@ -112,8 +113,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     emojiReplyStem,
                                     emojiReplyEnd,
                                     skyBlockUser.getSession().isOnline() ? "Online" : "Offline",
-                                    member.getDeathCount(),
-                                    skyBlockUser.getGuild().map(HypixelGuildResponse.Guild::getName).orElse("None")
+                                    member.getPlayerData().getDeathCount(),
+                                    skyBlockUser.getGuild().map(HypixelGuild::getName).orElse("None")
                                 )
                                 .isInline()
                                 .build(),
@@ -128,7 +129,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     emojiReplyStem,
                                     emojiReplyEnd,
                                     skyBlockIsland.getBanking().map(Banking::getBalance).orElse(0.0),
-                                    member.getPurse()
+                                    member.getCurrencies().getPurse()
                                 )
                                 .isInline()
                                 .build(),
@@ -146,7 +147,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                                     .map(shopProfileUpgradeModel -> String.format(
                                                         "%s: %s / %s",
                                                         shopProfileUpgradeModel.getName(),
-                                                        skyBlockIsland.getCommunityUpgrades()
+                                                        skyBlockIsland.getEnhancedCommunityUpgrades()
                                                             .map(communityUpgrades -> communityUpgrades.getHighestTier(shopProfileUpgradeModel))
                                                             .orElse(0),
                                                         shopProfileUpgradeModel.getMaxLevel()
@@ -165,8 +166,8 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withName("Minions")
                                 .withValue(
                                     """
-                                        {0}Slots: {2}
-                                        {1}Uniques: {3}
+                                        %1$sSlots: %3$s
+                                        %2$sUniques: %4$s
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
@@ -174,7 +175,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .matchLast(minionUniqueModel -> uniqueMinions >= minionUniqueModel.getUniqueCrafts())
                                         .map(MinionUniqueModel::getPlaceable)
                                         .orElse(0) +
-                                        skyBlockIsland.getCommunityUpgrades()
+                                        skyBlockIsland.getEnhancedCommunityUpgrades()
                                             .stream()
                                             .mapToInt(communityUpgrades -> SimplifiedApi.getRepositoryOf(ShopProfileUpgradeModel.class)
                                                 .findFirst(ShopProfileUpgradeModel::getKey, "MINION_SLOTS")
@@ -198,12 +199,16 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         mojangProfile,
                         skyBlockIsland,
                         "skills",
-                        member.getSkills(),
+                        member.getPlayerData()
+                            .getSkills()
+                            .stream()
+                            .map(skill -> skill.asEnhanced(member.getJacobsContest()))
+                            .collect(Concurrent.toList()),
                         member.getSkillAverage(),
                         member.getSkillExperience(),
                         member.getSkillProgressPercentage(),
-                        skill -> skill.getType().getName(),
-                        skill -> Emoji.of(skill.getType().getEmoji()),
+                        skill -> skill.getTypeModel().getName(),
+                        skill -> Emoji.of(skill.getTypeModel().getEmoji()),
                         true
                     )
                 )
@@ -215,12 +220,16 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         mojangProfile,
                         skyBlockIsland,
                         "slayers",
-                        member.getSlayers().inverse(),
+                        member.getSlayer()
+                            .getBosses()
+                            .stream()
+                            .map(Slayer.Boss::asEnhanced)
+                            .collect(Concurrent.toList()),
                         member.getSlayerAverage(),
                         member.getSlayerExperience(),
                         member.getSlayerProgressPercentage(),
-                        slayer -> slayer.getType().getName(),
-                        slayer -> Emoji.of(slayer.getType().getEmoji()),
+                        slayer -> slayer.getTypeModel().getName(),
+                        slayer -> Emoji.of(slayer.getTypeModel().getEmoji()),
                         true
                     )
                 )
@@ -242,25 +251,25 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             totalWeight.getTotal(),
                             totalWeight.getValue(),
                             totalWeight.getOverflow(),
-                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getTotal).sum(),
-                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
-                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getOverflow).sum(),
-                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getTotal).sum(),
-                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
-                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getOverflow).sum(),
-                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getTotal).sum(),
-                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
-                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
-                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getTotal).sum(),
-                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getValue).sum(),
-                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Experience.Weight::getOverflow).sum()
+                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getTotal).sum(),
+                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getOverflow).sum(),
+                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getTotal).sum(),
+                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getOverflow).sum(),
+                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getTotal).sum(),
+                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getTotal).sum(),
+                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getOverflow).sum()
                         ))
                         .withFields(
                             getWeightFields(
                                 "Skills",
                                 skillWeight,
                                 SearchFunction.combine(
-                                    Skill::getType,
+                                    skill -> skill.getType().name(),
                                     SkillModel::getName
                                 )
                             )
@@ -270,7 +279,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 "Slayers",
                                 slayerWeight,
                                 SearchFunction.combine(
-                                    Slayer::getType,
+                                    Slayer_old::getType,
                                     SlayerModel::getName
                                 )
                             )
@@ -310,7 +319,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             member.getPetData()
                                 .getPets()
                                 .stream()
-                                .filter(StreamUtil.distinctByKey(Pet::getName))
+                                .filter(StreamUtil.distinctByKey(Pet::getType))
                                 .collect(Concurrent.toList())
                                 .size(),
                             SimplifiedApi.getRepositoryOf(PetModel.class)
@@ -322,25 +331,27 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withItemHandler(
-                    CollectionItemHandler.builder(Pet.class)
+                    ItemHandler.builder(Pet.class)
                         .withItems(member.getPetData().getPets())
-                        .withTransformer(stream -> stream
-                            .map(pet -> FieldItem.builder()
+                        .withTransformer((pet, index, size) -> {
+                            EnhancedPet enhancedPet = pet.asEnhanced();
+
+                            return StringItem.builder()
                                 .withOption(
                                     SelectMenu.Option.builder()
                                         .withLabel(
                                             "%s%s",
-                                            pet.getPet().map(PetModel::getName).orElse(pet.getPrettyName()),
-                                            getEmoji(String.format("RARITY_%s", pet.getRarity().getKey()))
+                                            enhancedPet.getTypeModel().map(PetModel::getName).orElse(pet.getPrettyName()),
+                                            getEmoji(String.format("RARITY_%s", pet.getRarity().name()))
                                                 .map(Emoji::asPreSpacedFormat)
                                                 .orElse("")
                                         )
                                         .withEmoji(
                                             skyBlockUser.getSkyBlockEmojis()
-                                                .getPetEmoji(pet.getName())
+                                                .getPetEmoji(pet.getType())
                                                 .map(Emoji::of)
                                         )
-                                        .withValue(pet.getPet().map(PetModel::getKey).orElse(pet.getName()))
+                                        .withValue(enhancedPet.getTypeModel().map(PetModel::getKey).orElse(pet.getType()))
                                         .build()
                                 )
                                 .withData(String.format(
@@ -353,26 +364,25 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     emojiReplyStem,
                                     emojiReplyLine,
                                     emojiReplyEnd,
-                                    pet.getLevel(),
-                                    pet.getMaxLevel(),
+                                    enhancedPet.getLevel(),
+                                    enhancedPet.getMaxLevel(),
                                     pet.getExperience(),
-                                    pet.getProgressPercentage()
+                                    enhancedPet.getProgressPercentage()
                                 ))
-                                .build()
-                            )
-                        )
+                                .build();
+                        })
                         .withSorters(
-                            ItemHandler.Sorter.<Pet>builder()
+                            Sorter.<Pet>builder()
                                 .withComparators((o1, o2) -> Comparator.comparing(Pet::getRarityOrdinal)
-                                    .thenComparingInt(Pet::getLevel)
+                                    .thenComparingInt(pet -> pet.asEnhanced().getLevel())
                                     .reversed()
-                                    .thenComparing(Pet::getName)
+                                    .thenComparing(Pet::getType)
                                     .compare(o1, o2)
                                 )
                                 .withLabel("Default")
                                 .build()
                         )
-                        .withStyle(Item.Style.FIELD_INLINE)
+                        .withFieldStyle(ItemHandler.FieldStyle.FIELD_INLINE)
                         .withAmountPerPage(12)
                         .build()
                 )
@@ -385,52 +395,50 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withItemHandler(
-                    CollectionItemHandler.builder(AccessoryData.class)
-                        .withItems(skyBlockIsland.getPlayerStats(member).getAccessoryBag().getFilteredAccessories())
-                        .withTransformer(stream -> stream
-                            .map(accessoryData -> FieldItem.builder()
-                                .withOption(
-                                    SelectMenu.Option.builder()
-                                        .withLabel(
-                                            "{0}{1}",
-                                            accessoryData.getAccessory().getName(),
-                                            getEmoji(String.format("RARITY_%s", accessoryData.getRarity().getKey()))
-                                                .map(Emoji::asPreSpacedFormat)
-                                                .orElse("")
-                                        )
-                                        .withEmoji(
-                                            skyBlockUser.getSkyBlockEmojis()
-                                                .getEmoji(accessoryData.getAccessory().getItem().getItemId())
-                                                .map(Emoji::of)
-                                        )
-                                        .withValue(accessoryData.getAccessory().getItem().getItemId())
-                                        .build()
-                                )
-                                .withData(String.format(
-                                    """
-                                    %1$sRecombobulator: **%3$s**
-                                    %2$sEnrichment: **%4$s**
-                                    """,
-                                    emojiReplyStem,
-                                    emojiReplyEnd,
-                                    getEmoji(accessoryData.isRecombobulated() ? "ACTION_ACCEPT" : "ACTION_DENY")
-                                        .map(Emoji::asFormat)
-                                        .orElse("?"),
-                                    (accessoryData.getRarity().isEnrichable() ? accessoryData.getEnrichment()
-                                        .map(AccessoryEnrichmentModel::getStat)
-                                        .map(StatModel::getKey)
-                                        .map(statKey -> String.format("TALISMAN_ENRICHMENT_%s", statKey))
-                                        .flatMap(PlayerCommand::getEmoji)
-                                        .or(() -> getEmoji("TAG_NOT_APPLICABLE")) :
-                                        getEmoji("TAG_NOT_APPLICABLE"))
-                                        .map(Emoji::asFormat)
-                                        .orElse("N/A")
-                                ))
-                                .build()
+                    ItemHandler.builder(AccessoryData.class)
+                        .withItems(skyBlockIsland.getProfileStats(member).getAccessoryBag().getFilteredAccessories())
+                        .withTransformer((accessoryData, index, size) -> StringItem.builder()
+                            .withOption(
+                                SelectMenu.Option.builder()
+                                    .withLabel(
+                                        "%s%s",
+                                        accessoryData.getAccessory().getName(),
+                                        getEmoji(String.format("RARITY_%s", accessoryData.getRarity().getKey()))
+                                            .map(Emoji::asPreSpacedFormat)
+                                            .orElse("")
+                                    )
+                                    .withEmoji(
+                                        skyBlockUser.getSkyBlockEmojis()
+                                            .getEmoji(accessoryData.getAccessory().getItem().getItemId())
+                                            .map(Emoji::of)
+                                    )
+                                    .withValue(accessoryData.getAccessory().getItem().getItemId())
+                                    .build()
                             )
+                            .withValue(
+                                """
+                                %1$sRecombobulator: **%3$s**
+                                %2$sEnrichment: **%4$s**
+                                """,
+                                emojiReplyStem,
+                                emojiReplyEnd,
+                                getEmoji(accessoryData.isRecombobulated() ? "ACTION_ACCEPT" : "ACTION_DENY")
+                                    .map(Emoji::asFormat)
+                                    .orElse("?"),
+                                (accessoryData.getRarity().isEnrichable() ? accessoryData.getEnrichment()
+                                    .map(AccessoryEnrichmentModel::getStat)
+                                    .map(StatModel::getKey)
+                                    .map(statKey -> String.format("TALISMAN_ENRICHMENT_%s", statKey))
+                                    .flatMap(DiscordReference::getEmoji)
+                                    .or(() -> getEmoji("TAG_NOT_APPLICABLE")) :
+                                    getEmoji("TAG_NOT_APPLICABLE"))
+                                    .map(Emoji::asFormat)
+                                    .orElse("N/A")
+                            )
+                            .build()
                         )
                         .withSorters(
-                            ItemHandler.Sorter.<AccessoryData>builder()
+                            Sorter.<AccessoryData>builder()
                                 .withComparators((o1, o2) -> Comparator.comparing(AccessoryData::getRarity)
                                     .reversed()
                                     .thenComparing(accessoryData -> accessoryData.getAccessory().getName())
@@ -439,7 +447,15 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withLabel("Default")
                                 .build()
                         )
-                        .withStyle(Item.Style.FIELD_INLINE)
+                        .withSearch(
+                            Search.<AccessoryData, String>builder()
+                                .withPredicates((accessoryData, index, value) -> accessoryData.getAccessory().getItem().getItemId().equalsIgnoreCase(value))
+                                .withPredicates((accessoryData, index, value) -> accessoryData.getAccessory().getName().equalsIgnoreCase(value))
+                                .withLabel("Name")
+                                .withPlaceholder("Searches by ID/Name")
+                                .build()
+                        )
+                        .withFieldStyle(ItemHandler.FieldStyle.FIELD_INLINE)
                         .withAmountPerPage(12)
                         .build()
                 )
@@ -457,11 +473,11 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             emojiReplyStem,
                             emojiReplyEnd,
                             skyBlockUser.getAuctions()
-                                .matchAll(SkyBlockAuction::isUnclaimed)
-                                .size(),
+                                .matchAll(SkyBlockAuction::notClaimed)
+                                .count(),
                             skyBlockUser.getAuctions()
                                 .matchAll(skyBlockAuction -> skyBlockAuction.getEndsAt().getRealTime() > System.currentTimeMillis())
-                                .size(),
+                                .count(),
                             skyBlockUser.getAuctions()
                                 .stream()
                                 .mapToDouble(SkyBlockAuction::getHighestBid)
@@ -470,62 +486,60 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withItemHandler(
-                    CollectionItemHandler.builder(SkyBlockAuction.class)
+                    ItemHandler.builder(SkyBlockAuction.class)
                         .withItems(skyBlockUser.getAuctions())
-                        .withTransformer(stream -> stream
-                            .map(skyBlockAuction -> {
-                                CompoundTag auctionNbt = skyBlockAuction.getItemNbt().getNbtData();
-                                String itemId = auctionNbt.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue();
+                        .withTransformer((skyBlockAuction, index, size) -> {
+                            CompoundTag auctionNbt = skyBlockAuction.getItemNbt().getNbtData();
+                            String itemId = auctionNbt.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue();
 
-                                return FieldItem.builder()
-                                    .withOption(
-                                        SelectMenu.Option.builder()
-                                            .withLabel(
-                                                "{0}{1}",
-                                                SimplifiedApi.getRepositoryOf(ItemModel.class)
-                                                    .findFirst(ItemModel::getItemId, itemId)
-                                                    .map(ItemModel::getName)
-                                                    .orElse("Unknown"),
-                                                getEmoji(String.format("RARITY_%s", skyBlockAuction.getRarity().getKey()))
-                                                    .map(Emoji::asPreSpacedFormat)
-                                                    .orElse("")
-                                            )
-                                            .withEmoji(
-                                                skyBlockUser.getSkyBlockEmojis()
-                                                    .getEmoji(itemId)
-                                                    .map(Emoji::of)
-                                            )
-                                            .withValue(skyBlockAuction.getAuctionId().toString())
-                                            .build()
-                                    )
-                                    .withData(String.format(
-                                        """
-                                        %1$sStarting Bid: **%3$s**
-                                        %1$sHighest Bid: **%4$s**
-                                        %1$sEnds: **%5$s**
-                                        %2$sHighest BIN: **%6$s**
-                                        """,
-                                        emojiReplyStem,
-                                        emojiReplyEnd,
-                                        skyBlockAuction.getStartingBid(),
-                                        skyBlockAuction.getHighestBid(),
-                                        new DiscordDate(skyBlockAuction.getEndsAt().getRealTime()).asFormat(DiscordDate.Type.RELATIVE),
-                                        skyBlockUser.getAuctionHouse()
-                                            .getItems()
-                                            .stream()
-                                            .filter(auctionHouseItem -> auctionHouseItem.getItemNbt()
-                                                .getNbtData()
-                                                .getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY)
-                                                .getValue().equals(itemId)
-                                            )
-                                            .map(SkyBlockAuction::getHighestBid)
-                                            .collect(Concurrent.toList())
-                                            .sorted()
-                                            .getOrDefault(0, 0L)
-                                    ))
-                                    .build();
-                            })
-                        )
+                            return StringItem.builder()
+                                .withOption(
+                                    SelectMenu.Option.builder()
+                                        .withLabel(
+                                            "%s%s",
+                                            SimplifiedApi.getRepositoryOf(ItemModel.class)
+                                                .findFirst(ItemModel::getItemId, itemId)
+                                                .map(ItemModel::getName)
+                                                .orElse("Unknown"),
+                                            getEmoji(String.format("RARITY_%s", skyBlockAuction.getRarity().name()))
+                                                .map(Emoji::asPreSpacedFormat)
+                                                .orElse("")
+                                        )
+                                        .withEmoji(
+                                            skyBlockUser.getSkyBlockEmojis()
+                                                .getEmoji(itemId)
+                                                .map(Emoji::of)
+                                        )
+                                        .withValue(skyBlockAuction.getAuctionId().toString())
+                                        .build()
+                                )
+                                .withData(String.format(
+                                    """
+                                    %1$sStarting Bid: **%3$s**
+                                    %1$sHighest Bid: **%4$s**
+                                    %1$sEnds: **%5$s**
+                                    %2$sHighest BIN: **%6$s**
+                                    """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    skyBlockAuction.getStartingBid(),
+                                    skyBlockAuction.getHighestBid(),
+                                    new DiscordDate(skyBlockAuction.getEndsAt().getRealTime()).toFormat(DiscordDate.Type.RELATIVE),
+                                    skyBlockUser.getAuctionHouse()
+                                        .getItems()
+                                        .stream()
+                                        .filter(auctionHouseItem -> auctionHouseItem.getItemNbt()
+                                            .getNbtData()
+                                            .getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY)
+                                            .getValue().equals(itemId)
+                                        )
+                                        .map(SkyBlockAuction::getHighestBid)
+                                        .collect(Concurrent.toList())
+                                        .sorted()
+                                        .getOrDefault(0, 0L)
+                                ))
+                                .build();
+                        })
                         .withStyle(Item.Style.FIELD_INLINE)
                         .withAmountPerPage(12)
                         .build()
@@ -539,12 +553,12 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             Field.builder()
                                 .withName("Medals")
                                 .withValue(
-                                    Arrays.stream(JacobsFarming.Medal.values())
+                                    Arrays.stream(JacobsContest.Medal.values())
                                         .map(farmingMedal -> String.format(
                                             "%s%s: %s",
                                             "",
                                             capitalizeEnum(farmingMedal),
-                                            member.getJacobsFarming().getMedals(farmingMedal)
+                                            member.getJacobsContest().getMedals().get(farmingMedal)
                                         ))
                                         .collect(StreamUtil.toStringBuilder(true))
                                         .build()
@@ -554,16 +568,14 @@ public class PlayerCommand extends SkyBlockUserCommand {
                             Field.empty(true),
                             Field.builder()
                                 .withName("Upgrades")
-                                .withValue(
-                                    Arrays.stream(JacobsFarming.Perk.values())
-                                        .map(farmingPerk -> String.format(
-                                            "%s: %s",
-                                            capitalizeEnum(farmingPerk),
-                                            member.getJacobsFarming().getPerk(farmingPerk)
-                                        ))
-                                        .collect(StreamUtil.toStringBuilder(true))
-                                        .build()
-                                )
+                                .withValue(String.format(
+                                    """
+                                        Farming Level Cap: %s
+                                        Double Drops: %s
+                                        """,
+                                    member.getJacobsContest().getFarmingLevelCap(),
+                                    member.getJacobsContest().getDoubleDrops()
+                                ))
                                 .isInline()
                                 .build()
                         )
@@ -573,7 +585,6 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withValue(
                                     SimplifiedApi.getRepositoryOf(CollectionItemModel.class)
                                         .findAll(CollectionItemModel::isFarmingEvent, true)
-                                        .stream()
                                         .map(collectionItemModel -> collectionItemModel.getItem().getName())
                                         .collect(StreamUtil.toStringBuilder(true))
                                         .build()
@@ -585,13 +596,12 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withValue(
                                     SimplifiedApi.getRepositoryOf(CollectionItemModel.class)
                                         .findAll(CollectionItemModel::isFarmingEvent, true)
-                                        .stream()
-                                        .map(collectionItemModel -> member.getJacobsFarming()
+                                        .map(collectionItemModel -> member.getJacobsContest()
                                             .getContests()
                                             .stream()
                                             .filter(farmingContest -> farmingContest.getCollectionName().equals(collectionItemModel.getItem().getItemId()))
-                                            .sorted((o1, o2) -> Comparator.comparing(JacobsFarming.Contest::getCollected).compare(o2, o1))
-                                            .map(JacobsFarming.Contest::getCollected)
+                                            .sorted((o1, o2) -> Comparator.comparing(JacobsContest.Contest::getCollected).compare(o2, o1))
+                                            .map(JacobsContest.Contest::getCollected)
                                             .findFirst()
                                             .orElse(0)
                                         )
@@ -605,10 +615,10 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .withValue(
                                     SimplifiedApi.getRepositoryOf(CollectionItemModel.class)
                                         .findAll(CollectionItemModel::isFarmingEvent, true)
-                                        .stream()
-                                        .map(collectionItemModel -> member.getJacobsFarming().getUniqueGolds()
+                                        .map(collectionItemModel -> member.getJacobsContest()
+                                            .getUniqueBrackets()
                                             .stream()
-                                            .filter(uniqueGold -> uniqueGold.equals(collectionItemModel))
+                                            .filter(medal -> uniqueGold.equals(collectionItemModel)) // TODO: Foobar
                                             .findFirst()
                                             .map(farmingCollectionItemModel -> "Yes")
                                             .orElse("No")
@@ -625,7 +635,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
         );
     }
 
-    private static <T extends Experience> ConcurrentList<Field> getWeightFields(String title, ConcurrentMap<T, Experience.Weight> weightMap, Function<T, String> typeNameFunction) {
+    private static <T extends Experience> ConcurrentList<Field> getWeightFields(String title, ConcurrentMap<T, Weight> weightMap, Function<T, String> typeNameFunction) {
         return Concurrent.newList(
             Field.builder()
                 .withName(title)
@@ -643,7 +653,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .withValue(
                     weightMap.stream()
                         .map(Map.Entry::getValue)
-                        .map(Experience.Weight::getValue)
+                        .map(Weight::getValue)
                         .collect(StreamUtil.toStringBuilder(true))
                         .build()
                 )
@@ -654,7 +664,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 .withValue(
                     weightMap.stream()
                         .map(Map.Entry::getValue)
-                        .map(Experience.Weight::getOverflow)
+                        .map(Weight::getOverflow)
                         .collect(StreamUtil.toStringBuilder(true))
                         .build()
                 )

@@ -20,7 +20,7 @@ import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
 import dev.sbs.discordapi.command.parameter.Argument;
-import dev.sbs.discordapi.context.deferrable.application.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.simplifiedbot.SimplifiedBot;
 import discord4j.common.util.Snowflake;
 import lombok.Getter;

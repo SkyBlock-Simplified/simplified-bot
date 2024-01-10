@@ -1,13 +1,15 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.request.HypixelPlayerRequest;
-import dev.sbs.api.client.hypixel.request.HypixelSkyBlockRequest;
-import dev.sbs.api.client.hypixel.response.hypixel.HypixelGuildResponse;
-import dev.sbs.api.client.hypixel.response.hypixel.HypixelPlayerResponse;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Skill;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.util.Experience;
+import dev.sbs.api.client.impl.hypixel.request.HypixelRequest;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.HypixelGuildResponse;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelGuild;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelPlayer;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.Slayer;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.EnhancedMember;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.skill.Skill;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.weight.Weight;
 import dev.sbs.api.data.model.Model;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_classes.DungeonClassModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
@@ -19,24 +21,22 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.collection.sort.SortOrder;
-import dev.sbs.api.util.data.tuple.Pair;
-import dev.sbs.api.util.data.tuple.Triple;
-import dev.sbs.api.util.helper.StreamUtil;
 import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.util.mutable.pair.Pair;
+import dev.sbs.api.util.mutable.triple.Triple;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.handler.item.CollectionItemHandler;
-import dev.sbs.discordapi.response.page.handler.item.ItemHandler;
-import dev.sbs.discordapi.response.page.item.FieldItem;
-import dev.sbs.discordapi.response.page.item.Item;
+import dev.sbs.discordapi.response.page.handler.ItemHandler;
+import dev.sbs.discordapi.response.page.handler.sorter.Sorter;
+import dev.sbs.discordapi.response.page.item.field.StringItem;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -68,7 +68,7 @@ public class GuildCommand extends SqlSlashCommand {
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         String guildName = commandContext.getArgument("name").map(Argument::asString).orElseThrow();
 
-        HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getWebApi(HypixelPlayerRequest.class).getGuildByName(guildName);
+        HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getApiRequest(HypixelRequest.class).getGuildByName(guildName);
 
         if (hypixelGuildResponse.getGuild().isEmpty()) {
             return commandContext.reply(
@@ -92,15 +92,15 @@ public class GuildCommand extends SqlSlashCommand {
         ConcurrentList<SlayerModel> slayerModels = SimplifiedApi.getRepositoryOf(SlayerModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
         DungeonModel catacombs = SimplifiedApi.getRepositoryOf(DungeonModel.class).findFirstOrNull(DungeonModel::getKey, "CATACOMBS");
         ConcurrentList<DungeonClassModel> dungeonClassModels = SimplifiedApi.getRepositoryOf(DungeonClassModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
-        HypixelSkyBlockRequest skyBlockData = SimplifiedApi.getWebApi(HypixelSkyBlockRequest.class);
-        HypixelGuildResponse.Guild guild = hypixelGuildResponse.getGuild().get();
-        HypixelPlayerRequest hypixelPlayerRequest = SimplifiedApi.getWebApi(HypixelPlayerRequest.class);
+        HypixelRequest hypixelRequest = SimplifiedApi.getApiRequest(HypixelRequest.class);
+        HypixelGuild guild = hypixelGuildResponse.getGuild().get();
 
-        ConcurrentMap<HypixelPlayerResponse.Player, SkyBlockIsland> guildMembers = guild.getMembers().stream()
-            .limit(2) //TODO: limiting size!!
+        ConcurrentMap<HypixelPlayer, SkyBlockIsland> guildMembers = guild.getMembers()
+            .stream()
+            .limit(2) // TODO: limiting size!!
             .map(member -> Pair.of(
-                hypixelPlayerRequest.getPlayer(member.getUniqueId()).getPlayer(),
-                skyBlockData.getProfiles(member.getUniqueId()).getLastPlayed())
+                hypixelRequest.getPlayer(member.getUniqueId()).getPlayer(),
+                hypixelRequest.getProfiles(member.getUniqueId()).getSelected())
             )
             .collect(Concurrent.toMap());
 
@@ -108,20 +108,24 @@ public class GuildCommand extends SqlSlashCommand {
             .map(key -> Pair.of(key.getUniqueId(), key.getDisplayName()))
             .collect(Concurrent.toMap());
 
-        ConcurrentList<SkyBlockIsland.Member> guildMemberPlayers = guildMembers.keySet().stream()
-            .map(hypixelPlayer -> guildMembers.get(hypixelPlayer).getMember(hypixelPlayer.getUniqueId()).orElseThrow())
+        ConcurrentList<EnhancedMember> guildMemberPlayers = guildMembers.keySet().stream()
+            .map(hypixelPlayer -> guildMembers.get(hypixelPlayer)
+                .getMembers()
+                .get(hypixelPlayer.getUniqueId())
+                .asEnhanced()
+            )
             .collect(Concurrent.toList());
 
-        ConcurrentMap<SkyBlockIsland.Member, Experience.Weight> totalWeights = guildMemberPlayers.stream()
+        ConcurrentMap<EnhancedMember, Weight> totalWeights = guildMemberPlayers.stream()
             .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getTotalWeight()))
             .collect(Concurrent.toMap());
 
-        ConcurrentMap<SkyBlockIsland.Member, Long> networths = guildMemberPlayers.stream()
-            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getPurse())) //TODO: networth query
+        ConcurrentMap<EnhancedMember, Double> networths = guildMemberPlayers.stream()
+            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getCurrencies().getPurse())) //TODO: networth query
             .collect(Concurrent.toMap());
 
-        ConcurrentMap<SkyBlockIsland.Member, ConcurrentList<Skill>> skills = guildMemberPlayers.stream()
-            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getSkills()))
+        ConcurrentMap<EnhancedMember, ConcurrentList<Skill>> skills = guildMemberPlayers.stream()
+            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getPlayerData().getSkills()))
             .collect(Concurrent.toMap());
 
         ConcurrentMap<String, Emoji> emojis = new ConcurrentMap<>();
@@ -157,7 +161,7 @@ public class GuildCommand extends SqlSlashCommand {
                     .withEmbeds(
                         Embed.builder()
                             .withTitle(guild.getName())
-                            .withDescription(String.format(
+                            .withDescription(
                                 """
                                 %s
                                 
@@ -173,17 +177,17 @@ public class GuildCommand extends SqlSlashCommand {
                                 (int) guildMemberPlayers.stream().mapToDouble(
                                     guildMember -> totalWeights.get(guildMember).getValue()
                                 ).average().orElse(0),
-                                (long) guildMemberPlayers.stream().mapToLong(
+                                (long) guildMemberPlayers.stream().mapToDouble(
                                     networths::get
                                 ).average().orElse(0),
                                 df.format(guildMemberPlayers.stream()
-                                    .mapToDouble(SkyBlockIsland.Member::getSkillAverage).average().orElseThrow()),
+                                    .mapToDouble(EnhancedMember::getSkillAverage).average().orElseThrow()),
                                 guildMemberPlayers.stream()
                                     .mapToDouble(member -> member.getLeveling().getLevel())
                                     .filter(level -> level > 0)
                                     .average()
                                     .orElse(0)
-                            ))
+                            )
                             .withField("Tag", guildTag, true)
                             .withField("Guild Level", String.valueOf(guildLevel), true)
                             .withField("Guild Owner", guildOwner, true)
@@ -193,30 +197,34 @@ public class GuildCommand extends SqlSlashCommand {
                     .withPages(
                         Page.builder()
                             .withItemHandler(
-                                CollectionItemHandler.builder(SkyBlockIsland.Member.class)
-                                    .withColumnNames(Triple.of("SkyBlock Level Leaderboard", "", ""))
-                                    .withItems(guildMemberPlayers)
-                                    .withSorters(
-                                        ItemHandler.Sorter.<SkyBlockIsland.Member>builder()
-                                            .withFunctions(member -> member.getLeveling().getExperience())
-                                            .withOrder(SortOrder.DESCENDING)
-                                            .build()
+                            ItemHandler.builder(EnhancedMember.class)
+                                .withItems(guildMemberPlayers)
+                                .withSorters(
+                                    Sorter.<EnhancedMember>builder()
+                                        .withFunctions(member -> member.getLeveling().getExperience())
+                                        .withOrder(SortOrder.DESCENDING)
+                                        .build()
+                                )
+                                .withTransformer(
+                                    String.class,
+                                    (guildMemberPlayer, index, size) -> String.format(
+                                        "%s. `%s` > **%s**",
+                                        index + 1,
+                                        ignMap.get(guildMemberPlayer.getUniqueId()),
+                                        guildMemberPlayer.getLeveling().getLevel()
                                     )
-                                    .withTransformer(stream ->
-                                        StreamUtil.mapWithIndex(
-                                            stream, (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                .withData(String.format(
-                                                    " #%s `%s` >  **%s**",
-                                                    index + 1,
-                                                    ignMap.get(guildMemberPlayer.getUniqueId()),
-                                                    guildMemberPlayer.getLeveling().getLevel()
-                                                ))
-                                                .build()
-                                        )
+                                )
+                                .withListTransformer(
+                                    (guildMemberPlayer, index, size) -> String.format(
+                                        "%s. `%s` > **%s**",
+                                        index + 1,
+                                        ignMap.get(guildMemberPlayer.getUniqueId()),
+                                        guildMemberPlayer.getLeveling().getLevel()
                                     )
-                                    .withStyle(Item.Style.LIST_SINGLE)
-                                    .withAmountPerPage(10)
-                                    .build()
+                                )
+                                .withListTitle("SkyBlock Level Leaderboard")
+                                .withAmountPerPage(10)
+                                .build()
                             )
                             .withOption(
                                 getOptionBuilder("skyblock_level")
@@ -227,7 +235,7 @@ public class GuildCommand extends SqlSlashCommand {
                             .withEmbeds(Embed.builder()
                                 .withColor(tagColor)
                                 .withTitle(guild.getName())
-                                .withDescription(String.format(
+                                .withDescription(
                                     """
                                     Skyblock Level Average: **%s**
                                     """,
@@ -235,7 +243,7 @@ public class GuildCommand extends SqlSlashCommand {
                                         .mapToDouble(member -> member.getLeveling().getLevel())
                                         .average()
                                         .orElse(0)
-                                ))
+                                )
                                 .build()
                             )
                             .build()
@@ -243,36 +251,32 @@ public class GuildCommand extends SqlSlashCommand {
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        CollectionItemHandler.builder(SkillModel.class)
+                        ItemHandler.builder(SkillModel.class)
                             .withItems(skillModels)
-                            .withTransformer(stream -> stream
-                                .map(skillModel -> FieldItem.builder()
-                                    .withEmoji(emojis.get(skillModel.getKey()))
-                                    .withData(
-                                        String.format(
-                                            """
-                                                %1$sAverage Level: **%3$s**
-                                                %1$sTotal Experience:
-                                                %2$s**%4$s**
-                                                """,
-                                            emojiReplyStem,
-                                            emojiReplyEnd,
-                                            df.format(guildMemberPlayers.stream()
-                                                .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
-                                                    .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
-                                            (long) guildMemberPlayers.stream()
-                                                .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
-                                                    .findFirst().orElseThrow().getExperience()).sum()
-                                        )
-                                    )
-                                    .withOption(getOptionBuilder(skillModel.getKey().toLowerCase())
+                            .withTransformer((skillModel, index, size) -> StringItem.builder()
+                                .withEmoji(emojis.get(skillModel.getKey()))
+                                .withData(
+                                    """
+                                        %1$sAverage Level: **%3$s**
+                                        %1$sTotal Experience:
+                                        %2$s**%4$s**
+                                        """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    df.format(guildMemberPlayers.stream()
+                                                  .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
+                                                      .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
+                                    (long) guildMemberPlayers.stream()
+                                        .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
+                                            .findFirst().orElseThrow().getExperience()).sum()
+                                )
+                                .withOption(
+                                    getOptionBuilder(skillModel.getKey().toLowerCase())
                                         .withEmoji(emojis.get(skillModel.getKey()))
                                         .build()
-                                    )
-                                    .build()
                                 )
+                                .build()
                             )
-                            .withStyle(Item.Style.FIELD_INLINE)
                             .withAmountPerPage(20)
                             .build()
                     )
@@ -284,7 +288,7 @@ public class GuildCommand extends SqlSlashCommand {
                     .withEmbeds(
                         Embed.builder()
                             .withTitle(guild.getName())
-                            .withDescription(String.format(
+                            .withDescription(
                                 """
                                 Average Weight: **%s** (Without Overflow: **%s**)
                                 Average Networth: **%s**
@@ -298,36 +302,48 @@ public class GuildCommand extends SqlSlashCommand {
                                 (long) guildMemberPlayers.stream().mapToLong(
                                     networths::get
                                 ).average().orElseThrow()
-                            ))
+                            )
                             .withColor(tagColor)
                             .build()
                     )
                     .withPages(skillModels.stream()
                         .map(skillModel -> Page.builder()
                             .withItemHandler(
-                                CollectionItemHandler.builder(SkyBlockIsland.Member.class)
-                                    .withColumnNames(Triple.of(skillModel.getName() + " Leaderboard", "", ""))
+                                ItemHandler.builder(EnhancedMember.class)
                                     .withItems(guildMemberPlayers)
                                     .withSorters(
-                                        ItemHandler.Sorter.<SkyBlockIsland.Member>builder()
-                                            .withFunctions(guildMemberPlayer -> skills.get(guildMemberPlayer).stream()
-                                                .filter(skill -> skill.getType().equals(skillModel))
-                                                .findFirst().orElseThrow().getExperience()
+                                        Sorter.<EnhancedMember>builder()
+                                            .withFunctions(guildMemberPlayer -> skills.get(guildMemberPlayer)
+                                                .stream()
+                                                .filter(skill -> skill.getType().name().equalsIgnoreCase(skillModel.getKey()))
+                                                .findFirst()
+                                                .orElseThrow()
+                                                .getExperience()
                                             )
                                             .withOrder(SortOrder.DESCENDING)
                                             .build()
                                     )
-                                    .withTransformer(stream -> StreamUtil.mapWithIndex(stream, (member, index, size) -> FieldItem.builder()
-                                        .withData(String.format(
-                                            " #%s `%s` >  **%s [%s]**",
+                                    .withTransformer(
+                                        (member, index, size) -> String.format(
+                                            "%s. `%s` >  **%s [%s]**",
                                             index + 1,
                                             ignMap.get(member.getUniqueId()),
-                                            (long) skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel)).findFirst().orElseThrow().getExperience(),
-                                            skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel)).findFirst().orElseThrow().getLevel()
-                                        ))
-                                        .build()
-                                    ))
-                                    .withStyle(Item.Style.LIST_SINGLE)
+                                            (long) skills.get(member)
+                                                .stream()
+                                                .filter(skill -> skill.getType().name().equalsIgnoreCase(skillModel.getKey()))
+                                                .findFirst()
+                                                .orElseThrow()
+                                                .getExperience(),
+                                            skills.get(member)
+                                                .stream()
+                                                .filter(skill -> skill.getType().name().equalsIgnoreCase(skillModel.getKey()))
+                                                .findFirst()
+                                                .orElseThrow()
+                                                .asEnhanced(member.getJacobsContest())
+                                                .getLevel()
+                                        )
+                                    )
+                                    .withListTitle(skillModel.getName() + " Leaderboard")
                                     .withAmountPerPage(20)
                                     .build()
                             )
@@ -341,16 +357,19 @@ public class GuildCommand extends SqlSlashCommand {
                                 Embed.builder()
                                     .withColor(tagColor)
                                     .withTitle(guild.getName())
-                                    .withDescription(String.format(
+                                    .withDescription(
                                         """
                                         %s Average: **%s** / %s
                                         """,
                                         skillModel.getName(),
-                                        df.format(guildMemberPlayers.stream()
-                                            .mapToDouble(guildMemberPlayer -> skills.get(guildMemberPlayer).stream().filter(skill -> skill.getType().equals(skillModel))
-                                                .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
+                                        df.format(guildMemberPlayers.stream().mapToDouble(guildMemberPlayer -> skills.get(guildMemberPlayer)
+                                                .stream()
+                                                .filter(skill -> skill.getType().name().equalsIgnoreCase(skillModel.getKey()))
+                                                .findFirst()
+                                                .orElseThrow()
+                                                .getLevel()
+                                            ).average().orElseThrow()),
                                         skillModel.getMaxLevel()
-                                        )
                                     )
                                     .build()
                             )
@@ -361,33 +380,30 @@ public class GuildCommand extends SqlSlashCommand {
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        CollectionItemHandler.builder(SlayerModel.class)
+                        ItemHandler.builder(SlayerModel.class)
                             .withItems(slayerModels)
-                            .withTransformer(stream -> stream
-                                .map(slayerModel -> FieldItem.builder()
-                                    .withEmoji(emojis.get(slayerModel.getKey()))
-                                    .withData(String.format(
-                                        """
-                                        %1$sAverage Level: **%3$s**
-                                        %1$sTotal Experience:
-                                        %2$s**%4$s**
-                                        """,
-                                        emojiReplyStem,
-                                        emojiReplyEnd,
-                                        df.format(guildMemberPlayers.stream()
-                                            .mapToDouble(member -> member.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
-                                        (long) guildMemberPlayers.stream()
-                                            .mapToDouble(member -> member.getSlayer(slayerModel).getExperience()).sum()
-                                    ))
-                                    .withOption(
-                                        getOptionBuilder(slayerModel.getName().replace(" ", "_").toLowerCase())
-                                            .withEmoji(emojis.get(slayerModel.getKey()))
-                                            .build()
-                                    )
-                                    .build()
+                            .withTransformer((slayerModel, index, size) -> StringItem.builder()
+                                .withEmoji(emojis.get(slayerModel.getKey()))
+                                .withData(
+                                    """
+                                    %1$sAverage Level: **%3$s**
+                                    %1$sTotal Experience:
+                                    %2$s**%4$s**
+                                    """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    df.format(guildMemberPlayers.stream()
+                                                  .mapToDouble(member -> member.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
+                                    (long) guildMemberPlayers.stream()
+                                        .mapToDouble(member -> member.getSlayer(slayerModel).getExperience()).sum()
                                 )
+                                .withOption(
+                                    getOptionBuilder(slayerModel.getName().replace(" ", "_").toLowerCase())
+                                        .withEmoji(emojis.get(slayerModel.getKey()))
+                                        .build()
+                                )
+                                .build()
                             )
-                            .withStyle(Item.Style.FIELD_INLINE)
                             .withAmountPerPage(20)
                             .build()
                     )
@@ -400,7 +416,7 @@ public class GuildCommand extends SqlSlashCommand {
                     .withEmbeds(
                         Embed.builder()
                             .withTitle(guild.getName())
-                            .withDescription(String.format(
+                            .withDescription(
                                 """
                                 Average Weight: **%s** (Without Overflow: **%s**)
                                 Average Networth: **%s**
@@ -414,7 +430,7 @@ public class GuildCommand extends SqlSlashCommand {
                                 (long) guildMemberPlayers.stream().mapToLong(
                                     networths::get
                                 ).average().orElseThrow()
-                            ))
+                            )
                             .withColor(tagColor)
                             .build()
                     )
@@ -422,30 +438,25 @@ public class GuildCommand extends SqlSlashCommand {
                         .map(slayerModel ->
                             Page.builder()
                                 .withItemHandler(
-                                    CollectionItemHandler.builder(SkyBlockIsland.Member.class)
+                                    ItemHandler.builder(EnhancedMember.class)
                                         .withColumnNames(Triple.of(slayerModel.getName() + " Leaderboard", "", ""))
                                         .withItems(guildMemberPlayers)
                                         .withSorters(
-                                            ItemHandler.Sorter.<SkyBlockIsland.Member>builder()
-                                                .withFunctions(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getExperience())
+                                            ItemHandler.Sorter.<EnhancedMember>builder()
+                                                .withFunctions(guildMemberPlayer -> guildMemberPlayer.getSlayer().getBoss(Slayer.Type.of(slayerModel.getKey())).getExperience())
                                                 .withOrder(SortOrder.DESCENDING)
                                                 .build()
                                         )
-                                        .withTransformer(stream ->
-                                            StreamUtil.mapWithIndex(
-                                                stream,
-                                                (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                    .withData(String.format(
-                                                        " #%s `%s` >  **%s [%s]**",
-                                                        index + 1,
-                                                        ignMap.get(guildMemberPlayer.getUniqueId()),
-                                                        (long) guildMemberPlayer.getSlayer(slayerModel).getExperience(),
-                                                        guildMemberPlayer.getSlayer(slayerModel).getLevel()
-                                                    ))
-                                                    .build()
-                                            )
+                                        .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
+                                            .withData(String.format(
+                                                "%s. `%s` >  **%s [%s]**",
+                                                index + 1,
+                                                ignMap.get(guildMemberPlayer.getUniqueId()),
+                                                (long) guildMemberPlayer.getSlayer(slayerModel).getExperience(),
+                                                guildMemberPlayer.getSlayer(slayerModel).getLevel()
+                                            ))
+                                            .build()
                                         )
-                                        .withStyle(Item.Style.LIST_SINGLE)
                                         .withAmountPerPage(20)
                                         .build()
                                 )
@@ -458,7 +469,7 @@ public class GuildCommand extends SqlSlashCommand {
                                     Embed.builder()
                                         .withColor(tagColor)
                                         .withTitle(guild.getName())
-                                        .withDescription(String.format(
+                                        .withDescription(
                                             """
                                             %s Average: **%s** / %s
                                             """,
@@ -466,7 +477,7 @@ public class GuildCommand extends SqlSlashCommand {
                                             df.format(guildMemberPlayers.stream()
                                                 .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
                                             9 // TODO: Get max level
-                                        ))
+                                        )
                                         .build()
                                 )
                                 .build()
@@ -476,33 +487,30 @@ public class GuildCommand extends SqlSlashCommand {
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        CollectionItemHandler.builder(DungeonClassModel.class)
+                        ItemHandler.builder(DungeonClassModel.class)
                             .withItems(dungeonClassModels)
-                            .withTransformer(stream -> stream
-                                .map(dungeonClassModel -> FieldItem.builder()
-                                    .withEmoji(emojis.get(dungeonClassModel.getKey()))
-                                    .withData(String.format(
-                                        """
-                                        %1$sAverage Level: **%3$s**
-                                        %1$sTotal Experience:
-                                        %2$s**%4$s**
-                                        """,
-                                        emojiReplyStem,
-                                        emojiReplyEnd,
-                                        df.format(guildMemberPlayers.stream()
-                                            .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getLevel()).average().orElseThrow()),
-                                        (long) guildMemberPlayers.stream()
-                                            .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getExperience()).sum()
-                                    ))
-                                    .withOption(
-                                        getOptionBuilder(dungeonClassModel.getKey().toLowerCase())
-                                            .withEmoji(emojis.get(dungeonClassModel.getKey()))
-                                            .build()
-                                    )
-                                    .build()
+                            .withTransformer((dungeonClassModel, index, size) -> StringItem.builder()
+                                .withEmoji(emojis.get(dungeonClassModel.getKey()))
+                                .withData(String.format(
+                                    """
+                                    %1$sAverage Level: **%3$s**
+                                    %1$sTotal Experience:
+                                    %2$s**%4$s**
+                                    """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    df.format(guildMemberPlayers.stream()
+                                                  .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getLevel()).average().orElseThrow()),
+                                    (long) guildMemberPlayers.stream()
+                                        .mapToDouble(member -> member.getDungeons().getClass(dungeonClassModel).getExperience()).sum()
+                                ))
+                                .withOption(
+                                    getOptionBuilder(dungeonClassModel.getKey().toLowerCase())
+                                        .withEmoji(emojis.get(dungeonClassModel.getKey()))
+                                        .build()
                                 )
+                                .build()
                             )
-                            .withStyle(Item.Style.FIELD_INLINE)
                             .withAmountPerPage(20)
                             .build()
                     )
@@ -514,7 +522,7 @@ public class GuildCommand extends SqlSlashCommand {
                     .withEmbeds(
                         Embed.builder()
                             .withTitle(guild.getName())
-                            .withDescription(String.format(
+                            .withDescription(
                                 """
                                 Average Weight: **%s** (Without Overflow: **%s**)
                                 Average Networth: **%s**
@@ -528,37 +536,32 @@ public class GuildCommand extends SqlSlashCommand {
                                 (long) guildMemberPlayers.stream().mapToLong(
                                     networths::get
                                 ).average().orElseThrow()
-                            ))
+                            )
                             .withColor(tagColor)
                             .build()
                     )
                     .withPages(
                         Page.builder()
                             .withItemHandler(
-                                CollectionItemHandler.builder(SkyBlockIsland.Member.class)
+                                ItemHandler.builder(EnhancedMember.class)
                                     .withColumnNames(Triple.of("Catacombs Leaderboard", "", ""))
                                     .withItems(guildMemberPlayers)
                                     .withSorters(
-                                        ItemHandler.Sorter.<SkyBlockIsland.Member>builder()
+                                        ItemHandler.Sorter.<EnhancedMember>builder()
                                             .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience())
                                             .withOrder(SortOrder.DESCENDING)
                                             .build()
                                     )
-                                    .withTransformer(stream ->
-                                        StreamUtil.mapWithIndex(
-                                            stream,
-                                            (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                .withData(String.format(
-                                                    " #%s `%s` >  **%s [%s]**",
-                                                    index + 1,
-                                                    ignMap.get(guildMemberPlayer.getUniqueId()),
-                                                    (long) guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience(),
-                                                    guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()
-                                                ))
-                                                .build()
-                                        )
+                                    .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
+                                        .withData(String.format(
+                                            " #%s `%s` >  **%s [%s]**",
+                                            index + 1,
+                                            ignMap.get(guildMemberPlayer.getUniqueId()),
+                                            (long) guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience(),
+                                            guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()
+                                        ))
+                                        .build()
                                     )
-                                    .withStyle(Item.Style.LIST_SINGLE)
                                     .withAmountPerPage(20)
                                     .build()
                             )
@@ -571,13 +574,13 @@ public class GuildCommand extends SqlSlashCommand {
                                 Embed.builder()
                                     .withColor(tagColor)
                                     .withTitle(guild.getName())
-                                    .withDescription(String.format(
+                                    .withDescription(
                                         """
                                         Catacombs Average: **%s** / 50
                                         """,
                                         df.format(guildMemberPlayers.stream()
                                             .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getLevel()).average().orElseThrow())
-                                    ))
+                                    )
                                     .build()
                             )
 
@@ -586,30 +589,25 @@ public class GuildCommand extends SqlSlashCommand {
                     .withPages(dungeonClassModels.stream()
                         .map(classModel -> Page.builder()
                             .withItemHandler(
-                                CollectionItemHandler.builder(SkyBlockIsland.Member.class)
+                                ItemHandler.builder(EnhancedMember.class)
                                     .withColumnNames(Triple.of(classModel.getName() + " Leaderboard", "", ""))
                                     .withItems(guildMemberPlayers)
                                     .withSorters(
-                                        ItemHandler.Sorter.<SkyBlockIsland.Member>builder()
+                                        ItemHandler.Sorter.<EnhancedMember>builder()
                                             .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getExperience())
                                             .withOrder(SortOrder.DESCENDING)
                                             .build()
                                     )
-                                    .withTransformer(stream ->
-                                        StreamUtil.mapWithIndex(
-                                            stream,
-                                            (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                                .withData(String.format(
-                                                    " #%s `%s` >  **%s [%s]**",
-                                                    index + 1,
-                                                    ignMap.get(guildMemberPlayer.getUniqueId()),
-                                                    (long) guildMemberPlayer.getDungeons().getClass(classModel).getExperience(),
-                                                    guildMemberPlayer.getDungeons().getClass(classModel).getLevel()
-                                                ))
-                                                .build()
-                                        )
+                                    .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
+                                        .withData(String.format(
+                                            "%s. `%s` >  **%s [%s]**",
+                                            index + 1,
+                                            ignMap.get(guildMemberPlayer.getUniqueId()),
+                                            (long) guildMemberPlayer.getDungeons().getClass(classModel).getExperience(),
+                                            guildMemberPlayer.getDungeons().getClass(classModel).getLevel()
+                                        ))
+                                        .build()
                                     )
-                                    .withStyle(Item.Style.LIST_SINGLE)
                                     .withAmountPerPage(20)
                                     .build()
                             )
@@ -622,7 +620,7 @@ public class GuildCommand extends SqlSlashCommand {
                                 Embed.builder()
                                     .withColor(tagColor)
                                     .withTitle(guild.getName())
-                                    .withDescription(String.format(
+                                    .withDescription(
                                         """
                                         %s Average: **%s** / %s
                                         """,
@@ -630,7 +628,7 @@ public class GuildCommand extends SqlSlashCommand {
                                         df.format(guildMemberPlayers.stream()
                                             .mapToDouble(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getLevel()).average().orElseThrow()),
                                         50
-                                    ))
+                                    )
                                     .build()
                             )
                             .build()
@@ -640,30 +638,25 @@ public class GuildCommand extends SqlSlashCommand {
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        CollectionItemHandler.builder(SkyBlockIsland.Member.class)
+                        ItemHandler.builder(EnhancedMember.class)
                             .withColumnNames(Triple.of("Weight Leaderboard", "", ""))
                             .withItems(guildMemberPlayers)
                             .withSorters(
-                                ItemHandler.Sorter.<SkyBlockIsland.Member>builder()
+                                ItemHandler.Sorter.<EnhancedMember>builder()
                                     .withFunctions(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal())
                                     .withOrder(SortOrder.DESCENDING)
                                     .build()
                             )
-                            .withTransformer(stream ->
-                                StreamUtil.mapWithIndex(
-                                    stream,
-                                    (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                        .withData(String.format(
-                                            " #%s `%s` >  **%s [%s]**",
-                                            index + 1,
-                                            ignMap.get(guildMemberPlayer.getUniqueId()),
-                                            (int) totalWeights.get(guildMemberPlayer).getTotal(),
-                                            (int) totalWeights.get(guildMemberPlayer).getValue()
-                                        ))
-                                        .build()
-                                )
+                            .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
+                                .withData(String.format(
+                                    " #%s `%s` >  **%s [%s]**",
+                                    index + 1,
+                                    ignMap.get(guildMemberPlayer.getUniqueId()),
+                                    (int) totalWeights.get(guildMemberPlayer).getTotal(),
+                                    (int) totalWeights.get(guildMemberPlayer).getValue()
+                                ))
+                                .build()
                             )
-                            .withStyle(Item.Style.LIST_SINGLE)
                             .withAmountPerPage(20)
                             .build()
                     )
@@ -676,7 +669,7 @@ public class GuildCommand extends SqlSlashCommand {
                         Embed.builder()
                             .withColor(tagColor)
                             .withTitle(guild.getName())
-                            .withDescription(String.format(
+                            .withDescription(
                                 """
                                 Average Weight: **%s** (Without Overflow: **%s**)
                                 """,
@@ -684,35 +677,30 @@ public class GuildCommand extends SqlSlashCommand {
                                     .mapToDouble(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal()).average().orElseThrow()),
                                 (int) (guildMemberPlayers.stream()
                                     .mapToDouble(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getValue()).average().orElseThrow())
-                            ))
+                            )
                             .build()
                     )
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        CollectionItemHandler.builder(SkyBlockIsland.Member.class)
+                        ItemHandler.builder(EnhancedMember.class)
                             .withColumnNames(Triple.of("Networth Leaderboard", "", ""))
                             .withItems(guildMemberPlayers)
                             .withSorters(
-                                ItemHandler.Sorter.<SkyBlockIsland.Member>builder()
+                                ItemHandler.Sorter.<EnhancedMember>builder()
                                     .withFunctions(networths::get)
                                     .withOrder(SortOrder.DESCENDING)
                                     .build()
                             )
-                            .withTransformer(stream ->
-                                StreamUtil.mapWithIndex(
-                                    stream,
-                                    (guildMemberPlayer, index, size) -> FieldItem.builder()
-                                        .withData(String.format(
-                                            " #%s `%s` >  **%s**",
-                                            index + 1,
-                                            ignMap.get(guildMemberPlayer.getUniqueId()),
-                                            (int) guildMemberPlayer.getPurse()
-                                        ))
-                                        .build()
-                                )
+                            .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
+                                .withData(String.format(
+                                    "%s. `%s` >  **%s**",
+                                    index + 1,
+                                    ignMap.get(guildMemberPlayer.getUniqueId()),
+                                    (int) guildMemberPlayer.getCurrencies().getPurse()
+                                ))
+                                .build()
                             )
-                            .withStyle(Item.Style.LIST_SINGLE)
                             .withAmountPerPage(20)
                             .build()
                     )
@@ -725,14 +713,14 @@ public class GuildCommand extends SqlSlashCommand {
                         Embed.builder()
                             .withColor(tagColor)
                             .withTitle(guild.getName())
-                            .withDescription(String.format(
+                            .withDescription(
                                 """
                                     Average Networth: **%s**
                                     Total Networth: **%s**""",
                                 (long) (guildMemberPlayers.stream()
                                     .mapToDouble(networths::get).average().orElseThrow()),
                                 (long) (guildMemberPlayers.stream()
-                                    .mapToDouble(networths::get).sum()))
+                                    .mapToDouble(networths::get).sum())
                             )
                             .build()
                     )
@@ -746,14 +734,20 @@ public class GuildCommand extends SqlSlashCommand {
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
         return Concurrent.newUnmodifiableList(
-            Parameter.builder("name", "Name of the Guild to look up", Parameter.Type.TEXT)
+            Parameter.builder()
+                .withName("name")
+                .withDescription("Name of the Guild to look up.")
+                .withType(Parameter.Type.TEXT)
                 .isRequired()
                 .build(),
-            Parameter.builder("page", "Jump to a specific page", Parameter.Type.TEXT)
+            Parameter.builder()
+                .withName("page")
+                .withDescription("Jump to a specific page.")
+                .withType(Parameter.Type.TEXT)
                 .withChoices(
                     pageIdentifiers.stream()
                         .map(pageIdentifier -> Pair.of(StringUtil.capitalizeFully(pageIdentifier.replace("_", " ")), pageIdentifier))
-                        .collect(Concurrent.toLinkedMap())
+                        .collect(Concurrent.toWeakLinkedMap())
                 )
                 .build()
         );

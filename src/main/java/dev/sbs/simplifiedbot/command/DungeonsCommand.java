@@ -1,21 +1,22 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.Dungeon;
-import dev.sbs.api.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
-import dev.sbs.api.client.sbs.response.MojangProfileResponse;
-import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_classes.DungeonClassModel;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.dungeon.Dungeon;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.EnhancedMember;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.Member;
+import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_floors.DungeonFloorModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
-import dev.sbs.discordapi.context.interaction.deferrable.application.slash.SlashCommandContext;
+import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
-import dev.sbs.discordapi.response.embed.Field;
+import dev.sbs.discordapi.response.embed.structure.Field;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
@@ -39,7 +40,7 @@ public class DungeonsCommand extends SkyBlockUserCommand {
         String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
-        SkyBlockIsland.Member member = skyBlockUser.getMember();
+        EnhancedMember member = skyBlockUser.getMember().asEnhanced();
 
         return commandContext.reply(
             Response.builder()
@@ -61,29 +62,36 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 mojangProfile,
                                 skyBlockIsland,
                                 "dungeon_classes",
-                                member.getDungeons().getClasses(),
+                                member.getDungeonData()
+                                    .getClasses()
+                                    .stream()
+                                    .map(Dungeon.Class::asEnhanced)
+                                    .collect(Concurrent.toList()),
                                 member.getDungeonClassAverage(),
                                 member.getDungeonClassExperience(),
                                 member.getDungeonClassProgressPercentage(),
-                                dungeonClass -> dungeonClass.getType().getName(),
-                                dungeonClass -> Emoji.of(dungeonClass.getType().getEmoji()),
+                                dungeonClass -> dungeonClass.getTypeModel().getName(),
+                                dungeonClass -> Emoji.of(dungeonClass.getTypeModel().getEmoji()),
                                 false
                             )
                                 .mutate()
-                                .withDescription(String.format(
+                                .withDescription(
                                     """
                                         %1$sSelected Class: %3$s
-                                        %1$sAverage Class Level: {3,number,#.##}
-                                        %1$sTotal Class Experience: {4,number,#.##}
-                                        %2$sTotal Class Progress: {5,number,#.##}%
+                                        %1$sAverage Class Level: %4$.2f
+                                        %1$sTotal Class Experience: %5$.2f
+                                        %2$sTotal Class Progress: %6$.2f%%
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
-                                    member.getDungeons().getSelectedClassModel().map(DungeonClassModel::getName).orElse(getEmojiAsFormat("TEXT_NULL", "*<null>*")),
+                                    member.getDungeonData()
+                                        .getSelectedClass()
+                                        .getModel()
+                                        .getName(),
                                     member.getDungeonClassAverage(),
                                     member.getDungeonClassExperience(),
                                     member.getDungeonClassProgressPercentage()
-                                ))
+                                )
                                 .build()
                         )
                         .build()
@@ -92,12 +100,12 @@ public class DungeonsCommand extends SkyBlockUserCommand {
         );
     }
 
-    private static @NotNull ConcurrentList<Page> getDungeonPages(@NotNull SkyBlockUser skyBlockUser, boolean masterMode) {
+    private @NotNull ConcurrentList<Page> getDungeonPages(@NotNull SkyBlockUser skyBlockUser, boolean masterMode) {
         String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
         String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
-        SkyBlockIsland.Member member = skyBlockUser.getMember();
+        Member member = skyBlockUser.getMember();
         Function<DungeonModel, String> identifierFunction = dungeonModel -> String.format(
             "dungeon_%s_%s",
             dungeonModel.getKey(),
@@ -106,13 +114,12 @@ public class DungeonsCommand extends SkyBlockUserCommand {
 
         return SimplifiedApi.getRepositoryOf(DungeonModel.class)
             .matchAll(DungeonModel::isMasterModeEnabled)
-            .stream()
             .map(dungeonModel -> Page.builder()
                 .withOption(
                     SelectMenu.Option.builder()
                         .withValue(identifierFunction.apply(dungeonModel))
                         .withLabel(
-                            "Dungeon: {0} ({1})",
+                            "Dungeon: %s (%s)",
                             dungeonModel.getName(),
                             (masterMode ? "Master" : "Normal")
                         )
@@ -123,8 +130,8 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                     getEmbedBuilder(mojangProfile, skyBlockIsland, identifierFunction.apply(dungeonModel))
                         .withDescription(
                             """
-                                {0}Total Runs: {2}
-                                {1}Secrets Found: {3}
+                                %1$sTotal Runs: %3$s
+                                %2$sSecrets Found: %4$s
                                 """,
                             emojiReplyStem,
                             emojiReplyEnd,
@@ -172,11 +179,11 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                     .withName(dungeonFloorModel.getFloorBoss().getName())
                                     .withValue(
                                         """
-                                            {0}Kills: **{2,number,#,###}**
-                                            {0}Best Score: **{3,number,#}**
-                                            {0}Best Time: **{4}**
-                                            {0}Best S Tier: **{5}**
-                                            {1}Best S+ Tier: **{6}**
+                                            %1$sKills: **%3$.3f**
+                                            %1$sBest Score: **%4$f**
+                                            %1$sBest Time: **%5$s**
+                                            %1$sBest S Tier: **%6$s**
+                                            %2$sBest S+ Tier: **%7$s**
                                             """,
                                         emojiReplyStem,
                                         emojiReplyEnd,
