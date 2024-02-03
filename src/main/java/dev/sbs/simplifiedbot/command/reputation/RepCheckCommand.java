@@ -9,7 +9,6 @@ import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.collection.search.SearchFunction;
-import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.mutable.pair.Pair;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
@@ -66,7 +65,7 @@ public class RepCheckCommand extends SqlSlashCommand {
             .collect(Concurrent.toList());
 
         // Check if reputation types have been created
-        if (ListUtil.isEmpty(reputationTypes))
+        if (reputationTypes.isEmpty())
             return commandContext.reply(genericResponse("No reputation types have been setup!", Color.RED));
 
         ConcurrentMap<GuildReputationTypeModel, ConcurrentList<GuildReputationModel>> receiverReputation = reputationTypes.stream()

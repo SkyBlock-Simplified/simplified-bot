@@ -13,7 +13,7 @@ import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.handler.ItemHandler;
+import dev.sbs.discordapi.response.page.handler.cache.ItemHandler;
 import dev.sbs.discordapi.response.page.handler.sorter.Sorter;
 import dev.sbs.discordapi.response.page.item.Item;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
