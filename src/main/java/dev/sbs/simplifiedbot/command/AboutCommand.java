@@ -1,10 +1,10 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.data.model.discord.sbs_data.sbs_legacy_donors.SbsLegacyDonorModel;
 import dev.sbs.api.data.model.discord.users.UserModel;
-import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
