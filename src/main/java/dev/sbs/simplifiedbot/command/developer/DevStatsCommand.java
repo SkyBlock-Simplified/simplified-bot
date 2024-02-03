@@ -1,10 +1,9 @@
 package dev.sbs.simplifiedbot.command.developer;
 
-import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.util.helper.ListUtil;
-import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.collection.concurrent.Concurrent;
+import dev.sbs.api.collection.concurrent.ConcurrentList;
+import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Argument;
@@ -52,7 +51,7 @@ public class DevStatsCommand extends SqlSlashCommand {
         Optional<Snowflake> optionalGuildId = Optional.empty();
 
         // Handle DMs
-        if (ListUtil.isEmpty(commandContext.getArguments())) {
+        if (commandContext.getArguments().isEmpty()) {
             if (!commandContext.isPrivateChannel())
                 optionalGuildId = commandContext.getGuild().map(Guild::getId).blockOptional();
         } else
@@ -136,7 +135,7 @@ public class DevStatsCommand extends SqlSlashCommand {
                     )
                 );
 
-            if (ListUtil.notEmpty(guild.getFeatures())) {
+            if (!guild.getFeatures().isEmpty()) {
                 builder.withField(
                     "Features",
                     StringUtil.join(
@@ -152,7 +151,6 @@ public class DevStatsCommand extends SqlSlashCommand {
 
         return commandContext.reply(
             Response.builder()
-                .isNotInteractable()
                 .withPages(
                     Page.builder()
                         .withEmbeds(builder.build())

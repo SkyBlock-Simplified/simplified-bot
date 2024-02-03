@@ -3,18 +3,18 @@ package dev.sbs.simplifiedbot;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.impl.sbs.request.SbsRequest;
 import dev.sbs.api.client.impl.sbs.response.SkyBlockEmojis;
+import dev.sbs.api.collection.concurrent.Concurrent;
+import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.data.model.discord.emojis.EmojiModel;
 import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildSqlModel;
 import dev.sbs.api.data.sql.SqlConfig;
+import dev.sbs.api.mutable.pair.Pair;
 import dev.sbs.api.reflection.Reflection;
-import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.helper.NumberUtil;
-import dev.sbs.api.util.helper.ResourceUtil;
-import dev.sbs.api.util.helper.StringUtil;
-import dev.sbs.api.util.mutable.pair.Pair;
+import dev.sbs.api.util.NumberUtil;
+import dev.sbs.api.util.StringUtil;
+import dev.sbs.api.util.SystemUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.reference.CommandReference;
 import dev.sbs.discordapi.response.Emoji;
@@ -49,9 +49,9 @@ public final class SimplifiedBot extends DiscordBot {
         DiscordConfig.builder()
             .withFileName("config")
             .withEnvironment(DiscordEnvironment.PRODUCTION)
-            .withToken(ResourceUtil.getEnv("DISCORD_TOKEN"))
+            .withToken(SystemUtil.getEnv("DISCORD_TOKEN"))
             .withMainGuildId(652148034448261150L)
-            .withDebugChannelId(ResourceUtil.getEnv("DEVELOPER_ERROR_LOG_CHANNEL_ID").map(NumberUtil::tryParseLong))
+            .withDebugChannelId(SystemUtil.getEnv("DEVELOPER_ERROR_LOG_CHANNEL_ID").map(NumberUtil::tryParseLong))
             .withDataConfig(SqlConfig.defaultSql())
             .withEmojiLocator(key -> SimplifiedApi.getRepositoryOf(EmojiModel.class)
                 .findFirst(EmojiModel::getKey, key)
@@ -66,7 +66,7 @@ public final class SimplifiedBot extends DiscordBot {
             .withDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES))
             .withClientPresence(ClientPresence.online(ClientActivity.watching("commands")))
             .withMemberRequestFilter(MemberRequestFilter.withLargeGuilds())
-            .onGatewayConnected(gatewayDiscordClient -> ResourceUtil.getEnv("HYPIXEL_API_KEY")
+            .onGatewayConnected(gatewayDiscordClient -> SystemUtil.getEnv("HYPIXEL_API_KEY")
                 .map(StringUtil::toUUID)
                 .ifPresent(value -> SimplifiedApi.getKeyManager().add("HYPIXEL_API_KEY", value))
             )

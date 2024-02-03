@@ -1,15 +1,15 @@
 package dev.sbs.simplifiedbot.command.reputation;
 
 import dev.sbs.api.SimplifiedApi;
+import dev.sbs.api.collection.concurrent.Concurrent;
+import dev.sbs.api.collection.concurrent.ConcurrentList;
+import dev.sbs.api.collection.concurrent.ConcurrentMap;
+import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.collection.search.SearchFunction;
 import dev.sbs.api.data.model.discord.guild_data.guild_reputation.GuildReputationModel;
 import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildReputationTypeModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
-import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.util.collection.search.SearchFunction;
-import dev.sbs.api.util.mutable.pair.Pair;
+import dev.sbs.api.mutable.pair.Pair;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Argument;

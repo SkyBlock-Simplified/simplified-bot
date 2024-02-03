@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.command.developer.command;
 
-import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.collection.concurrent.Concurrent;
+import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.command.parameter.Parameter;

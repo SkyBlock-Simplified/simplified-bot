@@ -6,10 +6,10 @@ import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.d
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.EnhancedMember;
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.Member;
 import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
+import dev.sbs.api.collection.concurrent.Concurrent;
+import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_floors.DungeonFloorModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
-import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;

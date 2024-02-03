@@ -6,7 +6,7 @@ import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.data.sql.SqlConfig;
-import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.util.StringUtil;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitSolution;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_second.DamagePerSecondSolution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;

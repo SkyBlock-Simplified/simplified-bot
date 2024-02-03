@@ -6,7 +6,7 @@ import dev.sbs.api.data.model.discord.emojis.EmojiSqlModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildSqlModel;
 import dev.sbs.api.data.sql.SqlRepository;
-import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;

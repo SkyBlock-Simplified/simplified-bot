@@ -8,12 +8,12 @@ import dev.sbs.api.client.impl.hypixel.response.skyblock.SkyBlockAuctionsRespons
 import dev.sbs.api.client.impl.hypixel.response.skyblock.SkyBlockBazaarResponse;
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.SkyBlockAuction;
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.SkyBlockBazaarProduct;
+import dev.sbs.api.collection.concurrent.Concurrent;
+import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
 import dev.sbs.api.scheduler.Scheduler;
 import dev.sbs.api.util.SimplifiedException;
-import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import lombok.AccessLevel;
 import lombok.Getter;

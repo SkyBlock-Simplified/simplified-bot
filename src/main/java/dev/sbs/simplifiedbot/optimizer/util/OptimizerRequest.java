@@ -11,6 +11,9 @@ import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.p
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.NbtContent;
 import dev.sbs.api.client.impl.sbs.request.SbsRequest;
 import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
+import dev.sbs.api.collection.concurrent.Concurrent;
+import dev.sbs.api.collection.concurrent.ConcurrentList;
+import dev.sbs.api.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
@@ -19,9 +22,6 @@ import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatMod
 import dev.sbs.api.minecraft.nbt.tags.collection.CompoundTag;
 import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
 import dev.sbs.api.util.builder.Builder;
-import dev.sbs.api.util.collection.concurrent.Concurrent;
-import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

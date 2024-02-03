@@ -11,11 +11,11 @@ import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.m
 import dev.sbs.api.client.impl.sbs.request.SbsRequest;
 import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
 import dev.sbs.api.client.impl.sbs.response.SkyBlockEmojis;
+import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.SimplifiedException;
-import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.helper.StringUtil;
+import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
 import dev.sbs.discordapi.command.parameter.Argument;
