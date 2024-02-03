@@ -15,7 +15,6 @@ import dev.sbs.api.data.model.skyblock.stats.StatModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.mutable.pair.Pair;
 import dev.sbs.api.util.mutable.primitive.MutableDouble;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
@@ -148,7 +147,7 @@ public abstract class Solution<T extends ItemEntity> {
             .filter(reforgeStatModel -> reforgeStatModel.getReforge().getItemTypes().contains(itemTypeModel.getKey()))
             .filter(reforgeStatModel -> reforgeStatModel.getRarity().equals(objectData.getRarity()))
             .filter(reforgeStatModel -> this.getOptimizerRequest().getAllowedReforges().contains(reforgeStatModel))
-            .filter(reforgeStatModel -> ListUtil.isEmpty(reforgeStatModel.getReforge().getConditions()) ||
+            .filter(reforgeStatModel -> reforgeStatModel.getReforge().getConditions().isEmpty() ||
                 reforgeStatModel.getReforge()
                     .getConditions()
                     .stream()
@@ -197,7 +196,7 @@ public abstract class Solution<T extends ItemEntity> {
                     }
 
                     // Handle Bonus Item Effects
-                    if (ListUtil.notEmpty(objectData.getBonusItemStatModels())) {
+                    if (objectData.getBonusItemStatModels().notEmpty()) {
                         for (BonusItemStatModel bonusItemStatModel : objectData.getBonusItemStatModels()) {
                             if (bonusItemStatModel.noRequiredMobType() || this.getOptimizerRequest().getMobType().equals(bonusItemStatModel.getRequiredMobType())) {
                                 if (bonusItemStatModel.isForReforges()) {

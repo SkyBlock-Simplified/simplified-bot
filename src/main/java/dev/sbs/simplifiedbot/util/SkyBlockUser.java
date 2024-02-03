@@ -15,7 +15,6 @@ import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.api.util.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.helper.StringUtil;
 import dev.sbs.discordapi.command.exception.user.UserInputException;
 import dev.sbs.discordapi.command.exception.user.UserVerificationException;
@@ -68,7 +67,7 @@ public final class SkyBlockUser {
         this.auctions = SimplifiedApi.getApiRequest(HypixelRequest.class).getAuctionByPlayer(this.getMojangProfile().getUniqueId()).getAuctions();
 
         // Empty Profile
-        if (ListUtil.isEmpty(this.profiles.getIslands())) {
+        if (this.profiles.getIslands().isEmpty()) {
             throw SimplifiedException.of(UserInputException.class)
                 .withMessage("The Hypixel account `%s` has either never played SkyBlock or has been profile wiped.", this.getMojangProfile().getUsername())
                 .build();

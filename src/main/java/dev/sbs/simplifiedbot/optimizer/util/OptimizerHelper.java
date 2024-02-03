@@ -11,7 +11,6 @@ import dev.sbs.api.data.model.skyblock.stats.StatModel;
 import dev.sbs.api.util.collection.concurrent.Concurrent;
 import dev.sbs.api.util.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.util.collection.concurrent.linked.ConcurrentLinkedMap;
-import dev.sbs.api.util.helper.ListUtil;
 import dev.sbs.api.util.mutable.pair.Pair;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Calculator;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ItemEntity;
@@ -145,7 +144,7 @@ public abstract class OptimizerHelper {
             .flatMapToDouble(armorData -> armorData
                 .getEnchantments()
                 .stream()
-                .filter(enchantmentEntry -> ListUtil.isEmpty(enchantmentEntry.getKey().getMobTypes()) || enchantmentEntry.getKey().getMobTypes().contains(optimizerRequest.getMobType().getKey()))
+                .filter(enchantmentEntry -> enchantmentEntry.getKey().getMobTypes().isEmpty() || enchantmentEntry.getKey().getMobTypes().contains(optimizerRequest.getMobType().getKey()))
                 .flatMapToDouble(enchantmentEntry -> armorData.getEnchantmentStats()
                     .get(enchantmentEntry.getKey())
                     .stream()
@@ -167,7 +166,7 @@ public abstract class OptimizerHelper {
 
             enchantBonus += weaponData.getEnchantments()
                 .stream()
-                .filter(enchantmentEntry -> ListUtil.isEmpty(enchantmentEntry.getKey().getMobTypes()) || enchantmentEntry.getKey().getMobTypes().contains(optimizerRequest.getMobType().getKey()))
+                .filter(enchantmentEntry -> enchantmentEntry.getKey().getMobTypes().isEmpty() || enchantmentEntry.getKey().getMobTypes().contains(optimizerRequest.getMobType().getKey()))
                 .flatMapToDouble(enchantmentEntry -> weaponData.getEnchantmentStats()
                     .get(enchantmentEntry.getKey())
                     .stream()
