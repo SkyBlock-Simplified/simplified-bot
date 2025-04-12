@@ -34,9 +34,12 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.2'
 
-    implementation group: 'com.discord4j', name: 'discord4j-core', version: '3.3.0-M2'
+    // Logging
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.20.0'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.20.0'
 
     // Projects
+    implementation group: 'com.discord4j', name: 'discord4j-core', version: '3.3.0-SNAPSHOT'
     implementation project(':api')
     implementation project(':discord-api')
 
