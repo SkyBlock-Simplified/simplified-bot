@@ -14,13 +14,13 @@ import dev.sbs.api.client.impl.sbs.response.SkyBlockEmojis;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
-import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.api.util.StringUtil;
-import dev.sbs.discordapi.command.exception.user.UserInputException;
-import dev.sbs.discordapi.command.exception.user.UserVerificationException;
+import dev.sbs.discordapi.command.exception.input.InputException;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.util.exception.DiscordUserException;
 import dev.sbs.simplifiedbot.SimplifiedBot;
+import dev.sbs.simplifiedbot.exception.UnlinkedAccountException;
 import discord4j.common.util.Snowflake;
 import lombok.Getter;
 import org.intellij.lang.annotations.PrintFormat;
@@ -48,9 +48,7 @@ public final class SkyBlockUser {
 
         if (optionalPlayerID.isEmpty()) {
             if (!this.isVerified(commandContext.getInteractUserId()))
-                throw SimplifiedException.of(UserVerificationException.class)
-                    .addData("COMMAND", true)
-                    .build();
+                throw new UnlinkedAccountException();
 
             optionalPlayerID = SimplifiedApi.getRepositoryOf(UserModel.class)
                 .matchFirst(userModel -> userModel.getDiscordIds().contains(commandContext.getInteractUserId().asLong()))
@@ -67,11 +65,8 @@ public final class SkyBlockUser {
         this.auctions = SimplifiedApi.getApiRequest(HypixelRequest.class).getAuctionByPlayer(this.getMojangProfile().getUniqueId()).getAuctions();
 
         // Empty Profile
-        if (this.profiles.getIslands().isEmpty()) {
-            throw SimplifiedException.of(UserInputException.class)
-                .withMessage("The Hypixel account `%s` has either never played SkyBlock or has been profile wiped.", this.getMojangProfile().getUsername())
-                .build();
-        }
+        if (this.profiles.getIslands().isEmpty())
+            throw new DiscordUserException("The Hypixel account `%s` has either never played SkyBlock or has been profile wiped.", this.getMojangProfile().getUsername());
 
         Optional<String> optionalProfileName = commandContext.getArgument("profile").map(Argument::asString);
         Optional<SkyBlockIsland> optionalSkyBlockIsland = Optional.empty();
@@ -81,11 +76,8 @@ public final class SkyBlockUser {
             ProfileModel profileModel = SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirstOrNull(ProfileModel::getKey, profileName.toUpperCase());
 
             // Invalid Profile Name
-            if (profileModel == null) {
-                throw SimplifiedException.of(UserInputException.class)
-                    .withMessage("The Hypixel account `%s` does not contain a profile with name `%s`.", this.getMojangProfile().getUsername(), StringUtil.capitalizeFully(profileName))
-                    .build();
-            }
+            if (profileModel == null)
+                throw new InputException(StringUtil.capitalizeFully(profileName));
 
             optionalSkyBlockIsland = this.profiles.getIsland(profileModel.getKey());
         }

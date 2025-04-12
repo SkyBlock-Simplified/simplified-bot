@@ -3,6 +3,7 @@ package dev.sbs.simplifiedbot.command;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.impl.hypixel.request.HypixelRequest;
 import dev.sbs.api.client.impl.hypixel.response.hypixel.HypixelPlayerResponse;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelPlayer;
 import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelSocial;
 import dev.sbs.api.client.impl.sbs.request.SbsRequest;
 import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
@@ -11,13 +12,10 @@ import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.data.model.discord.users.UserSqlModel;
 import dev.sbs.api.data.sql.SqlRepository;
-import dev.sbs.api.mutable.pair.Pair;
-import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandId;
-import dev.sbs.discordapi.command.exception.user.UserInputException;
-import dev.sbs.discordapi.command.exception.user.UserVerificationException;
+import dev.sbs.discordapi.command.exception.input.ExpectedInputException;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
@@ -26,6 +24,7 @@ import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.discordapi.util.exception.DiscordUserException;
 import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
@@ -48,9 +47,9 @@ public class LinkCommand extends SqlSlashCommand {
         String interactDiscordTag = commandContext.getInteractUser().getTag();
 
         String hypixelDiscordTag = hypixelPlayerResponse.getPlayer()
-            .getSocialMedia()
-            .getLinks()
-            .getOrDefault(HypixelSocial.Type.DISCORD, "");
+            .map(HypixelPlayer::getSocialMedia)
+            .map(socialMedia -> socialMedia.getLinks().get(HypixelSocial.Type.DISCORD))
+            .orElse("");
 
         if (interactDiscordTag.equals(hypixelDiscordTag)) {
             UserModel userModel = SimplifiedApi.getRepositoryOf(UserModel.class).matchFirstOrNull(user ->
@@ -100,16 +99,16 @@ public class LinkCommand extends SqlSlashCommand {
                 if (!hasVerifiedRole)
                     guildMember.addRole(Snowflake.of(862138423175544862L)).subscribe();
                 else {
-                    throw SimplifiedException.of(UserVerificationException.class)
+                    // TODO: Assign linked accounts anyway
+                    /*throw SimplifiedException.of(UserVerificationException.class)
                         .addData("MESSAGE", true)
                         .withMessage("Your Discord account is already linked to `%s`!", mojangProfileResponse.getUsername())
-                        .build();
+                        .build();*/
                 }
             }
 
             return commandContext.reply(
                 Response.builder()
-                    .isNotInteractable()
                     .withPages(
                         Page.builder()
                             .withEmbeds(
@@ -128,26 +127,10 @@ public class LinkCommand extends SqlSlashCommand {
                     .build()
             );
         } else {
-            String emptyError = "Your Hypixel account has no associated Discord tag.";
-            String invalidError = "Your Hypixel account's Discord tag does not match your Discord account.";
-
-            SimplifiedException.ExceptionBuilder<UserInputException> userInputError = SimplifiedException.of(UserInputException.class)
-                .withMessage(StringUtil.isEmpty(hypixelDiscordTag) ? emptyError : invalidError);
-
-            if (StringUtil.isNotEmpty(hypixelDiscordTag)) {
-                userInputError.withFields(
-                    Pair.of(
-                        "Expected",
-                        String.format("`%s`", interactDiscordTag)
-                    ),
-                    Pair.of(
-                        "Found",
-                        String.format("`%s`", hypixelDiscordTag)
-                    )
-                );
-            }
-
-            throw userInputError.build();
+            if (StringUtil.isNotEmpty(hypixelDiscordTag))
+                throw new ExpectedInputException(interactDiscordTag, hypixelDiscordTag, "Your Hypixel account's Discord tag does not match your Discord account.");
+            else
+                throw new DiscordUserException("Your Hypixel account has no associated Discord tag.");
         }
     }
 

@@ -1,19 +1,31 @@
 package dev.sbs.simplifiedbot.optimizer.exception;
 
-import dev.sbs.api.collection.concurrent.ConcurrentList;
-import dev.sbs.api.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.mutable.triple.Triple;
-import dev.sbs.discordapi.util.exception.DiscordException;
+import dev.sbs.discordapi.util.exception.DiscordUserException;
 import dev.sbs.simplifiedbot.optimizer.Optimizer;
+import org.intellij.lang.annotations.PrintFormat;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@link OptimizerException OptimizerExceptions} are thrown
  * when the {@link Optimizer} is unable to perform a specific action.
  */
-public final class OptimizerException extends DiscordException {
+public class OptimizerException extends DiscordUserException {
 
-    private OptimizerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, ConcurrentList<Triple<String, String, Boolean>> fields, ConcurrentMap<String, Object> data) {
-        super(message, cause, enableSuppression, writableStackTrace, fields, data);
+    public OptimizerException(@NotNull Throwable cause) {
+        super(cause);
+    }
+
+    public OptimizerException(@NotNull String message) {
+        super(message);
+    }
+
+    public OptimizerException(@NotNull String message, @NotNull Throwable cause) {
+        super(message, cause);
+    }
+
+    public OptimizerException(@NotNull @PrintFormat String message, @Nullable Object... args) {
+        super(String.format(message, args));
     }
 
 }

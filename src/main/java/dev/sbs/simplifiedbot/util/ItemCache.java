@@ -13,7 +13,6 @@ import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.data.model.skyblock.items.ItemModel;
 import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
 import dev.sbs.api.scheduler.Scheduler;
-import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.discordapi.util.exception.DiscordException;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -123,10 +122,7 @@ public class ItemCache {
                 this.replaceItems(auctions);
                 return lastUpdated;
             } catch (Exception exception) {
-                throw SimplifiedException.of(DiscordException.class)
-                    .withMessage("Unable to update entire Auction House cache!")
-                    .withCause(exception)
-                    .build();
+                throw new DiscordException("Unable to update entire Auction House cache!", exception);
             }
         }
 
