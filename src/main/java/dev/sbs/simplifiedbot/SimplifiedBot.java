@@ -16,12 +16,13 @@ import dev.sbs.api.util.NumberUtil;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.api.util.SystemUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.reference.CommandReference;
+import dev.sbs.discordapi.DiscordConfig;
+import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.response.Emoji;
-import dev.sbs.discordapi.util.DiscordConfig;
 import dev.sbs.discordapi.util.DiscordEnvironment;
 import dev.sbs.simplifiedbot.util.ItemCache;
 import discord4j.common.util.Snowflake;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.shard.MemberRequestFilter;
@@ -41,41 +42,42 @@ public final class SimplifiedBot extends DiscordBot {
     private ItemCache itemCache;
     private SkyBlockEmojis skyBlockEmojis;
 
-    private SimplifiedBot(@NotNull DiscordConfig discordConfig) {
-        super(discordConfig);
-    }
-
     public static void main(final String[] args) {
-        DiscordConfig.builder()
+        DiscordConfig discordConfig = DiscordConfig.builder()
             .withFileName("config")
             .withEnvironment(DiscordEnvironment.PRODUCTION)
             .withToken(SystemUtil.getEnv("DISCORD_TOKEN"))
             .withMainGuildId(652148034448261150L)
             .withDebugChannelId(SystemUtil.getEnv("DEVELOPER_ERROR_LOG_CHANNEL_ID").map(NumberUtil::tryParseLong))
             .withDataConfig(SqlConfig.defaultSql())
-            .withEmojiLocator(key -> SimplifiedApi.getRepositoryOf(EmojiModel.class)
-                .findFirst(EmojiModel::getKey, key)
-                .flatMap(Emoji::of)
-            )
             .withCommands(
                 Reflection.getResources()
                     .filterPackage("dev.sbs.simplifiedbot.command")
-                    .getSubtypesOf(CommandReference.class)
+                    .getSubtypesOf(DiscordCommand.class)
             )
             .withAllowedMentions(AllowedMentions.suppressEveryone())
             .withDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES))
             .withClientPresence(ClientPresence.online(ClientActivity.watching("commands")))
             .withMemberRequestFilter(MemberRequestFilter.withLargeGuilds())
-            .onGatewayConnected(gatewayDiscordClient -> SystemUtil.getEnv("HYPIXEL_API_KEY")
-                .map(StringUtil::toUUID)
-                .ifPresent(value -> SimplifiedApi.getKeyManager().add("HYPIXEL_API_KEY", value))
-            )
-            //.onDatabaseConnected(SimplifiedBot::onDatabaseConnected)
-            .build()
-            .createBot(SimplifiedBot::new);
+            .build();
+
+        SimplifiedBot simplifiedBot = new SimplifiedBot();
+        simplifiedBot.setEmojiHandler(key -> SimplifiedApi.getRepositoryOf(EmojiModel.class)
+            .findFirst(EmojiModel::getKey, key)
+            .flatMap(Emoji::of)
+        );
+        simplifiedBot.login(discordConfig);
     }
 
-    private void onDatabaseConnected() {
+    @Override
+    protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
+        SystemUtil.getEnv("HYPIXEL_API_KEY")
+            .map(StringUtil::toUUID)
+            .ifPresent(value -> SimplifiedApi.getKeyManager().add("HYPIXEL_API_KEY", value));
+    }
+
+    @Override
+    protected void onDatabaseConnected() {
         // Update Emojis
         log.info("Updating Emojis");
         ConcurrentList<EmojiModel> allEmojis = SimplifiedApi.getRepositoryOf(EmojiModel.class).findAll();
