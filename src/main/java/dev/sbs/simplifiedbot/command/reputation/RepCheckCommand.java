@@ -11,17 +11,17 @@ import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildRep
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
 import dev.sbs.api.mutable.pair.Pair;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.exception.DiscordException;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.embed.structure.Field;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -31,8 +31,11 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.Optional;
 
-@CommandId("01cd83a4-cc84-4b76-9e16-dbdab43e80ff")
-public class RepCheckCommand extends SqlSlashCommand {
+@CommandStructure(
+    parent = "rep",
+    name = "check"
+)
+public class RepCheckCommand extends SlashCommand {
 
     protected RepCheckCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

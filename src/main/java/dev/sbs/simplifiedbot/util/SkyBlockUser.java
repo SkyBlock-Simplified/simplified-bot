@@ -18,7 +18,7 @@ import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.command.exception.input.InputException;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
-import dev.sbs.discordapi.util.exception.DiscordUserException;
+import dev.sbs.discordapi.exception.DiscordUserException;
 import dev.sbs.simplifiedbot.SimplifiedBot;
 import dev.sbs.simplifiedbot.exception.UnlinkedAccountException;
 import discord4j.common.util.Snowflake;

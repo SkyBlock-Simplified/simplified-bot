@@ -14,25 +14,25 @@ import dev.sbs.api.data.model.discord.users.UserSqlModel;
 import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.exception.input.ExpectedInputException;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.exception.DiscordUserException;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.util.exception.DiscordUserException;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandId("48b8f351-4e74-4010-b1ef-9b3d18c9833a")
-public class LinkCommand extends SqlSlashCommand {
+@CommandStructure("48b8f351-4e74-4010-b1ef-9b3d18c9833a")
+public class LinkCommand extends SlashCommand {
 
     protected LinkCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

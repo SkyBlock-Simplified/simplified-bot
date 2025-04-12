@@ -11,7 +11,7 @@ import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_floors.DungeonFloorModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-@CommandId("cc65f062-45f8-44c0-9635-84359e3ea246")
+@CommandStructure("cc65f062-45f8-44c0-9635-84359e3ea246")
 public class DungeonsCommand extends SkyBlockUserCommand {
 
     protected DungeonsCommand(@NotNull DiscordBot discordBot) {
@@ -36,8 +36,8 @@ public class DungeonsCommand extends SkyBlockUserCommand {
 
     @Override
     protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
-        String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
-        String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         EnhancedMember member = skyBlockUser.getMember().asEnhanced();
@@ -45,8 +45,8 @@ public class DungeonsCommand extends SkyBlockUserCommand {
         return commandContext.reply(
             Response.builder()
                 .withTimeToLive(60)
-                .isInteractable()
-                .replyMention()
+                //.isInteractable()
+                //.replyMention()
                 .withPages(getDungeonPages(skyBlockUser, false))
                 .withPages(getDungeonPages(skyBlockUser, true))
                 .withPages(
@@ -101,8 +101,8 @@ public class DungeonsCommand extends SkyBlockUserCommand {
     }
 
     private @NotNull ConcurrentList<Page> getDungeonPages(@NotNull SkyBlockUser skyBlockUser, boolean masterMode) {
-        String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
-        String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         Member member = skyBlockUser.getMember();

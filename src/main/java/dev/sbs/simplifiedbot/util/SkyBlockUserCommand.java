@@ -12,14 +12,15 @@ import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.mutable.pair.Pair;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.exception.DiscordException;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.embed.structure.Field;
 import dev.sbs.discordapi.response.embed.structure.Footer;
-import dev.sbs.discordapi.util.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -30,7 +31,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public abstract class SkyBlockUserCommand extends SqlSlashCommand {
+public abstract class SkyBlockUserCommand extends SlashCommand {
 
     public static final Pattern MOJANG_NAME = Pattern.compile("[\\w]{3,16}");
 
@@ -108,7 +109,7 @@ public abstract class SkyBlockUserCommand extends SqlSlashCommand {
             );
     }
 
-    protected static <T extends Experience> Embed getSkillEmbed(
+    protected <T extends Experience> Embed getSkillEmbed(
         MojangProfileResponse mojangProfile,
         SkyBlockIsland skyBlockIsland,
         String value,
@@ -120,9 +121,9 @@ public abstract class SkyBlockUserCommand extends SqlSlashCommand {
         Function<T, Optional<Emoji>> emojiFunction,
         boolean details
     ) {
-        String emojiReplyStem = getEmoji("REPLY_STEM").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
-        String emojiReplyLine = getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
-        String emojiReplyEnd = getEmoji("REPLY_END").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
+        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
+        String emojiReplyLine = this.getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyEnd = this.getEmoji("REPLY_END").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
         Embed.Builder startBuilder;
 
         if (details) {
