@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.exception;
 
-import dev.sbs.discordapi.util.exception.DiscordUserException;
+import dev.sbs.discordapi.exception.DiscordUserException;
 import dev.sbs.simplifiedbot.optimizer.Optimizer;
 import org.intellij.lang.annotations.PrintFormat;
 import org.jetbrains.annotations.NotNull;

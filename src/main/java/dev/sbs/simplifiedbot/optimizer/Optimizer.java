@@ -1,6 +1,5 @@
 package dev.sbs.simplifiedbot.optimizer;
 
-import dev.sbs.api.util.SimplifiedException;
 import dev.sbs.simplifiedbot.optimizer.exception.OptimizerException;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitCalculator;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitItemEntity;
@@ -56,10 +55,7 @@ public final class Optimizer extends OptimizerHelper {
 
             return new OptimizerResponse(solution, getReforgeCount(solution), finalDamage, solverJob.getProblemId(), solverJob.getSolvingDuration());
         } catch (Exception exception) {
-            throw SimplifiedException.of(OptimizerException.class)
-                .withMessage("Optaplanner could not query solver job!")
-                .withCause(exception)
-                .build();
+            throw new OptimizerException("Optaplanner could not query solver job!", exception);
         }
     }
 
@@ -85,10 +81,7 @@ public final class Optimizer extends OptimizerHelper {
 
             return new OptimizerResponse(solution, getReforgeCount(solution), finalDamage, solverJob.getProblemId(), solverJob.getSolvingDuration());
         } catch (InterruptedException | ExecutionException exception) {
-            throw SimplifiedException.of(OptimizerException.class)
-                .withMessage("Optaplanner could not query solver job!")
-                .withCause(exception)
-                .build();
+            throw new OptimizerException("Optaplanner could not query solver job!", exception);
         }
     }
 
