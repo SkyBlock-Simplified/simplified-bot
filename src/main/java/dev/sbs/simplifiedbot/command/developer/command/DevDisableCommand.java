@@ -3,16 +3,20 @@ package dev.sbs.simplifiedbot.command.developer.command;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
-import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
+import dev.sbs.discordapi.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandId("79dbe55c-22a5-41dc-9bb0-fc956e2390b3")
-public class DevDisableCommand extends SqlSlashCommand {
+@CommandStructure(
+    parent = "dev",
+    group = "command",
+    name = "disable"
+)
+public class DevDisableCommand extends SlashCommand {
 
     protected DevDisableCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

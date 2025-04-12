@@ -1,15 +1,18 @@
 package dev.sbs.simplifiedbot.command.developer;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
-import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
+import dev.sbs.discordapi.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandId("07cff179-8415-4612-a15e-4534de379051")
-public class DevActivityCommand extends SqlSlashCommand {
+@CommandStructure(
+    parent = "dev",
+    name = "activity"
+)
+public class DevActivityCommand extends SlashCommand {
 
     protected DevActivityCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

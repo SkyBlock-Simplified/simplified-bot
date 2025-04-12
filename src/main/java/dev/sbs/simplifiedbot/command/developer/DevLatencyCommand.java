@@ -1,15 +1,18 @@
 package dev.sbs.simplifiedbot.command.developer;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
-import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
+import dev.sbs.discordapi.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandId("67702b52-3f90-43d5-8c66-ac52613dc7aa")
-public class DevLatencyCommand extends SqlSlashCommand {
+@CommandStructure(
+    parent = "dev",
+    name = "latency"
+)
+public class DevLatencyCommand extends SlashCommand {
 
     protected DevLatencyCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

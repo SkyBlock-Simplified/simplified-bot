@@ -5,18 +5,18 @@ import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.exception.DiscordException;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.embed.structure.Footer;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
@@ -28,8 +28,11 @@ import java.awt.*;
 import java.time.Instant;
 import java.util.Optional;
 
-@CommandId("2ce215ee-1d4e-4c7a-bb77-82f6c39eb02d")
-public class DevStatsCommand extends SqlSlashCommand {
+@CommandStructure(
+    parent = "dev",
+    name = "stats"
+)
+public class DevStatsCommand extends SlashCommand {
 
     protected DevStatsCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
@@ -70,15 +73,15 @@ public class DevStatsCommand extends SqlSlashCommand {
             .getGuildById(guildId)
             .blockOptional()
         ).ifPresentOrElse(guild -> {
-            String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asFormat).orElse("");
-            String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asFormat).orElse("");
+            String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asFormat).orElse("");
+            String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asFormat).orElse("");
             ConcurrentList<Channel> channels = guild.getChannels().toStream().collect(Concurrent.toList());
             boolean animatedIcon = guild.getData().icon().map(value -> value.startsWith("a_")).orElse(false);
 
             builder.withAuthor(
                     Author.builder()
                         .withName("Server Information")
-                        .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                        .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                         .build()
                 )
                 .withFooter(
