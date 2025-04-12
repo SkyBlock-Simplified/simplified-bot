@@ -25,7 +25,8 @@ import dev.sbs.api.mutable.pair.Pair;
 import dev.sbs.api.mutable.triple.Triple;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
@@ -37,7 +38,6 @@ import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.handler.cache.ItemHandler;
 import dev.sbs.discordapi.response.page.handler.sorter.Sorter;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -45,8 +45,10 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.UUID;
 
-@CommandId("b04d133d-3532-447b-8782-37d1036f3957")
-public class GuildCommand extends SqlSlashCommand {
+@CommandStructure(
+    name = "guild"
+)
+public class GuildCommand extends SlashCommand {
 
     protected GuildCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
@@ -133,14 +135,14 @@ public class GuildCommand extends SqlSlashCommand {
         slayerModels.forEach(slayerModel -> emojis.put(slayerModel.getKey(), Emoji.of(slayerModel.getEmoji()).orElseThrow()));
         emojis.put(catacombs.getKey(), Emoji.of(catacombs.getEmoji()).orElseThrow());
         dungeonClassModels.forEach(dungeonClassModel -> emojis.put(dungeonClassModel.getKey(), Emoji.of(dungeonClassModel.getEmoji()).orElseThrow()));
-        emojis.put("skills", getEmoji("SKILLS").orElseThrow());
-        emojis.put("weight", getEmoji("WEIGHT").orElseThrow());
-        emojis.put("networth", getEmoji("TRADING_COIN").orElseThrow());
-        emojis.put("skyblock", getEmoji("SKYBLOCK").orElseThrow());
-        emojis.put("slayer", getEmoji("SLAYER").orElseThrow());
+        emojis.put("skills", this.getEmoji("SKILLS").orElseThrow());
+        emojis.put("weight", this.getEmoji("WEIGHT").orElseThrow());
+        emojis.put("networth", this.getEmoji("TRADING_COIN").orElseThrow());
+        emojis.put("skyblock", this.getEmoji("SKYBLOCK").orElseThrow());
+        emojis.put("slayer", this.getEmoji("SLAYER").orElseThrow());
 
-        String emojiReplyStem = getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
-        String emojiReplyEnd = getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
 
         Color tagColor = guild.getTagColor().orElse(ChatFormat.YELLOW).getColor();
         String guildDescription = guild.getDescription().orElse(guild.getName() + " doesn't have a description set.");
@@ -150,7 +152,7 @@ public class GuildCommand extends SqlSlashCommand {
         String pageIdentifier = commandContext.getArgument("page").map(Argument::asString).orElse("general_information");
 
         return commandContext.reply(Response.builder()
-            .isInteractable()
+            //.isInteractable()
             .withTimeToLive(120)
             .withPages(
                 Page.builder()

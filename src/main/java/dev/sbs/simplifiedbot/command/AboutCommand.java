@@ -6,7 +6,8 @@ import dev.sbs.api.data.model.discord.sbs_data.sbs_legacy_donors.SbsLegacyDonorM
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
@@ -18,15 +19,16 @@ import dev.sbs.discordapi.response.embed.structure.Footer;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.handler.cache.ItemHandler;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.time.Instant;
 
-@CommandId("1b072a71-2045-457a-a9f7-354b936567cb")
-public class AboutCommand extends SqlSlashCommand {
+@CommandStructure(
+    name = "about"
+)
+public class AboutCommand extends SlashCommand {
 
     protected AboutCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
@@ -36,7 +38,7 @@ public class AboutCommand extends SqlSlashCommand {
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         return commandContext.reply(
             Response.builder()
-                .isInteractable()
+                //.isInteractable()
                 .withTimeToLive(60)
                 .withPages(
                     Page.builder()
@@ -52,7 +54,7 @@ public class AboutCommand extends SqlSlashCommand {
                                 .withAuthor(
                                     Author.builder()
                                         .withName("Bot Information")
-                                        .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                        .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                         .build()
                                 )
                                 .withTitle("About :: General")
@@ -129,7 +131,7 @@ public class AboutCommand extends SqlSlashCommand {
                                         .withAuthor(
                                             Author.builder()
                                                 .withName("Bot Information")
-                                                .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                                .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                                 .build()
                                         )
                                         .withTitle("About :: Donors")
@@ -166,7 +168,7 @@ public class AboutCommand extends SqlSlashCommand {
                                         .withAuthor(
                                             Author.builder()
                                                 .withName("Bot Information")
-                                                .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                                .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                                 .build()
                                         )
                                         .withTitle("About :: Patreon")

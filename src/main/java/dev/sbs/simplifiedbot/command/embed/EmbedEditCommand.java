@@ -1,15 +1,19 @@
 package dev.sbs.simplifiedbot.command.embed;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
-import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
+import dev.sbs.discordapi.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandId("0887bfa5-a8e8-401a-86c3-034362c0788a")
-public class EmbedEditCommand extends SqlSlashCommand {
+
+@CommandStructure(
+    parent = "embed",
+    name = "edit"
+)
+public class EmbedEditCommand extends SlashCommand {
 
     protected EmbedEditCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

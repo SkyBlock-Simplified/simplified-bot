@@ -5,9 +5,11 @@ import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.data.model.discord.command_data.command_categories.CommandCategoryModel;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandId;
+import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.exception.DiscordException;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -16,16 +18,16 @@ import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.embed.structure.Field;
 import dev.sbs.discordapi.response.embed.structure.Footer;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.util.exception.DiscordException;
-import dev.sbs.simplifiedbot.util.SqlSlashCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.time.Instant;
 
-@CommandId("e54b45ec-e47d-4784-bac4-72c4908ba87d")
-public class HelpCommand extends SqlSlashCommand {
+@CommandStructure(
+    name = "help"
+)
+public class HelpCommand extends SlashCommand {
 
     protected HelpCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
@@ -36,7 +38,7 @@ public class HelpCommand extends SqlSlashCommand {
         return commandContext.reply(
             Response.builder()
                 .withTimeToLive(60)
-                .isInteractable()
+                //.isInteractable()
                 .isEphemeral()
                 .withPages(
                     Page.builder()
@@ -45,7 +47,7 @@ public class HelpCommand extends SqlSlashCommand {
                                 .withAuthor(
                                     Author.builder()
                                         .withName("Help")
-                                        .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                        .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                         .build()
                                 )
                                 .withTitle("Categories")
@@ -87,7 +89,7 @@ public class HelpCommand extends SqlSlashCommand {
                                             .withAuthor(
                                                 Author.builder()
                                                     .withName("Help")
-                                                    .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                                    .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                                     .build()
                                             )
                                             .withTitle("Category :: %s", commandCategory.getName())
@@ -95,7 +97,7 @@ public class HelpCommand extends SqlSlashCommand {
                                             .withColor(Color.DARK_GRAY)
                                             .withFields(
                                                 this.getDiscordBot()
-                                                    .getCommandRegistrar()
+                                                    .getCommandHandler()
                                                     .getSlashCommands()
                                                     .stream()
                                                     .filter(command -> command.getCategory()
@@ -103,7 +105,6 @@ public class HelpCommand extends SqlSlashCommand {
                                                         .orElse(false)
                                                     )
                                                     .map(command -> Field.builder()
-                                                        .withEmoji(command.getEmoji())
                                                         .withName(command.getName())
                                                         .withValue(command.getDescription())
                                                         .isInline()
@@ -120,7 +121,7 @@ public class HelpCommand extends SqlSlashCommand {
                                     )
                                     .withPages(
                                         this.getDiscordBot()
-                                            .getCommandRegistrar()
+                                            .getCommandHandler()
                                             .getSlashCommands()
                                             .stream()
                                             .filter(command -> command.getCategory()
@@ -130,7 +131,6 @@ public class HelpCommand extends SqlSlashCommand {
                                             .map(command -> Page.builder()
                                                 .withOption(
                                                     SelectMenu.Option.builder()
-                                                        .withEmoji(command.getEmoji())
                                                         .withLabel(command.getName())
                                                         .withDescription(command.getDescription())
                                                         .withValue(command.getName())
