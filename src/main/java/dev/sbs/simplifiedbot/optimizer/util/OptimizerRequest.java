@@ -26,6 +26,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -34,13 +35,13 @@ import java.util.UUID;
 @Getter
 public final class OptimizerRequest {
 
-    private final Member member;
-    private final ProfileStats profileStats;
-    private final ConcurrentMap<String, Double> expressionVariables;
-    private final Optional<WeaponData> weapon;
-    private final ConcurrentList<ReforgeStatModel> allowedReforges;
-    private final Type type;
-    private final OptimizerMobTypeModel mobType;
+    private final @NotNull Member member;
+    private final @NotNull ProfileStats profileStats;
+    private final @NotNull ConcurrentMap<String, Double> expressionVariables;
+    private final @NotNull Optional<WeaponData> weapon;
+    private final @NotNull ConcurrentList<ReforgeStatModel> allowedReforges;
+    private final @NotNull Type type;
+    private final @NotNull OptimizerMobTypeModel mobType;
     private final double playerDamage;
     private final double weaponDamage;
     private final double weaponBonus;
@@ -60,29 +61,38 @@ public final class OptimizerRequest {
         Optional<WeaponData> optionalWeapon = Optional.empty();
 
         if (optimizerRequestBuilder.weaponItemModel.isPresent()) {
-            // Check Inventories
-            for (SkyBlockIsland.Storage storage : WEAPON_STORAGE) {
-                optionalWeapon = member.getStorage(storage)
+            // Inventory
+            optionalWeapon = member.getInventory()
+                .getContent()
+                .getNbtData()
+                .<CompoundTag>getListTag("i")
+                .stream()
+                .filter(CompoundTag::notEmpty)
+                .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
+                .findFirst()
+                .map(itemTag -> new WeaponData(itemTag, this));
+
+            // Ender Chest
+            if (optionalWeapon.isEmpty()) {
+                optionalWeapon = member.getInventory()
+                    .getEnderChest()
                     .getNbtData()
-                    .<CompoundTag>getList("i")
+                    .<CompoundTag>getListTag("i")
                     .stream()
                     .filter(CompoundTag::notEmpty)
                     .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
                     .findFirst()
                     .map(itemTag -> new WeaponData(itemTag, this));
-
-                if (optionalWeapon.isPresent())
-                    break;
             }
 
-            // Check Backpacks
+            // Backpacks
             if (optionalWeapon.isEmpty()) {
-                optionalWeapon = member.getBackpacks()
-                    .getContents()
+                optionalWeapon = member.getInventory()
+                    .getBackpacks()
                     .stream()
                     .map(Map.Entry::getValue)
                     .map(NbtContent::getNbtData)
-                    .flatMap(compoundTag -> compoundTag.<CompoundTag>getList("i").stream())
+                    .flatMap(compoundTag -> compoundTag.<CompoundTag>getListTag("i").stream())
                     .filter(CompoundTag::notEmpty)
                     .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
                     .findFirst()
@@ -118,40 +128,40 @@ public final class OptimizerRequest {
         private int islandIndex;
         private Optional<ItemModel> weaponItemModel;
 
-        public OptimizerRequestBuilder withAllowedReforges(ConcurrentList<ReforgeStatModel> allowedReforges) {
+        public @NotNull OptimizerRequestBuilder withAllowedReforges(@NotNull ConcurrentList<ReforgeStatModel> allowedReforges) {
             this.allowedReforges.addAll(allowedReforges);
             return this;
         }
 
-        public OptimizerRequestBuilder withIsland(@NotNull ProfileModel profileModel) {
+        public @NotNull OptimizerRequestBuilder withIsland(@NotNull ProfileModel profileModel) {
             return this.withIsland(this.skyBlockProfilesResponse.getIsland(profileModel.getKey())
                 .map(skyBlockIsland -> skyBlockProfilesResponse.getIslands().indexOf(skyBlockIsland))
                 .orElse(0)
             );
         }
 
-        public OptimizerRequestBuilder withIsland(int islandIndex) {
+        public @NotNull OptimizerRequestBuilder withIsland(int islandIndex) {
             this.islandIndex = islandIndex;
             return this;
         }
 
-        public OptimizerRequestBuilder withMobType(OptimizerMobTypeModel mobType) {
+        public @NotNull OptimizerRequestBuilder withMobType(@NotNull OptimizerMobTypeModel mobType) {
             this.mobType = mobType;
             return this;
         }
 
-        public OptimizerRequestBuilder withType(Type type) {
+        public @NotNull OptimizerRequestBuilder withType(@NotNull Type type) {
             this.type = type;
             return this;
         }
 
-        public OptimizerRequestBuilder withWeapon(ItemModel itemModel) {
+        public @NotNull OptimizerRequestBuilder withWeapon(@Nullable ItemModel itemModel) {
             this.weaponItemModel = Optional.ofNullable(itemModel);
             return this;
         }
 
         @Override
-        public OptimizerRequest build() {
+        public @NotNull OptimizerRequest build() {
             return new OptimizerRequest(this);
         }
 
@@ -173,7 +183,7 @@ public final class OptimizerRequest {
             super(
                 SimplifiedApi.getRepositoryOf(ItemModel.class).findFirstOrNull(
                     ItemModel::getItemId,
-                    compoundTag.<StringTag>getPath("tag.ExtraAttributes.id").getValue()
+                    compoundTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue()
                 ),
                 compoundTag
             );
