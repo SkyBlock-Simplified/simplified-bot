@@ -30,6 +30,7 @@ import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -135,14 +136,14 @@ public class GuildCommand extends SlashCommand {
         slayerModels.forEach(slayerModel -> emojis.put(slayerModel.getKey(), Emoji.of(slayerModel.getEmoji()).orElseThrow()));
         emojis.put(catacombs.getKey(), Emoji.of(catacombs.getEmoji()).orElseThrow());
         dungeonClassModels.forEach(dungeonClassModel -> emojis.put(dungeonClassModel.getKey(), Emoji.of(dungeonClassModel.getEmoji()).orElseThrow()));
-        emojis.put("skills", this.getEmoji("SKILLS").orElseThrow());
-        emojis.put("weight", this.getEmoji("WEIGHT").orElseThrow());
-        emojis.put("networth", this.getEmoji("TRADING_COIN").orElseThrow());
-        emojis.put("skyblock", this.getEmoji("SKYBLOCK").orElseThrow());
-        emojis.put("slayer", this.getEmoji("SLAYER").orElseThrow());
+        emojis.put("skills", EmojiHandler.getEmoji("SKILLS").orElseThrow());
+        emojis.put("weight", EmojiHandler.getEmoji("WEIGHT").orElseThrow());
+        emojis.put("networth", EmojiHandler.getEmoji("TRADING_COIN").orElseThrow());
+        emojis.put("skyblock", EmojiHandler.getEmoji("SKYBLOCK").orElseThrow());
+        emojis.put("slayer", EmojiHandler.getEmoji("SLAYER").orElseThrow());
 
-        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
-        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
 
         Color tagColor = guild.getTagColor().orElse(ChatFormat.YELLOW).getColor();
         String guildDescription = guild.getDescription().orElse(guild.getName() + " doesn't have a description set.");

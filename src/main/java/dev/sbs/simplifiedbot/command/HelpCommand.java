@@ -10,6 +10,7 @@ import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
+import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -47,7 +48,7 @@ public class HelpCommand extends SlashCommand {
                                 .withAuthor(
                                     Author.builder()
                                         .withName("Help")
-                                        .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                        .withIconUrl(EmojiHandler.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                         .build()
                                 )
                                 .withTitle("Categories")
@@ -89,7 +90,7 @@ public class HelpCommand extends SlashCommand {
                                             .withAuthor(
                                                 Author.builder()
                                                     .withName("Help")
-                                                    .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                                    .withIconUrl(EmojiHandler.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                                     .build()
                                             )
                                             .withTitle("Category :: %s", commandCategory.getName())

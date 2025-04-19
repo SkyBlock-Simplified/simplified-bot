@@ -16,6 +16,7 @@ import dev.sbs.discordapi.command.SlashCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
+import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
@@ -45,14 +46,6 @@ public abstract class SkyBlockUserCommand extends SlashCommand {
     }
 
     protected abstract @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser);
-
-    @Override
-    public @NotNull ConcurrentUnmodifiableList<String> getExampleArguments() {
-        return Concurrent.newUnmodifiableList(
-            "CraftedFury",
-            "CraftedFury Pineapple"
-        );
-    }
 
     @Override
     public @NotNull ConcurrentUnmodifiableList<Parameter> getParameters() {
@@ -121,9 +114,9 @@ public abstract class SkyBlockUserCommand extends SlashCommand {
         Function<T, Optional<Emoji>> emojiFunction,
         boolean details
     ) {
-        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
-        String emojiReplyLine = this.getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
-        String emojiReplyEnd = this.getEmoji("REPLY_END").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
+        String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
+        String emojiReplyLine = EmojiHandler.getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
         Embed.Builder startBuilder;
 
         if (details) {

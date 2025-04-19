@@ -21,6 +21,7 @@ import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordUserException;
+import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
@@ -116,7 +117,7 @@ public class LinkCommand extends SlashCommand {
                                     .withAuthor(
                                         Author.builder()
                                             .withName("Hypixel Verification")
-                                            .withIconUrl(getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                            .withIconUrl(EmojiHandler.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                             .build()
                                     )
                                     .withDescription(message)

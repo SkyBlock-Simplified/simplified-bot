@@ -39,6 +39,7 @@ import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandStructure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -79,9 +80,9 @@ public class PlayerCommand extends SkyBlockUserCommand {
     }
 
     public @NotNull ConcurrentList<Page> buildPages(@NotNull SkyBlockUser skyBlockUser) {
-        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asPreSpacedFormat).orElse("");
-        String emojiReplyLine = this.getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
-        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyLine = EmojiHandler.getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(Emoji::asPreSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         EnhancedSkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland().asEnhanced();
         EnhancedMember member = skyBlockUser.getMember().asEnhanced();
@@ -101,7 +102,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "stats")
                         .withFields(
                             Field.builder()
-                                .withEmoji(this.getEmoji("STATUS_INFO"))
+                                .withEmoji(EmojiHandler.getEmoji("STATUS_INFO"))
                                 .withName("Details")
                                 .withValue(
                                     """
@@ -118,7 +119,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .isInline()
                                 .build(),
                             Field.builder()
-                                .withEmoji(this.getEmoji("TRADING_COIN_PIGGY"))
+                                .withEmoji(EmojiHandler.getEmoji("TRADING_COIN_PIGGY"))
                                 .withName("Coins")
                                 .withValue(
                                     """
@@ -136,7 +137,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         )
                         .withFields(
                             Field.builder()
-                                .withEmoji(this.getEmoji("GEM_EMERALD"))
+                                .withEmoji(EmojiHandler.getEmoji("GEM_EMERALD"))
                                 .withName("Community Upgrades")
                                 .withValue(
                                     StringUtil.join(
@@ -161,7 +162,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .isInline()
                                 .build(),
                             Field.builder()
-                                .withEmoji(this.getEmoji("SKYBLOCK_LAPIS_MINION"))
+                                .withEmoji(EmojiHandler.getEmoji("SKYBLOCK_LAPIS_MINION"))
                                 .withName("Minions")
                                 .withValue(
                                     """
@@ -192,7 +193,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("skills").withEmoji(this.getEmoji("SKILLS")).build())
+                .withOption(getOptionBuilder("skills").withEmoji(EmojiHandler.getEmoji("SKILLS")).build())
                 .withEmbeds(
                     getSkillEmbed(
                         mojangProfile,
@@ -213,7 +214,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("slayers").withEmoji(this.getEmoji("SLAYER")).build())
+                .withOption(getOptionBuilder("slayers").withEmoji(EmojiHandler.getEmoji("SLAYER")).build())
                 .withEmbeds(
                     getSkillEmbed(
                         mojangProfile,
@@ -234,7 +235,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("weight").withEmoji(this.getEmoji("WEIGHT")).build())
+                .withOption(getOptionBuilder("weight").withEmoji(EmojiHandler.getEmoji("WEIGHT")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "weight")
                         .withDescription(String.format(
@@ -307,7 +308,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("pets").withEmoji(this.getEmoji("PETS")).build())
+                .withOption(getOptionBuilder("pets").withEmoji(EmojiHandler.getEmoji("PETS")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "pets")
                         .withDescription(String.format(
@@ -341,7 +342,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .withLabel(
                                             "%s%s",
                                             enhancedPet.getTypeModel().map(PetModel::getName).orElse(pet.getPrettyName()),
-                                            this.getEmoji(String.format("RARITY_%s", pet.getRarity().name()))
+                                            EmojiHandler.getEmoji(String.format("RARITY_%s", pet.getRarity().name()))
                                                 .map(Emoji::asPreSpacedFormat)
                                                 .orElse("")
                                         )
@@ -387,7 +388,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("accessories").withEmoji(this.getEmoji("ACCESSORIES")).build())
+                .withOption(getOptionBuilder("accessories").withEmoji(EmojiHandler.getEmoji("ACCESSORIES")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "accessories")
                         .withDescription("If you wish to see missing accessory information, use the /missing command.")
@@ -402,7 +403,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                     .withLabel(
                                         "%s%s",
                                         accessoryData.getAccessory().getName(),
-                                        this.getEmoji(String.format("RARITY_%s", accessoryData.getRarity().getKey()))
+                                        EmojiHandler.getEmoji(String.format("RARITY_%s", accessoryData.getRarity().getKey()))
                                             .map(Emoji::asPreSpacedFormat)
                                             .orElse("")
                                     )
@@ -421,16 +422,16 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 """,
                                 emojiReplyStem,
                                 emojiReplyEnd,
-                                this.getEmoji(accessoryData.isRecombobulated() ? "ACTION_ACCEPT" : "ACTION_DENY")
+                                EmojiHandler.getEmoji(accessoryData.isRecombobulated() ? "ACTION_ACCEPT" : "ACTION_DENY")
                                     .map(Emoji::asFormat)
                                     .orElse("?"),
                                 (accessoryData.getRarity().isEnrichable() ? accessoryData.getEnrichment()
                                     .map(AccessoryEnrichmentModel::getStat)
                                     .map(StatModel::getKey)
                                     .map(statKey -> String.format("TALISMAN_ENRICHMENT_%s", statKey))
-                                    .flatMap(this::getEmoji)
-                                    .or(() -> this.getEmoji("TAG_NOT_APPLICABLE")) :
-                                    this.getEmoji("TAG_NOT_APPLICABLE"))
+                                    .flatMap(EmojiHandler::getEmoji)
+                                    .or(() -> EmojiHandler.getEmoji("TAG_NOT_APPLICABLE")) :
+                                    EmojiHandler.getEmoji("TAG_NOT_APPLICABLE"))
                                     .map(Emoji::asFormat)
                                     .orElse("N/A")
                             )
@@ -460,7 +461,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("auctions").withEmoji(this.getEmoji("AUCTIONS")).build())
+                .withOption(getOptionBuilder("auctions").withEmoji(EmojiHandler.getEmoji("AUCTIONS")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "auctions")
                         .withDescription(String.format(
@@ -500,7 +501,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                                 .findFirst(ItemModel::getItemId, itemId)
                                                 .map(ItemModel::getName)
                                                 .orElse("Unknown"),
-                                            this.getEmoji(String.format("RARITY_%s", skyBlockAuction.getRarity().name()))
+                                            EmojiHandler.getEmoji(String.format("RARITY_%s", skyBlockAuction.getRarity().name()))
                                                 .map(Emoji::asPreSpacedFormat)
                                                 .orElse("")
                                         )
@@ -545,7 +546,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                 )
                 .build(),
             Page.builder()
-                .withOption(getOptionBuilder("jacobs_farming").withEmoji(this.getEmoji("SKILL_FARMING")).build())
+                .withOption(getOptionBuilder("jacobs_farming").withEmoji(EmojiHandler.getEmoji("SKILL_FARMING")).build())
                 .withEmbeds(
                     getEmbedBuilder(mojangProfile, skyBlockIsland, "jacobs_farming")
                         .withFields(

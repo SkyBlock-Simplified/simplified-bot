@@ -13,6 +13,7 @@ import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.CommandStructure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
@@ -36,8 +37,8 @@ public class DungeonsCommand extends SkyBlockUserCommand {
 
     @Override
     protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
-        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
-        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         EnhancedMember member = skyBlockUser.getMember().asEnhanced();
@@ -101,8 +102,8 @@ public class DungeonsCommand extends SkyBlockUserCommand {
     }
 
     private @NotNull ConcurrentList<Page> getDungeonPages(@NotNull SkyBlockUser skyBlockUser, boolean masterMode) {
-        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
-        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
         MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         Member member = skyBlockUser.getMember();
