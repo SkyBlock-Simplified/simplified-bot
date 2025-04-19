@@ -556,7 +556,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .map(farmingMedal -> String.format(
                                             "%s%s: %s",
                                             "",
-                                            capitalizeEnum(farmingMedal),
+                                            StringUtil.capitalizeEnum(farmingMedal),
                                             member.getJacobsContest().getMedals().get(farmingMedal)
                                         ))
                                         .collect(StreamUtil.toStringBuilder(true))

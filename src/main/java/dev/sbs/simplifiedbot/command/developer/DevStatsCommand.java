@@ -29,7 +29,10 @@ import java.time.Instant;
 import java.util.Optional;
 
 @CommandStructure(
-    parent = "dev",
+    parent = @CommandStructure.Parent(
+        name = "dev",
+        description = "Developer Commands"
+    ),
     name = "stats"
 )
 public class DevStatsCommand extends SlashCommand {
@@ -131,10 +134,10 @@ public class DevStatsCommand extends SlashCommand {
                         """,
                         emojiReplyStem,
                         emojiReplyEnd,
-                        capitalizeEnum(guild.getVerificationLevel()),
-                        capitalizeEnum(guild.getContentFilterLevel()),
-                        capitalizeEnum(guild.getNotificationLevel()),
-                        capitalizeEnum(guild.getMfaLevel())
+                        StringUtil.capitalizeEnum(guild.getVerificationLevel()),
+                        StringUtil.capitalizeEnum(guild.getContentFilterLevel()),
+                        StringUtil.capitalizeEnum(guild.getNotificationLevel()),
+                        StringUtil.capitalizeEnum(guild.getMfaLevel())
                     )
                 );
 
@@ -144,7 +147,8 @@ public class DevStatsCommand extends SlashCommand {
                     StringUtil.join(
                         guild.getFeatures()
                             .stream()
-                            .map(this::capitalizeFully)
+                            .map(value -> value.replace("_", " "))
+                            .map(StringUtil::capitalizeFully)
                             .collect(Concurrent.toList()),
                         ", "
                     )
