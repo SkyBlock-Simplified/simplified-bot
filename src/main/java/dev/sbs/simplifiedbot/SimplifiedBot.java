@@ -19,7 +19,6 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.DiscordConfig;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.response.Emoji;
-import dev.sbs.discordapi.util.DiscordEnvironment;
 import dev.sbs.simplifiedbot.util.ItemCache;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
@@ -44,8 +43,6 @@ public final class SimplifiedBot extends DiscordBot {
 
     public static void main(final String[] args) {
         DiscordConfig discordConfig = DiscordConfig.builder()
-            .withFileName("config")
-            .withEnvironment(DiscordEnvironment.PRODUCTION)
             .withToken(SystemUtil.getEnv("DISCORD_TOKEN"))
             .withMainGuildId(652148034448261150L)
             .withDebugChannelId(SystemUtil.getEnv("DEVELOPER_ERROR_LOG_CHANNEL_ID").map(NumberUtil::tryParseLong))
