@@ -8,8 +8,8 @@ import dev.sbs.api.data.model.discord.guild_data.guilds.GuildSqlModel;
 import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
-import dev.sbs.discordapi.command.SlashCommand;
+import dev.sbs.discordapi.command.DiscordCommand;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
 import discord4j.common.util.Snowflake;
@@ -18,11 +18,11 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-@CommandStructure(
+@Structure(
     parent = "dev",
     name = "emoji"
 )
-public class DevEmojiCommand extends SlashCommand {
+public class DevEmojiCommand extends DiscordCommand<SlashCommandContext> {
 
     protected DevEmojiCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
@@ -9,7 +9,7 @@ import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandStructure("221de855-826b-419d-8721-2620e5f529b8")
+@Structure("221de855-826b-419d-8721-2620e5f529b8")
 public class JacobsCommand extends SkyBlockUserCommand {
 
     protected JacobsCommand(@NotNull DiscordBot discordBot) {

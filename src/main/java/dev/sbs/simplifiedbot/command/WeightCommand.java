@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
@@ -9,7 +9,7 @@ import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandStructure("93d1546e-5522-4eed-95d5-cee418e1a2c4")
+@Structure("93d1546e-5522-4eed-95d5-cee418e1a2c4")
 public class WeightCommand extends SkyBlockUserCommand {
 
     protected WeightCommand(@NotNull DiscordBot discordBot) {

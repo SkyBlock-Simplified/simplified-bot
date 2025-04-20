@@ -1,17 +1,17 @@
 package dev.sbs.simplifiedbot.command.embed;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
-import dev.sbs.discordapi.command.SlashCommand;
+import dev.sbs.discordapi.command.DiscordCommand;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandStructure(
+@Structure(
     parent = "embed",
     name = "create"
 )
-public class EmbedCreateCommand extends SlashCommand {
+public class EmbedCreateCommand extends DiscordCommand<SlashCommandContext> {
 
     protected EmbedCreateCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

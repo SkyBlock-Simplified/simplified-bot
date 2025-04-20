@@ -3,20 +3,20 @@ package dev.sbs.simplifiedbot.command.developer.command;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
-import dev.sbs.discordapi.command.SlashCommand;
+import dev.sbs.discordapi.command.DiscordCommand;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandStructure(
+@Structure(
     parent = "dev",
     group = "command",
     name = "enable"
 )
-public class DevEnableCommand extends SlashCommand {
+public class DevEnableCommand extends DiscordCommand<SlashCommandContext> {
 
     protected DevEnableCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

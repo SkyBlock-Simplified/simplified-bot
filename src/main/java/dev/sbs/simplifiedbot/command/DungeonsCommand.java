@@ -11,7 +11,7 @@ import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_floors.DungeonFloorModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-@CommandStructure("cc65f062-45f8-44c0-9635-84359e3ea246")
+@Structure("cc65f062-45f8-44c0-9635-84359e3ea246")
 public class DungeonsCommand extends SkyBlockUserCommand {
 
     protected DungeonsCommand(@NotNull DiscordBot discordBot) {

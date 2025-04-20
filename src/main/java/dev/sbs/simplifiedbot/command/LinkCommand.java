@@ -14,8 +14,8 @@ import dev.sbs.api.data.model.discord.users.UserSqlModel;
 import dev.sbs.api.data.sql.SqlRepository;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
-import dev.sbs.discordapi.command.SlashCommand;
+import dev.sbs.discordapi.command.DiscordCommand;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.command.exception.input.ExpectedInputException;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
@@ -32,8 +32,8 @@ import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandStructure("48b8f351-4e74-4010-b1ef-9b3d18c9833a")
-public class LinkCommand extends SlashCommand {
+@Structure("48b8f351-4e74-4010-b1ef-9b3d18c9833a")
+public class LinkCommand extends DiscordCommand<SlashCommandContext> {
 
     protected LinkCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

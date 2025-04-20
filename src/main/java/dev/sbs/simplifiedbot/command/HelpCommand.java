@@ -3,10 +3,9 @@ package dev.sbs.simplifiedbot.command;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.data.model.discord.command_data.command_categories.CommandCategoryModel;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
-import dev.sbs.discordapi.command.SlashCommand;
+import dev.sbs.discordapi.command.DiscordCommand;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
@@ -25,10 +24,10 @@ import reactor.core.publisher.Mono;
 import java.awt.*;
 import java.time.Instant;
 
-@CommandStructure(
+@Structure(
     name = "help"
 )
-public class HelpCommand extends SlashCommand {
+public class HelpCommand extends DiscordCommand<SlashCommandContext> {
 
     protected HelpCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

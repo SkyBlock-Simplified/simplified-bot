@@ -11,8 +11,8 @@ import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildRep
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
 import dev.sbs.api.mutable.pair.Pair;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
-import dev.sbs.discordapi.command.SlashCommand;
+import dev.sbs.discordapi.command.DiscordCommand;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
@@ -31,11 +31,11 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.Optional;
 
-@CommandStructure(
+@Structure(
     parent = "rep",
     name = "check"
 )
-public class RepCheckCommand extends SlashCommand {
+public class RepCheckCommand extends DiscordCommand<SlashCommandContext> {
 
     protected RepCheckCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

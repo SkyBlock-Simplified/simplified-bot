@@ -37,7 +37,7 @@ import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
 import dev.sbs.api.stream.StreamUtil;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
@@ -61,7 +61,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Function;
 
-@CommandStructure("733e6780-84cd-45ed-921a-9b1ca9b02ed6")
+@Structure("733e6780-84cd-45ed-921a-9b1ca9b02ed6")
 public class PlayerCommand extends SkyBlockUserCommand {
 
     protected PlayerCommand(@NotNull DiscordBot discordBot) {

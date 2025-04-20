@@ -6,8 +6,8 @@ import dev.sbs.api.data.model.discord.sbs_data.sbs_legacy_donors.SbsLegacyDonorM
 import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
-import dev.sbs.discordapi.command.SlashCommand;
+import dev.sbs.discordapi.command.DiscordCommand;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
@@ -26,10 +26,10 @@ import reactor.core.publisher.Mono;
 import java.awt.*;
 import java.time.Instant;
 
-@CommandStructure(
+@Structure(
     name = "about"
 )
-public class AboutCommand extends SlashCommand {
+public class AboutCommand extends DiscordCommand<SlashCommandContext> {
 
     protected AboutCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);

@@ -12,7 +12,7 @@ import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.mutable.pair.Pair;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.SlashCommand;
+import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
@@ -32,7 +32,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public abstract class SkyBlockUserCommand extends SlashCommand {
+public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandContext> {
 
     public static final Pattern MOJANG_NAME = Pattern.compile("[\\w]{3,16}");
 

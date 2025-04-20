@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.page.Page;
@@ -10,7 +10,7 @@ import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@CommandStructure("9171bc6d-fe0b-45e0-bf8f-bdbe87ccf064")
+@Structure("9171bc6d-fe0b-45e0-bf8f-bdbe87ccf064")
 public class OptimizerCommand extends SkyBlockUserCommand {
 
     protected OptimizerCommand(@NotNull DiscordBot discordBot) {

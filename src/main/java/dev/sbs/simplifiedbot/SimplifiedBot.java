@@ -53,7 +53,7 @@ public final class SimplifiedBot extends DiscordBot {
             .withCommands(
                 Reflection.getResources()
                     .filterPackage("dev.sbs.simplifiedbot.command")
-                    .getSubtypesOf(DiscordCommand.class)
+                    .getTypesOf(DiscordCommand.class)
             )
             .withAllowedMentions(AllowedMentions.suppressEveryone())
             .withDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES))

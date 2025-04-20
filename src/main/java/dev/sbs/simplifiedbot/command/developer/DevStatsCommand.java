@@ -5,8 +5,8 @@ import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
-import dev.sbs.discordapi.command.CommandStructure;
-import dev.sbs.discordapi.command.SlashCommand;
+import dev.sbs.discordapi.command.DiscordCommand;
+import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
@@ -29,14 +29,14 @@ import java.awt.*;
 import java.time.Instant;
 import java.util.Optional;
 
-@CommandStructure(
-    parent = @CommandStructure.Parent(
+@Structure(
+    parent = @Structure.Parent(
         name = "dev",
         description = "Developer Commands"
     ),
     name = "stats"
 )
-public class DevStatsCommand extends SlashCommand {
+public class DevStatsCommand extends DiscordCommand<SlashCommandContext> {
 
     protected DevStatsCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
