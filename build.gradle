@@ -39,7 +39,7 @@ dependencies {
     implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.20.0'
 
     // Projects
-    implementation group: 'com.discord4j', name: 'discord4j-core', version: '3.3.0-SNAPSHOT'
+    implementation group: 'com.discord4j', name: 'discord4j-core', version: '3.3.0-RC2'
     implementation project(':api')
     implementation project(':discord-api')
 
