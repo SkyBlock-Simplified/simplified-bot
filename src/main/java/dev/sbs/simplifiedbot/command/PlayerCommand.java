@@ -48,7 +48,7 @@ import dev.sbs.discordapi.response.handler.item.ItemHandler;
 import dev.sbs.discordapi.response.handler.item.search.Search;
 import dev.sbs.discordapi.response.handler.item.sorter.Sorter;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.item.Item;
+import dev.sbs.discordapi.response.page.impl.TreePage;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
 import dev.sbs.discordapi.util.DiscordDate;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
@@ -61,7 +61,10 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Function;
 
-@Structure("733e6780-84cd-45ed-921a-9b1ca9b02ed6")
+@Structure(
+    name = "player",
+    description = "Lookup a player"
+)
 public class PlayerCommand extends SkyBlockUserCommand {
 
     protected PlayerCommand(@NotNull DiscordBot discordBot) {
@@ -72,14 +75,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
     protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
         return commandContext.reply(
             Response.builder()
-                .isInteractable()
                 .withTimeToLive(30)
                 .withPages(buildPages(skyBlockUser))
                 .build()
         );
     }
 
-    public @NotNull ConcurrentList<Page> buildPages(@NotNull SkyBlockUser skyBlockUser) {
+    public @NotNull ConcurrentList<TreePage> buildPages(@NotNull SkyBlockUser skyBlockUser) {
         String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(Emoji::asPreSpacedFormat).orElse("");
         String emojiReplyLine = EmojiHandler.getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
         String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(Emoji::asPreSpacedFormat).orElse("");
@@ -331,7 +333,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withItemHandler(
-                    ItemHandler.builder(Pet.class)
+                    ItemHandler.<Pet>builder()
                         .withItems(member.getPetData().getPets())
                         .withTransformer((pet, index, size) -> {
                             EnhancedPet enhancedPet = pet.asEnhanced();
@@ -354,7 +356,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .withValue(enhancedPet.getTypeModel().map(PetModel::getKey).orElse(pet.getType()))
                                         .build()
                                 )
-                                .withData(String.format(
+                                .withDescription(String.format(
                                     """
                                         %1$sLevel: **%4$d** / **%5$d**
                                         %1$sExperience:
@@ -395,7 +397,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withItemHandler(
-                    ItemHandler.builder(AccessoryData.class)
+                    ItemHandler.<AccessoryData>builder()
                         .withItems(skyBlockIsland.getProfileStats(member).getAccessoryBag().getFilteredAccessories())
                         .withTransformer((accessoryData, index, size) -> StringItem.builder()
                             .withOption(
@@ -486,7 +488,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .build()
                 )
                 .withItemHandler(
-                    ItemHandler.builder(SkyBlockAuction.class)
+                    ItemHandler.<SkyBlockAuction>builder()
                         .withItems(skyBlockUser.getAuctions())
                         .withTransformer((skyBlockAuction, index, size) -> {
                             CompoundTag auctionNbt = skyBlockAuction.getItemNbt().getNbtData();
@@ -513,7 +515,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .withValue(skyBlockAuction.getAuctionId().toString())
                                         .build()
                                 )
-                                .withData(String.format(
+                                .withDescription(String.format(
                                     """
                                     %1$sStarting Bid: **%3$s**
                                     %1$sHighest Bid: **%4$s**
@@ -540,7 +542,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 ))
                                 .build();
                         })
-                        .withStyle(Item.Style.FIELD_INLINE)
+                        .withFieldStyle(ItemHandler.FieldStyle.FIELD_INLINE)
                         .withAmountPerPage(12)
                         .build()
                 )
@@ -561,7 +563,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                             member.getJacobsContest().getMedals().get(farmingMedal)
                                         ))
                                         .collect(StreamUtil.toStringBuilder(true))
-                                        .build()
+                                        .toString()
                                 )
                                 .isInline()
                                 .build(),
@@ -587,7 +589,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .findAll(CollectionItemModel::isFarmingEvent, true)
                                         .map(collectionItemModel -> collectionItemModel.getItem().getName())
                                         .collect(StreamUtil.toStringBuilder(true))
-                                        .build()
+                                        .toString()
                                 )
                                 .isInline()
                                 .build(),
@@ -606,7 +608,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                             .orElse(0)
                                         )
                                         .collect(StreamUtil.toStringBuilder(true))
-                                        .build()
+                                        .toString()
                                 )
                                 .isInline()
                                 .build(),
@@ -618,13 +620,13 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                         .map(collectionItemModel -> member.getJacobsContest()
                                             .getUniqueBrackets()
                                             .stream()
-                                            .filter(medal -> uniqueGold.equals(collectionItemModel)) // TODO: Foobar
+                                            .filter(entry -> entry.getValue().contains(collectionItemModel.getItem().getItemId())) // TODO: Foobar: uniqueGold.equals(collectionItemModel)
                                             .findFirst()
                                             .map(farmingCollectionItemModel -> "Yes")
                                             .orElse("No")
                                         )
                                         .collect(StreamUtil.toStringBuilder(true))
-                                        .build()
+                                        .toString()
                                 )
                                 .isInline()
                                 .build()
@@ -644,7 +646,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .map(Map.Entry::getKey)
                         .map(typeNameFunction)
                         .collect(StreamUtil.toStringBuilder(true))
-                        .build()
+                        .toString()
                 )
                 .isInline()
                 .build(),
@@ -655,7 +657,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .map(Map.Entry::getValue)
                         .map(Weight::getValue)
                         .collect(StreamUtil.toStringBuilder(true))
-                        .build()
+                        .toString()
                 )
                 .isInline()
                 .build(),
@@ -666,7 +668,7 @@ public class PlayerCommand extends SkyBlockUserCommand {
                         .map(Map.Entry::getValue)
                         .map(Weight::getOverflow)
                         .collect(StreamUtil.toStringBuilder(true))
-                        .build()
+                        .toString()
                 )
                 .isInline()
                 .build()
