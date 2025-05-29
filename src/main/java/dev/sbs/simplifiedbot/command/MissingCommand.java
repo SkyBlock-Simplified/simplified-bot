@@ -12,9 +12,10 @@ import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
+import dev.sbs.discordapi.response.handler.item.ItemHandler;
+import dev.sbs.discordapi.response.handler.item.filter.Filter;
+import dev.sbs.discordapi.response.handler.item.sorter.Sorter;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.handler.cache.ItemHandler;
-import dev.sbs.discordapi.response.page.handler.sorter.Sorter;
 import dev.sbs.discordapi.response.page.item.Item;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
@@ -40,7 +41,7 @@ public class MissingCommand extends SkyBlockUserCommand {
 
         return commandContext.reply(
             Response.builder()
-                .isInteractable()
+                //.isInteractable()
                 .withTimeToLive(30)
                 .withPages(
                     Page.builder()
@@ -48,32 +49,40 @@ public class MissingCommand extends SkyBlockUserCommand {
                             ItemHandler.builder(AccessoryModel.class)
                                 .withItems(allAccessories)
                                 .withFilters(
-                                    (accessoryModel, index, size) -> profileStats.getAccessoryBag()
-                                        .getAccessories()
-                                        .stream()
-                                        .noneMatch(accessoryData -> accessoryData.getAccessory().equals(accessoryModel)),
-                                    (accessoryModel, index, size) -> {
-                                        if (Objects.isNull(accessoryModel.getFamily()))
-                                            return true;
-
-                                        return profileStats.getAccessoryBag()
+                                    Filter.<AccessoryModel>builder()
+                                        .withTriPredicates((accessoryModel, index, size) -> profileStats.getAccessoryBag()
                                             .getAccessories()
                                             .stream()
-                                            .map(AccessoryData::getAccessory)
-                                            .filter(playerAccessoryModel -> Objects.nonNull(playerAccessoryModel.getFamily()))
-                                            .filter(playerAccessoryModel -> playerAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
-                                            .noneMatch(playerAccessoryModel -> playerAccessoryModel.getFamilyRank() >= accessoryModel.getFamilyRank());
-                                    },
-                                    (accessoryModel, index, size) -> {
-                                        if (Objects.isNull(accessoryModel.getFamily()))
-                                            return true;
+                                            .noneMatch(accessoryData -> accessoryData.getAccessory().equals(accessoryModel))
+                                        )
+                                        .build(),
+                                    Filter.<AccessoryModel>builder()
+                                        .withTriPredicates((accessoryModel, index, size) -> {
+                                            if (Objects.isNull(accessoryModel.getFamily()))
+                                                return true;
 
-                                        return allAccessories.stream()
-                                            .filter(compareAccessoryModel -> compareAccessoryModel.getItem().isObtainable())
-                                            .filter(compareAccessoryModel -> Objects.nonNull(compareAccessoryModel.getFamily()))
-                                            .filter(compareAccessoryModel -> compareAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
-                                            .allMatch(compareAccessoryModel -> accessoryModel.getFamilyRank() >= compareAccessoryModel.getFamilyRank());
-                                    })
+                                            return profileStats.getAccessoryBag()
+                                                .getAccessories()
+                                                .stream()
+                                                .map(AccessoryData::getAccessory)
+                                                .filter(playerAccessoryModel -> Objects.nonNull(playerAccessoryModel.getFamily()))
+                                                .filter(playerAccessoryModel -> playerAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
+                                                .noneMatch(playerAccessoryModel -> playerAccessoryModel.getFamilyRank() >= accessoryModel.getFamilyRank());
+                                        })
+                                        .build(),
+                                    Filter.<AccessoryModel>builder()
+                                        .withTriPredicates((accessoryModel, index, size) -> {
+                                            if (Objects.isNull(accessoryModel.getFamily()))
+                                                return true;
+
+                                            return allAccessories.stream()
+                                                .filter(compareAccessoryModel -> compareAccessoryModel.getItem().isObtainable())
+                                                .filter(compareAccessoryModel -> Objects.nonNull(compareAccessoryModel.getFamily()))
+                                                .filter(compareAccessoryModel -> compareAccessoryModel.getFamily().equals(accessoryModel.getFamily()))
+                                                .allMatch(compareAccessoryModel -> accessoryModel.getFamilyRank() >= compareAccessoryModel.getFamilyRank());
+                                        })
+                                        .build()
+                                )
                                 .withTransformer((accessoryModel, index, size) -> StringItem.builder()
                                     .withEmoji(
                                         skyBlockUser.getSkyBlockEmojis()

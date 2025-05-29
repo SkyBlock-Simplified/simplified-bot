@@ -8,7 +8,7 @@ import dev.sbs.api.data.model.discord.guild_data.guild_reputation.GuildReputatio
 import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildReputationTypeModel;
 import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildReputationTypeSqlModel;
 import dev.sbs.api.data.sql.SqlRepository;
-import dev.sbs.api.mutable.pair.Pair;
+import dev.sbs.api.stream.pair.Pair;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;

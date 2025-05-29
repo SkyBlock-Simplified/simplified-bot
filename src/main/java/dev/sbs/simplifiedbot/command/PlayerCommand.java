@@ -44,10 +44,10 @@ import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.structure.Field;
+import dev.sbs.discordapi.response.handler.item.ItemHandler;
+import dev.sbs.discordapi.response.handler.item.search.Search;
+import dev.sbs.discordapi.response.handler.item.sorter.Sorter;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.handler.cache.ItemHandler;
-import dev.sbs.discordapi.response.page.handler.search.Search;
-import dev.sbs.discordapi.response.page.handler.sorter.Sorter;
 import dev.sbs.discordapi.response.page.item.Item;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
 import dev.sbs.discordapi.util.DiscordDate;
@@ -448,9 +448,9 @@ public class PlayerCommand extends SkyBlockUserCommand {
                                 .build()
                         )
                         .withSearch(
-                            Search.<AccessoryData, String>builder()
-                                .withPredicates((accessoryData, index, value) -> accessoryData.getAccessory().getItem().getItemId().equalsIgnoreCase(value))
-                                .withPredicates((accessoryData, index, value) -> accessoryData.getAccessory().getName().equalsIgnoreCase(value))
+                            Search.<AccessoryData>builder()
+                                .withPredicates((accessoryData, value) -> accessoryData.getAccessory().getItem().getItemId().equalsIgnoreCase(value))
+                                .withPredicates((accessoryData, value) -> accessoryData.getAccessory().getName().equalsIgnoreCase(value))
                                 .withLabel("Name")
                                 .withPlaceholder("Searches by ID/Name")
                                 .build()

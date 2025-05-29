@@ -9,7 +9,7 @@ import dev.sbs.api.collection.search.SearchFunction;
 import dev.sbs.api.data.model.discord.guild_data.guild_reputation.GuildReputationModel;
 import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildReputationTypeModel;
 import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
-import dev.sbs.api.mutable.pair.Pair;
+import dev.sbs.api.stream.pair.Pair;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;

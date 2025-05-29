@@ -21,8 +21,8 @@ import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.api.data.model.skyblock.skills.SkillModel;
 import dev.sbs.api.data.model.skyblock.slayers.SlayerModel;
 import dev.sbs.api.minecraft.text.ChatFormat;
-import dev.sbs.api.mutable.pair.Pair;
-import dev.sbs.api.mutable.triple.Triple;
+import dev.sbs.api.stream.pair.Pair;
+import dev.sbs.api.stream.triple.Triple;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
@@ -35,9 +35,9 @@ import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
 import dev.sbs.discordapi.response.embed.Embed;
+import dev.sbs.discordapi.response.handler.item.ItemHandler;
+import dev.sbs.discordapi.response.handler.item.sorter.Sorter;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.handler.cache.ItemHandler;
-import dev.sbs.discordapi.response.page.handler.sorter.Sorter;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -442,21 +442,21 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                             Page.builder()
                                 .withItemHandler(
                                     ItemHandler.builder(EnhancedMember.class)
-                                        .withColumnNames(Triple.of(slayerModel.getName() + " Leaderboard", "", ""))
+                                        //.withColumnNames(Triple.of(slayerModel.getName() + " Leaderboard", "", ""))
                                         .withItems(guildMemberPlayers)
                                         .withSorters(
-                                            ItemHandler.Sorter.<EnhancedMember>builder()
+                                            Sorter.<EnhancedMember>builder()
                                                 .withFunctions(guildMemberPlayer -> guildMemberPlayer.getSlayer().getBoss(Slayer.Type.of(slayerModel.getKey())).getExperience())
                                                 .withOrder(SortOrder.DESCENDING)
                                                 .build()
                                         )
                                         .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
-                                            .withData(String.format(
+                                            .withValue(String.format(
                                                 "%s. `%s` >  **%s [%s]**",
                                                 index + 1,
                                                 ignMap.get(guildMemberPlayer.getUniqueId()),
-                                                (long) guildMemberPlayer.getSlayer(slayerModel).getExperience(),
-                                                guildMemberPlayer.getSlayer(slayerModel).getLevel()
+                                                (long) guildMemberPlayer.getSlayer().getBoss(Slayer.Type.of(slayerModel.getKey())).getExperience(),
+                                                guildMemberPlayer.getSlayer().getBoss(Slayer.Type.of(slayerModel.getKey())).asEnhanced().getLevel()
                                             ))
                                             .build()
                                         )

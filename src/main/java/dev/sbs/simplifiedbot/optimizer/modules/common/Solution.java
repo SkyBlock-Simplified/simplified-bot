@@ -15,8 +15,8 @@ import dev.sbs.api.data.model.skyblock.bonus_data.bonus_reforge_stats.BonusRefor
 import dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel;
 import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.data.model.skyblock.stats.StatModel;
-import dev.sbs.api.mutable.pair.Pair;
-import dev.sbs.api.mutable.primitive.MutableDouble;
+import dev.sbs.api.mutable.MutableDouble;
+import dev.sbs.api.stream.pair.Pair;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
