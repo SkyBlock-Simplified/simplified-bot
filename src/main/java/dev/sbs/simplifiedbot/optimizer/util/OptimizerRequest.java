@@ -21,7 +21,7 @@ import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
 import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.minecraft.nbt.tags.collection.CompoundTag;
 import dev.sbs.api.minecraft.nbt.tags.primitive.StringTag;
-import dev.sbs.api.util.builder.Builder;
+import dev.sbs.api.util.builder.ClassBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -118,7 +118,7 @@ public final class OptimizerRequest {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class OptimizerRequestBuilder implements Builder<OptimizerRequest> {
+    public static class OptimizerRequestBuilder implements ClassBuilder<OptimizerRequest> {
 
         private final SkyBlockProfilesResponse skyBlockProfilesResponse;
         private final UUID uniqueId;

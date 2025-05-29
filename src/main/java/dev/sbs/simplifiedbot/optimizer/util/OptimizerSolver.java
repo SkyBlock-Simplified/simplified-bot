@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
-import dev.sbs.api.util.builder.Builder;
+import dev.sbs.api.util.builder.ClassBuilder;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Calculator;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ItemEntity;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
@@ -71,7 +71,7 @@ public final class OptimizerSolver {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static final class SolverBuilder implements Builder<OptimizerSolver> {
+    public static final class SolverBuilder implements ClassBuilder<OptimizerSolver> {
 
         private final Class<? extends ItemEntity> itemEntityClass;
         private final Class<? extends Solution<? extends ItemEntity>> solutionClass;
