@@ -16,7 +16,6 @@ import dev.sbs.discordapi.response.handler.item.ItemHandler;
 import dev.sbs.discordapi.response.handler.item.filter.Filter;
 import dev.sbs.discordapi.response.handler.item.sorter.Sorter;
 import dev.sbs.discordapi.response.page.Page;
-import dev.sbs.discordapi.response.page.item.Item;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
@@ -25,7 +24,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-@Structure("b0e6bdee-971c-4774-9373-a8ef3ccd4e5b")
+@Structure(
+    name = "missing",
+    description = "View Missing Accessories"
+)
 public class MissingCommand extends SkyBlockUserCommand {
 
     protected MissingCommand(@NotNull DiscordBot discordBot) {
@@ -46,7 +48,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                 .withPages(
                     Page.builder()
                         .withItemHandler(
-                            ItemHandler.builder(AccessoryModel.class)
+                            ItemHandler.<AccessoryModel>builder()
                                 .withItems(allAccessories)
                                 .withFilters(
                                     Filter.<AccessoryModel>builder()
@@ -116,14 +118,25 @@ public class MissingCommand extends SkyBlockUserCommand {
                         .build(),
                     Page.builder()
                         .withItemHandler(
-                            ItemHandler.builder(AccessoryModel.class)
+                            ItemHandler.<AccessoryModel>builder()
                                 .withItems(allAccessories)
-                                .withFilters((accessoryModel, index, size) -> accessoryModel.getFamily().isStatsStackable() ||
-                                    accessoryModel.getFamily().isReforgesStackable()
-                                )
-                                .withFilters((accessoryModel, index, size) -> !profileStats.getAccessoryBag()
-                                    .getFilteredAccessories()
-                                    .contains(accessoryData -> accessoryData.getAccessory().equals(accessoryModel), true)
+                                .withFilters(
+                                    Filter.<AccessoryModel>builder()
+                                        .withLabel("Stackable Stats")
+                                        .withPredicates(accessoryModel -> accessoryModel.getFamily().isStatsStackable() ||
+                                            accessoryModel.getFamily().isReforgesStackable()
+                                        )
+                                        .build(),
+                                    Filter.<AccessoryModel>builder()
+                                        .withLabel("I don't even know")
+                                        .withPredicates(accessoryModel -> accessoryModel.getFamily().isStatsStackable() ||
+                                            accessoryModel.getFamily().isReforgesStackable()
+                                        )
+                                        .withPredicates(accessoryModel -> !profileStats.getAccessoryBag()
+                                            .getFilteredAccessories()
+                                            .contains(accessoryData -> accessoryData.getAccessory().equals(accessoryModel), true)
+                                        )
+                                        .build()
                                 )
                                 .withTransformer((accessoryModel, index, size) -> StringItem.builder()
                                     .withEmoji(
@@ -141,7 +154,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                         .withFunctions(AccessoryModel::getFamilyRank)
                                         .build()
                                 )
-                                .withStyle(Item.Style.LIST)
+                                .withFieldStyle(ItemHandler.FieldStyle.LIST)
                                 .withAmountPerPage(10)
                                 .build()
                         )
@@ -159,9 +172,17 @@ public class MissingCommand extends SkyBlockUserCommand {
                         .build(),
                     Page.builder()
                         .withItemHandler(
-                            ItemHandler.builder(AccessoryData.class)
+                            ItemHandler.<AccessoryData>builder()
                                 .withItems(profileStats.getAccessoryBag().getAccessories())
-                                .withFilters((accessoryData, aLong, aLong2) -> !profileStats.getAccessoryBag().getFilteredAccessories().contains(accessoryData))
+                                .withFilters(
+                                    Filter.<AccessoryData>builder()
+                                        .withLabel("I Forget")
+                                        .withPredicates(accessoryData -> !profileStats.getAccessoryBag()
+                                            .getFilteredAccessories()
+                                            .contains(accessoryData)
+                                        )
+                                        .build()
+                                )
                                 .withTransformer((accessoryData, index, size) -> StringItem.builder()
                                     .withEmoji(
                                         skyBlockUser.getSkyBlockEmojis()
@@ -172,7 +193,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                     .withLabel(accessoryData.getAccessory().getName())
                                     .build()
                                 )
-                                .withStyle(Item.Style.LIST_SINGLE)
+                                .withFieldStyle(ItemHandler.FieldStyle.LIST)
                                 .withAmountPerPage(10)
                                 .build()
                         )
@@ -190,9 +211,14 @@ public class MissingCommand extends SkyBlockUserCommand {
                         .build(),
                     Page.builder()
                         .withItemHandler(
-                            ItemHandler.builder(AccessoryData.class)
+                            ItemHandler.<AccessoryData>builder()
                                 .withItems(profileStats.getAccessoryBag().getFilteredAccessories())
-                                .withFilters((accessoryData, index, size) -> accessoryData.notRecombobulated())
+                                .withFilters(
+                                    Filter.<AccessoryData>builder()
+                                        .withLabel("Not Recombobulated")
+                                        .withPredicates(AccessoryData::notRecombobulated)
+                                        .build()
+                                )
                                 .withTransformer((accessoryData, index, size) -> StringItem.builder()
                                     .withEmoji(
                                         skyBlockUser.getSkyBlockEmojis()
@@ -203,7 +229,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                     .withLabel(accessoryData.getAccessory().getName())
                                     .build()
                                 )
-                                .withStyle(Item.Style.LIST)
+                                .withFieldStyle(ItemHandler.FieldStyle.LIST)
                                 .withAmountPerPage(10)
                                 .build()
                         )
@@ -221,9 +247,14 @@ public class MissingCommand extends SkyBlockUserCommand {
                         .build(),
                     Page.builder()
                         .withItemHandler(
-                            ItemHandler.builder(AccessoryData.class)
+                            ItemHandler.<AccessoryData>builder()
                                 .withItems(profileStats.getAccessoryBag().getFilteredAccessories())
-                                .withFilters((accessoryData, index, size) -> accessoryData.isMissingEnrichment())
+                                .withFilters(
+                                    Filter.<AccessoryData>builder()
+                                        .withLabel("Missing Enrichment")
+                                        .withPredicates(AccessoryData::isMissingEnrichment)
+                                        .build()
+                                )
                                 .withTransformer((accessoryData, index, size) -> StringItem.builder()
                                     .withEmoji(
                                         skyBlockUser.getSkyBlockEmojis()
@@ -234,7 +265,7 @@ public class MissingCommand extends SkyBlockUserCommand {
                                     .withLabel(accessoryData.getAccessory().getName())
                                     .build()
                                 )
-                                .withStyle(Item.Style.LIST)
+                                .withFieldStyle(ItemHandler.FieldStyle.LIST)
                                 .withAmountPerPage(10)
                                 .build()
                         )
