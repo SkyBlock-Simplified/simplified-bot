@@ -3,26 +3,25 @@ package dev.sbs.simplifiedbot.command;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.client.impl.hypixel.request.HypixelRequest;
 import dev.sbs.api.client.impl.hypixel.response.hypixel.HypixelGuildResponse;
+import dev.sbs.api.client.impl.hypixel.response.hypixel.HypixelPlayerResponse;
 import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelGuild;
 import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelPlayer;
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.Slayer;
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.EnhancedMember;
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.skill.Skill;
+import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.skill.EnhancedSkill;
 import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.weight.Weight;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
 import dev.sbs.api.collection.sort.SortOrder;
-import dev.sbs.api.data.model.Model;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_classes.DungeonClassModel;
 import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.api.data.model.skyblock.skills.SkillModel;
 import dev.sbs.api.data.model.skyblock.slayers.SlayerModel;
 import dev.sbs.api.minecraft.text.ChatFormat;
 import dev.sbs.api.stream.pair.Pair;
-import dev.sbs.api.stream.triple.Triple;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
@@ -44,6 +43,7 @@ import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.text.DecimalFormat;
+import java.util.Optional;
 import java.util.UUID;
 
 @Structure(
@@ -92,19 +92,23 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
         }
 
         ConcurrentList<SkillModel> skillModels = SimplifiedApi.getRepositoryOf(SkillModel.class).findAll();
-        ConcurrentList<SlayerModel> slayerModels = SimplifiedApi.getRepositoryOf(SlayerModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
+        ConcurrentList<SlayerModel> slayerModels = SimplifiedApi.getRepositoryOf(SlayerModel.class).findAll();
         DungeonModel catacombs = SimplifiedApi.getRepositoryOf(DungeonModel.class).findFirstOrNull(DungeonModel::getKey, "CATACOMBS");
-        ConcurrentList<DungeonClassModel> dungeonClassModels = SimplifiedApi.getRepositoryOf(DungeonClassModel.class).findAll().sorted(SortOrder.ASCENDING, Model::getId);
+        ConcurrentList<DungeonClassModel> dungeonClassModels = SimplifiedApi.getRepositoryOf(DungeonClassModel.class).findAll();
         HypixelRequest hypixelRequest = SimplifiedApi.getApiRequest(HypixelRequest.class);
         HypixelGuild guild = hypixelGuildResponse.getGuild().get();
 
         ConcurrentMap<HypixelPlayer, SkyBlockIsland> guildMembers = guild.getMembers()
             .stream()
             .limit(2) // TODO: limiting size!!
-            .map(member -> Pair.of(
-                hypixelRequest.getPlayer(member.getUniqueId()).getPlayer(),
-                hypixelRequest.getProfiles(member.getUniqueId()).getSelected())
-            )
+            .map(HypixelGuild.Member::getUniqueId)
+            .map(hypixelRequest::getPlayer)
+            .map(HypixelPlayerResponse::getPlayer)
+            .flatMap(Optional::stream)
+            .map(player -> Pair.of(
+                player,
+                hypixelRequest.getProfiles(player.getUniqueId()).getSelected()
+            ))
             .collect(Concurrent.toMap());
 
         ConcurrentMap<UUID, String> ignMap = guildMembers.keySet().stream()
@@ -123,12 +127,19 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
             .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getTotalWeight()))
             .collect(Concurrent.toMap());
 
-        ConcurrentMap<EnhancedMember, Double> networths = guildMemberPlayers.stream()
-            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getCurrencies().getPurse())) //TODO: networth query
+        ConcurrentMap<EnhancedMember, Long> networths = guildMemberPlayers.stream()
+            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, (long) guildMemberPlayer.getCurrencies().getPurse())) //TODO: networth query
             .collect(Concurrent.toMap());
 
-        ConcurrentMap<EnhancedMember, ConcurrentList<Skill>> skills = guildMemberPlayers.stream()
-            .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, guildMemberPlayer.getPlayerData().getSkills()))
+        ConcurrentMap<EnhancedMember, ConcurrentList<EnhancedSkill>> skills = guildMemberPlayers.stream()
+            .map(guildMemberPlayer -> Pair.of(
+                guildMemberPlayer,
+                guildMemberPlayer.getPlayerData()
+                    .getSkills()
+                    .stream()
+                    .map(skill -> skill.asEnhanced(guildMemberPlayer.getJacobsContest()))
+                    .collect(Concurrent.toList())
+            ))
             .collect(Concurrent.toMap());
 
         ConcurrentMap<String, Emoji> emojis = new ConcurrentMap<>();
@@ -200,7 +211,7 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                     .withPages(
                         Page.builder()
                             .withItemHandler(
-                            ItemHandler.builder(EnhancedMember.class)
+                            ItemHandler.<EnhancedMember>builder()
                                 .withItems(guildMemberPlayers)
                                 .withSorters(
                                     Sorter.<EnhancedMember>builder()
@@ -254,11 +265,11 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        ItemHandler.builder(SkillModel.class)
+                        ItemHandler.<SkillModel>builder()
                             .withItems(skillModels)
                             .withTransformer((skillModel, index, size) -> StringItem.builder()
                                 .withEmoji(emojis.get(skillModel.getKey()))
-                                .withData(
+                                .withDescription(
                                     """
                                         %1$sAverage Level: **%3$s**
                                         %1$sTotal Experience:
@@ -267,10 +278,10 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                                     emojiReplyStem,
                                     emojiReplyEnd,
                                     df.format(guildMemberPlayers.stream()
-                                                  .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
+                                                  .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getTypeModel().equals(skillModel))
                                                       .findFirst().orElseThrow().getLevel()).average().orElseThrow()),
                                     (long) guildMemberPlayers.stream()
-                                        .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getType().equals(skillModel))
+                                        .mapToDouble(member -> skills.get(member).stream().filter(skill -> skill.getTypeModel().equals(skillModel))
                                             .findFirst().orElseThrow().getExperience()).sum()
                                 )
                                 .withOption(
@@ -312,7 +323,7 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                     .withPages(skillModels.stream()
                         .map(skillModel -> Page.builder()
                             .withItemHandler(
-                                ItemHandler.builder(EnhancedMember.class)
+                                ItemHandler.<EnhancedMember>builder()
                                     .withItems(guildMemberPlayers)
                                     .withSorters(
                                         Sorter.<EnhancedMember>builder()
@@ -327,24 +338,26 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                                             .build()
                                     )
                                     .withTransformer(
-                                        (member, index, size) -> String.format(
-                                            "%s. `%s` >  **%s [%s]**",
-                                            index + 1,
-                                            ignMap.get(member.getUniqueId()),
-                                            (long) skills.get(member)
-                                                .stream()
-                                                .filter(skill -> skill.getType().name().equalsIgnoreCase(skillModel.getKey()))
-                                                .findFirst()
-                                                .orElseThrow()
-                                                .getExperience(),
-                                            skills.get(member)
-                                                .stream()
-                                                .filter(skill -> skill.getType().name().equalsIgnoreCase(skillModel.getKey()))
-                                                .findFirst()
-                                                .orElseThrow()
-                                                .asEnhanced(member.getJacobsContest())
-                                                .getLevel()
-                                        )
+                                        (member, index, size) -> StringItem.builder()
+                                            .withDescription(
+                                                "%s. `%s` >  **%s [%s]**",
+                                                index + 1,
+                                                ignMap.get(member.getUniqueId()),
+                                                (long) skills.get(member)
+                                                    .stream()
+                                                    .filter(skill -> skill.getTypeModel().getKey().equalsIgnoreCase(skillModel.getKey()))
+                                                    .findFirst()
+                                                    .orElseThrow()
+                                                    .getExperience(),
+                                                skills.get(member)
+                                                    .stream()
+                                                    .filter(skill -> skill.getTypeModel().getKey().equalsIgnoreCase(skillModel.getKey()))
+                                                    .findFirst()
+                                                    .orElseThrow()
+                                                    .asEnhanced(member.getJacobsContest())
+                                                    .getLevel()
+                                            )
+                                            .build()
                                     )
                                     .withListTitle(skillModel.getName() + " Leaderboard")
                                     .withAmountPerPage(20)
@@ -383,11 +396,11 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        ItemHandler.builder(SlayerModel.class)
+                        ItemHandler.<SlayerModel>builder()
                             .withItems(slayerModels)
                             .withTransformer((slayerModel, index, size) -> StringItem.builder()
                                 .withEmoji(emojis.get(slayerModel.getKey()))
-                                .withData(
+                                .withDescription(
                                     """
                                     %1$sAverage Level: **%3$s**
                                     %1$sTotal Experience:
@@ -396,9 +409,9 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                                     emojiReplyStem,
                                     emojiReplyEnd,
                                     df.format(guildMemberPlayers.stream()
-                                                  .mapToDouble(member -> member.getSlayer(slayerModel).getLevel()).average().orElseThrow()),
+                                                  .mapToDouble(member -> member.getSlayer().getBoss(Slayer.Type.of(slayerModel.getKey())).asEnhanced().getLevel()).average().orElseThrow()),
                                     (long) guildMemberPlayers.stream()
-                                        .mapToDouble(member -> member.getSlayer(slayerModel).getExperience()).sum()
+                                        .mapToDouble(member -> member.getSlayer().getBoss(Slayer.Type.of(slayerModel.getKey())).getExperience()).sum()
                                 )
                                 .withOption(
                                     getOptionBuilder(slayerModel.getName().replace(" ", "_").toLowerCase())
@@ -441,7 +454,7 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                         .map(slayerModel ->
                             Page.builder()
                                 .withItemHandler(
-                                    ItemHandler.builder(EnhancedMember.class)
+                                    ItemHandler.<EnhancedMember>builder()
                                         //.withColumnNames(Triple.of(slayerModel.getName() + " Leaderboard", "", ""))
                                         .withItems(guildMemberPlayers)
                                         .withSorters(
@@ -490,11 +503,11 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        ItemHandler.builder(DungeonClassModel.class)
+                        ItemHandler.<DungeonClassModel>builder()
                             .withItems(dungeonClassModels)
                             .withTransformer((dungeonClassModel, index, size) -> StringItem.builder()
                                 .withEmoji(emojis.get(dungeonClassModel.getKey()))
-                                .withData(String.format(
+                                .withDescription(String.format(
                                     """
                                     %1$sAverage Level: **%3$s**
                                     %1$sTotal Experience:
@@ -546,17 +559,17 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                     .withPages(
                         Page.builder()
                             .withItemHandler(
-                                ItemHandler.builder(EnhancedMember.class)
-                                    .withColumnNames(Triple.of("Catacombs Leaderboard", "", ""))
+                                ItemHandler.<EnhancedMember>builder()
+                                    .withListTitle("Catacombs Leaderboard")
                                     .withItems(guildMemberPlayers)
                                     .withSorters(
-                                        ItemHandler.Sorter.<EnhancedMember>builder()
+                                        Sorter.<EnhancedMember>builder()
                                             .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getDungeon(catacombs).getExperience())
                                             .withOrder(SortOrder.DESCENDING)
                                             .build()
                                     )
                                     .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
-                                        .withData(String.format(
+                                        .withDescription(String.format(
                                             " #%s `%s` >  **%s [%s]**",
                                             index + 1,
                                             ignMap.get(guildMemberPlayer.getUniqueId()),
@@ -592,17 +605,17 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                     .withPages(dungeonClassModels.stream()
                         .map(classModel -> Page.builder()
                             .withItemHandler(
-                                ItemHandler.builder(EnhancedMember.class)
-                                    .withColumnNames(Triple.of(classModel.getName() + " Leaderboard", "", ""))
+                                ItemHandler.<EnhancedMember>builder()
+                                    .withListTitle("%s Leaderboard", classModel.getName())
                                     .withItems(guildMemberPlayers)
                                     .withSorters(
-                                        ItemHandler.Sorter.<EnhancedMember>builder()
+                                        Sorter.<EnhancedMember>builder()
                                             .withFunctions(guildMemberPlayer -> guildMemberPlayer.getDungeons().getClass(classModel).getExperience())
                                             .withOrder(SortOrder.DESCENDING)
                                             .build()
                                     )
                                     .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
-                                        .withData(String.format(
+                                        .withDescription(String.format(
                                             "%s. `%s` >  **%s [%s]**",
                                             index + 1,
                                             ignMap.get(guildMemberPlayer.getUniqueId()),
@@ -641,17 +654,17 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        ItemHandler.builder(EnhancedMember.class)
-                            .withColumnNames(Triple.of("Weight Leaderboard", "", ""))
+                        ItemHandler.<EnhancedMember>builder()
+                            .withListTitle("Weight Leaderboard")
                             .withItems(guildMemberPlayers)
                             .withSorters(
-                                ItemHandler.Sorter.<EnhancedMember>builder()
+                                Sorter.<EnhancedMember>builder()
                                     .withFunctions(guildMemberPlayer -> totalWeights.get(guildMemberPlayer).getTotal())
                                     .withOrder(SortOrder.DESCENDING)
                                     .build()
                             )
                             .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
-                                .withData(String.format(
+                                .withDescription(String.format(
                                     " #%s `%s` >  **%s [%s]**",
                                     index + 1,
                                     ignMap.get(guildMemberPlayer.getUniqueId()),
@@ -686,17 +699,17 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
                     .build(),
                 Page.builder()
                     .withItemHandler(
-                        ItemHandler.builder(EnhancedMember.class)
-                            .withColumnNames(Triple.of("Networth Leaderboard", "", ""))
+                        ItemHandler.<EnhancedMember>builder()
+                            .withListTitle("Networth Leaderboard")
                             .withItems(guildMemberPlayers)
                             .withSorters(
-                                ItemHandler.Sorter.<EnhancedMember>builder()
+                                Sorter.<EnhancedMember>builder()
                                     .withFunctions(networths::get)
                                     .withOrder(SortOrder.DESCENDING)
                                     .build()
                             )
                             .withTransformer((guildMemberPlayer, index, size) -> StringItem.builder()
-                                .withData(String.format(
+                                .withDescription(String.format(
                                     "%s. `%s` >  **%s**",
                                     index + 1,
                                     ignMap.get(guildMemberPlayer.getUniqueId()),
