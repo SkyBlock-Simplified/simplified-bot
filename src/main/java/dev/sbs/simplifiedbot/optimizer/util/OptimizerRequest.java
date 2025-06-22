@@ -14,6 +14,7 @@ import dev.sbs.minecraftapi.client.sbs.request.SbsRequest;
 import dev.sbs.minecraftapi.client.sbs.response.MojangProfileResponse;
 import dev.sbs.minecraftapi.nbt.tags.collection.CompoundTag;
 import dev.sbs.minecraftapi.nbt.tags.primitive.StringTag;
+import dev.sbs.simplifiedbot.client.EnhancedMember;
 import dev.sbs.simplifiedbot.data.discord.optimizer_mob_types.OptimizerMobTypeModel;
 import dev.sbs.simplifiedbot.data.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
 import dev.sbs.simplifiedbot.data.skyblock.items.ItemModel;
@@ -51,7 +52,7 @@ public final class OptimizerRequest {
         Member member = island.getMembers().get(optimizerRequestBuilder.uniqueId);
 
         this.member = member;
-        this.profileStats = new ProfileStats(island, member.asEnhanced(), true);
+        this.profileStats = new ProfileStats(island, new EnhancedMember(member), true);
         this.expressionVariables = this.profileStats.getExpressionVariables();
         this.allowedReforges = optimizerRequestBuilder.allowedReforges;
         this.type = optimizerRequestBuilder.type;

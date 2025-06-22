@@ -1,12 +1,12 @@
 package dev.sbs.simplifiedbot.optimizer;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.data.model.discord.optimizer_mob_types.OptimizerMobTypeModel;
-import dev.sbs.api.data.model.skyblock.items.ItemModel;
-import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
-import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.api.data.sql.SqlConfig;
 import dev.sbs.api.util.StringUtil;
+import dev.sbs.simplifiedbot.data.discord.optimizer_mob_types.OptimizerMobTypeModel;
+import dev.sbs.simplifiedbot.data.skyblock.items.ItemModel;
+import dev.sbs.simplifiedbot.data.skyblock.profiles.ProfileModel;
+import dev.sbs.simplifiedbot.data.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitSolution;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_second.DamagePerSecondSolution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
