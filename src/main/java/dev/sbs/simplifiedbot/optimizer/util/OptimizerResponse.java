@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
+import dev.sbs.simplifiedbot.data.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

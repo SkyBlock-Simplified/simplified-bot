@@ -1,8 +1,9 @@
 package dev.sbs.simplifiedbot.optimizer.modules.common;
 
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.ObjectData;
-import dev.sbs.api.data.model.skyblock.item_types.ItemTypeModel;
-import dev.sbs.api.data.model.skyblock.rarities.RarityModel;
+
+import dev.sbs.simplifiedbot.data.skyblock.item_types.ItemTypeModel;
+import dev.sbs.simplifiedbot.data.skyblock.rarities.RarityModel;
+import dev.sbs.simplifiedbot.profile_stats.data.ObjectData;
 
 import java.util.List;
 import java.util.UUID;

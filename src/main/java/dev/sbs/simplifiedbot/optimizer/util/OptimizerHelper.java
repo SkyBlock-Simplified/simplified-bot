@@ -1,21 +1,21 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.Data;
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.profile_stats.data.PlayerDataHelper;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.collection.concurrent.linked.ConcurrentLinkedMap;
-import dev.sbs.api.data.model.skyblock.bonus_data.bonus_item_stats.BonusItemStatModel;
-import dev.sbs.api.data.model.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
-import dev.sbs.api.data.model.skyblock.enchantment_data.enchantment_stats.EnchantmentStatModel;
-import dev.sbs.api.data.model.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
-import dev.sbs.api.data.model.skyblock.stats.StatModel;
 import dev.sbs.api.stream.pair.Pair;
+import dev.sbs.simplifiedbot.data.skyblock.bonus_data.bonus_item_stats.BonusItemStatModel;
+import dev.sbs.simplifiedbot.data.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
+import dev.sbs.simplifiedbot.data.skyblock.enchantment_data.enchantment_stats.EnchantmentStatModel;
+import dev.sbs.simplifiedbot.data.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
+import dev.sbs.simplifiedbot.data.skyblock.stats.StatModel;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Calculator;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ItemEntity;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
+import dev.sbs.simplifiedbot.profile_stats.data.Data;
+import dev.sbs.simplifiedbot.profile_stats.data.PlayerDataHelper;
 import org.jetbrains.annotations.NotNull;
 import org.optaplanner.core.api.solver.SolverManager;
 

@@ -2,7 +2,7 @@ package dev.sbs.simplifiedbot.optimizer.modules.common;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.data.Repository;
-import dev.sbs.api.data.model.skyblock.stats.StatModel;
+import dev.sbs.simplifiedbot.data.skyblock.stats.StatModel;
 
 import java.util.Comparator;
 import java.util.Map;
