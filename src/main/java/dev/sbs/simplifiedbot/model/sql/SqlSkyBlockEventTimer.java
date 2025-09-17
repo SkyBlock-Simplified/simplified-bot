@@ -27,12 +27,6 @@ import java.time.Instant;
     indexes = {
         @Index(
             columnList = "event_key"
-        ),
-        @Index(
-            columnList = "start_season_key"
-        ),
-        @Index(
-            columnList = "end_season_key"
         )
     }
 )
