@@ -1,27 +1,25 @@
 package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.util.Experience;
-import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.data.model.discord.users.UserModel;
-import dev.sbs.api.data.model.skyblock.profiles.ProfileModel;
-import dev.sbs.api.stream.pair.Pair;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
 import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
-import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.embed.structure.Field;
 import dev.sbs.discordapi.response.embed.structure.Footer;
+import dev.sbs.minecraftapi.client.mojang.profile.MojangProfile;
+import dev.sbs.minecraftapi.skyblock.island.Profile;
+import dev.sbs.minecraftapi.skyblock.island.SkyBlockIsland;
+import dev.sbs.minecraftapi.skyblock.type.Experience;
+import dev.sbs.simplifiedbot.model.AppUser;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -61,18 +59,13 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
                 .withName("profile")
                 .withDescription("SkyBlock Profile Name")
                 .withType(Parameter.Type.WORD)
-                .withValidator((argument, commandContext) -> SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirst(ProfileModel::getKey, argument.toUpperCase()).isPresent())
-                .withChoices(
-                    SimplifiedApi.getRepositoryOf(ProfileModel.class)
-                        .stream()
-                        .map(profileModel -> Pair.of(profileModel.getName(), profileModel.getKey()))
-                        .collect(Concurrent.toWeakLinkedMap())
-                )
+                .withValidator((argument, commandContext) -> Profile.of(argument.toUpperCase()).isPresent())
+                .withChoices(Profile.CHOICES)
                 .build()
         );
     }
 
-    protected static Embed.Builder getEmbedBuilder(MojangProfileResponse mojangProfile, SkyBlockIsland skyBlockIsland, String identifier) {
+    protected static Embed.Builder getEmbedBuilder(MojangProfile mojangProfile, SkyBlockIsland skyBlockIsland, String identifier) {
         return Embed.builder()
             .withAuthor(
                 Author.builder()
@@ -83,15 +76,10 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
             .withTitle(StringUtil.capitalizeFully(identifier.replace("_", " ")))
             .withFooter(
                 Footer.builder()
-                    .withText(skyBlockIsland.getProfileName().orElse(""))
-                    .withIconUrl(
-                        skyBlockIsland.getProfileName()
-                            .flatMap(profileName -> SimplifiedApi.getRepositoryOf(ProfileModel.class)
-                                .findFirst(ProfileModel::getKey, profileName)
-                            )
-                            .map(ProfileModel::getEmoji)
-                            .flatMap(Emoji::of)
-                            .map(Emoji::getUrl)
+                    .withText(
+                        "%s %s",
+                        skyBlockIsland.getProfile().getSymbol(),
+                        skyBlockIsland.getProfile().getName()
                     )
                     .withTimestamp(Instant.now())
                     .build()
@@ -103,7 +91,7 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
     }
 
     protected <T extends Experience> Embed getSkillEmbed(
-        MojangProfileResponse mojangProfile,
+        MojangProfile mojangProfile,
         SkyBlockIsland skyBlockIsland,
         String value,
         ConcurrentList<T> experienceObjects,
@@ -114,9 +102,9 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
         Function<T, Optional<Emoji>> emojiFunction,
         boolean details
     ) {
-        String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
-        String emojiReplyLine = EmojiHandler.getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
-        String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
+        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
+        String emojiReplyLine = this.getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyEnd = this.getEmoji("REPLY_END").map(emoji -> String.format("%s ", emoji.asFormat())).orElse("");
         Embed.Builder startBuilder;
 
         if (details) {
@@ -166,7 +154,7 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
     }
 
     public final boolean isUserVerified(@NotNull UUID uniqueId) {
-        return SimplifiedApi.getRepositoryOf(UserModel.class).matchFirst(userModel -> userModel.getMojangUniqueIds().contains(uniqueId)).isPresent();
+        return SimplifiedApi.getRepositoryOf(AppUser.class).matchFirst(userModel -> userModel.getMojangUniqueIds().contains(uniqueId)).isPresent();
     }
 
 }
