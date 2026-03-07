@@ -52,7 +52,7 @@ dependencies {
     testImplementation(group = "org.springframework.security", name = "spring-security-test", version = "6.4.5")
 
     // Projects
-    implementation(group = "com.discord4j", name = "discord4j-core", version = "3.3.0-SNAPSHOT")
+    implementation(group = "com.discord4j", name = "discord4j-core", version = "3.3.1")
     implementation(project(":api"))
     implementation(project(":minecraft-api"))
     implementation(project(":discord-api"))
