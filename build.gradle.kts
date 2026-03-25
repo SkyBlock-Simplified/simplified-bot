@@ -2,6 +2,9 @@ plugins {
     id("java")
 }
 
+group = "dev.sbs"
+version = "0.1.0"
+
 repositories {
     mavenCentral()
     maven(url = "https://central.sonatype.com/repository/maven-snapshots")
@@ -9,53 +12,34 @@ repositories {
 }
 
 dependencies {
-    // IntelliJ Annotations
-    implementation(group = "org.jetbrains", name = "annotations", version = "24.0.1")
-
-    // Resource Checker Annotations
-    implementation(group = "dev.sbs", name = "simplified-annotations", version = "1.0.4")
-    annotationProcessor(group = "dev.sbs", name = "simplified-annotations", version = "1.0.4")
+    // Simplified Annotations
+    annotationProcessor(libs.simplified.annotations)
 
     // Lombok Annotations
-    compileOnly(group = "org.projectlombok", name = "lombok", version = "1.18.30")
-    annotationProcessor(group = "org.projectlombok", name = "lombok", version = "1.18.30")
-    testCompileOnly(group = "org.projectlombok", name = "lombok", version = "1.18.30")
-    testAnnotationProcessor(group = "org.projectlombok", name = "lombok", version = "1.18.30")
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    testCompileOnly(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
 
     // Tests
-    testImplementation(group = "org.hamcrest", name = "hamcrest", version = "2.2")
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.10.0")
-    testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.10.0")
-
-    // Logging
-    implementation(group = "org.apache.logging.log4j", name = "log4j-core", version = "2.20.0")
-    implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = "2.20.0")
-
-    // Deserialization
-    implementation(group = "com.google.code.gson", name = "gson", version = "2.10.1")
-    implementation(group = "org.yaml", name = "snakeyaml", version = "2.0")
-
-    // Database
-    implementation(group = "org.mariadb.jdbc", name = "mariadb-java-client", version = "3.1.4")
-    implementation(group = "org.ehcache", name = "ehcache", version = "3.10.8")
-    implementation(group = "org.hibernate", name = "hibernate-hikaricp", version = "5.6.15.Final") // 7.0.2.Final
-    implementation(group = "org.hibernate", name = "hibernate-jcache", version = "5.6.15.Final")
+    testImplementation(libs.hamcrest)
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 
     // Optaplanner
-    implementation(group = "org.optaplanner", name = "optaplanner-core", version = "8.35.0.Final")
-    testImplementation(group = "org.optaplanner", name = "optaplanner-benchmark", version = "8.35.0.Final")
+    implementation(libs.optaplanner.core)
+    testImplementation(libs.optaplanner.benchmark)
 
     // Spring
-    implementation(group = "org.springframework.boot", name = "spring-boot", version = "3.4.5")
-    implementation(group = "org.springframework.boot", name = "spring-boot-starter-web", version = "3.4.5")
-    implementation(group = "org.springframework.boot", name = "spring-boot-starter-security", version = "3.4.5")
-    testImplementation(group = "org.springframework.security", name = "spring-security-test", version = "6.4.5")
+    implementation(libs.spring.boot)
+    implementation(libs.spring.boot.web)
+    implementation(libs.spring.boot.security)
+    testImplementation(libs.spring.security.test)
 
     // Projects
-    implementation(group = "com.discord4j", name = "discord4j-core", version = "3.3.1")
-    implementation(project(":api"))
-    implementation(project(":minecraft-api"))
-    implementation(project(":discord-api"))
+    implementation("dev.sbs:api:0.1.0")
+    implementation("dev.sbs:minecraft-api:0.1.0")
+    implementation("dev.sbs:discord-api:0.1.0")
 }
 
 tasks {
