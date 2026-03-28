@@ -2,24 +2,23 @@ package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.collection.concurrent.Concurrent;
-import dev.sbs.api.data.model.discord.sbs_data.sbs_legacy_donors.SbsLegacyDonorModel;
-import dev.sbs.api.data.model.discord.users.UserModel;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
-import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
-import dev.sbs.discordapi.handler.EmojiHandler;
+import dev.sbs.discordapi.component.interaction.SelectMenu;
+import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
-import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
+import dev.sbs.discordapi.response.embed.Author;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.structure.Author;
-import dev.sbs.discordapi.response.embed.structure.Field;
-import dev.sbs.discordapi.response.embed.structure.Footer;
+import dev.sbs.discordapi.response.embed.Field;
+import dev.sbs.discordapi.response.embed.Footer;
 import dev.sbs.discordapi.response.handler.item.ItemHandler;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
+import dev.sbs.simplifiedbot.model.AppUser;
+import dev.sbs.simplifiedbot.model.SbsLegacyDonor;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -27,7 +26,8 @@ import java.awt.*;
 import java.time.Instant;
 
 @Structure(
-    name = "about"
+    name = "about",
+    description = "Information about the bot"
 )
 public class AboutCommand extends DiscordCommand<SlashCommandContext> {
 
@@ -39,7 +39,6 @@ public class AboutCommand extends DiscordCommand<SlashCommandContext> {
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         return commandContext.reply(
             Response.builder()
-                //.isInteractable()
                 .withTimeToLive(60)
                 .withPages(
                     Page.builder()
@@ -55,7 +54,7 @@ public class AboutCommand extends DiscordCommand<SlashCommandContext> {
                                 .withAuthor(
                                     Author.builder()
                                         .withName("Bot Information")
-                                        .withIconUrl(EmojiHandler.getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                        .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                         .build()
                                 )
                                 .withTitle("About :: General")
@@ -77,9 +76,9 @@ public class AboutCommand extends DiscordCommand<SlashCommandContext> {
                                         .withName("Developers")
                                         .withValue(
                                             StringUtil.join(
-                                                SimplifiedApi.getRepositoryOf(UserModel.class)
-                                                    .matchAll(UserModel::isDeveloper)
-                                                    .map(userModel -> String.format("<@%s>", userModel.getDiscordIds().get(0)))
+                                                SimplifiedApi.getRepository(AppUser.class)
+                                                    .matchAll(AppUser::isDeveloper)
+                                                    .map(userModel -> String.format("<@%s>", userModel.getDiscordIds().getFirst()))
                                                     .collect(Concurrent.toList()),
                                                 "\n"
                                             )
@@ -132,7 +131,7 @@ public class AboutCommand extends DiscordCommand<SlashCommandContext> {
                                         .withAuthor(
                                             Author.builder()
                                                 .withName("Bot Information")
-                                                .withIconUrl(EmojiHandler.getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                                .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                                 .build()
                                         )
                                         .withTitle("About :: Donors")
@@ -146,8 +145,8 @@ public class AboutCommand extends DiscordCommand<SlashCommandContext> {
                                         .build()
                                 )
                                 .withItemHandler(
-                                    ItemHandler.builder(SbsLegacyDonorModel.class)
-                                        .withItems(SimplifiedApi.getRepositoryOf(SbsLegacyDonorModel.class).findAll())
+                                    ItemHandler.<SbsLegacyDonor>embed()
+                                        .withItems(SimplifiedApi.getRepository(SbsLegacyDonor.class).findAll())
                                         .withTransformer((legacyDonorModel, index, size) -> StringItem.builder()
                                             .withLabel("<@%s>", legacyDonorModel.getDiscordId())
                                             .withValue("$%.2f", legacyDonorModel.getAmount())
@@ -169,7 +168,7 @@ public class AboutCommand extends DiscordCommand<SlashCommandContext> {
                                         .withAuthor(
                                             Author.builder()
                                                 .withName("Bot Information")
-                                                .withIconUrl(EmojiHandler.getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                                .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                                 .build()
                                         )
                                         .withTitle("About :: Patreon")

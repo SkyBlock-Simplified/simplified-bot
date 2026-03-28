@@ -9,14 +9,13 @@ import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
-import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
+import dev.sbs.discordapi.response.embed.Author;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.structure.Author;
-import dev.sbs.discordapi.response.embed.structure.Footer;
+import dev.sbs.discordapi.response.embed.Footer;
 import dev.sbs.discordapi.response.page.Page;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
@@ -34,7 +33,8 @@ import java.util.Optional;
         name = "dev",
         description = "Developer Commands"
     ),
-    name = "stats"
+    name = "stats",
+    description = "Get stats about a guild"
 )
 public class DevStatsCommand extends DiscordCommand<SlashCommandContext> {
 
@@ -77,15 +77,15 @@ public class DevStatsCommand extends DiscordCommand<SlashCommandContext> {
             .getGuildById(guildId)
             .blockOptional()
         ).ifPresentOrElse(guild -> {
-            String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(Emoji::asFormat).orElse("");
-            String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(Emoji::asFormat).orElse("");
+            String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asFormat).orElse("");
+            String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asFormat).orElse("");
             ConcurrentList<Channel> channels = guild.getChannels().toStream().collect(Concurrent.toList());
             boolean animatedIcon = guild.getData().icon().map(value -> value.startsWith("a_")).orElse(false);
 
             builder.withAuthor(
                     Author.builder()
                         .withName("Server Information")
-                        .withIconUrl(EmojiHandler.getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                        .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                         .build()
                 )
                 .withFooter(

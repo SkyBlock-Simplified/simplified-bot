@@ -6,15 +6,22 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 @Structure(
-    parent = "dev",
-    group = "command",
-    name = "enable"
+    parent = @Structure.Parent(
+        name = "dev",
+        description = "Developer Commands"
+    ),
+    group = @Structure.Group(
+        name = "command",
+        description = "Developer command management"
+    ),
+    name = "enable",
+    description = "Enable a command"
 )
 public class DevEnableCommand extends DiscordCommand<SlashCommandContext> {
 

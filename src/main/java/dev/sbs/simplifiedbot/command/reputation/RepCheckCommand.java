@@ -5,23 +5,23 @@ import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.collection.search.SearchFunction;
-import dev.sbs.api.data.model.discord.guild_data.guild_reputation.GuildReputationModel;
-import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildReputationTypeModel;
-import dev.sbs.api.data.model.discord.guild_data.guilds.GuildModel;
-import dev.sbs.api.stream.pair.Pair;
+import dev.sbs.api.collection.query.SearchFunction;
+import dev.sbs.api.tuple.pair.Pair;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
 import dev.sbs.discordapi.response.Response;
+import dev.sbs.discordapi.response.embed.Author;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.structure.Author;
-import dev.sbs.discordapi.response.embed.structure.Field;
+import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.simplifiedbot.model.AppGuild;
+import dev.sbs.simplifiedbot.model.AppGuildReputation;
+import dev.sbs.simplifiedbot.model.AppGuildReputationType;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +32,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Structure(
-    parent = "rep",
-    name = "check"
+    parent = @Structure.Parent(
+        name = "rep",
+        description = "Reputation commands"
+    ),
+    name = "check",
+    description = "Check a users reputation"
 )
 public class RepCheckCommand extends DiscordCommand<SlashCommandContext> {
 
@@ -63,21 +67,21 @@ public class RepCheckCommand extends DiscordCommand<SlashCommandContext> {
             .orElse(receivingMember.get().getTag());
 
         // Get reputation types for current Guild
-        ConcurrentList<GuildReputationTypeModel> reputationTypes = SimplifiedApi.getRepositoryOf(GuildReputationTypeModel.class)
-            .findAll(SearchFunction.combine(GuildReputationTypeModel::getGuild, GuildModel::getGuildId), commandContext.getGuildId().orElseThrow())
+        ConcurrentList<AppGuildReputationType> reputationTypes = SimplifiedApi.getRepository(AppGuildReputationType.class)
+            .findAll(SearchFunction.combine(AppGuildReputationType::getGuild, AppGuild::getGuildId), commandContext.getGuildId().orElseThrow())
             .collect(Concurrent.toList());
 
         // Check if reputation types have been created
         if (reputationTypes.isEmpty())
             return commandContext.reply(genericResponse("No reputation types have been setup!", Color.RED));
 
-        ConcurrentMap<GuildReputationTypeModel, ConcurrentList<GuildReputationModel>> receiverReputation = reputationTypes.stream()
+        ConcurrentMap<AppGuildReputationType, ConcurrentList<AppGuildReputation>> receiverReputation = reputationTypes.stream()
             .map(reputationType -> Pair.of(
                 reputationType,
-                SimplifiedApi.getRepositoryOf(GuildReputationModel.class)
+                SimplifiedApi.getRepository(AppGuildReputation.class)
                     .findAll(
-                        Pair.of(GuildReputationModel::getType, reputationType),
-                        Pair.of(GuildReputationModel::getReceiverDiscordId, receiverDiscordId)
+                        Pair.of(AppGuildReputation::getType, reputationType),
+                        Pair.of(AppGuildReputation::getReceiverDiscordId, receiverDiscordId)
                     )
                     .collect(Concurrent.toList())
             ))
@@ -120,13 +124,13 @@ public class RepCheckCommand extends DiscordCommand<SlashCommandContext> {
                                 .withField("Verified", String.valueOf(
                                     receiverReputation.values()
                                         .stream()
-                                        .flatMap(list -> list.stream().filter(guildReputationModel -> Objects.nonNull(guildReputationModel.getAssigneeDiscordId())))
+                                        .flatMap(list -> list.stream().filter(guildReputation -> Objects.nonNull(guildReputation.getAssigneeDiscordId())))
                                         .count()
                                 ), true)
                                 .withField("Unverified", String.valueOf(
                                     receiverReputation.values()
                                         .stream()
-                                        .flatMap(list -> list.stream().filter(guildReputationModel -> Objects.isNull(guildReputationModel.getAssigneeDiscordId())))
+                                        .flatMap(list -> list.stream().filter(guildReputation -> Objects.isNull(guildReputation.getAssigneeDiscordId())))
                                         .count()
                                 ), true)
                                 .withEmptyField(true)

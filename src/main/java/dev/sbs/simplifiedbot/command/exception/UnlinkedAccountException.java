@@ -1,4 +1,4 @@
-package dev.sbs.simplifiedbot.exception;
+package dev.sbs.simplifiedbot.command.exception;
 
 import dev.sbs.discordapi.command.exception.CommandException;
 

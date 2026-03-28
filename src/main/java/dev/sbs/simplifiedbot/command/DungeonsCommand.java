@@ -1,34 +1,36 @@
 package dev.sbs.simplifiedbot.command;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.dungeon.Dungeon;
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.EnhancedMember;
-import dev.sbs.api.client.impl.hypixel.response.skyblock.implementation.island.member.Member;
-import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
-import dev.sbs.api.data.model.skyblock.dungeon_data.dungeon_floors.DungeonFloorModel;
-import dev.sbs.api.data.model.skyblock.dungeon_data.dungeons.DungeonModel;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Structure;
-import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
-import dev.sbs.discordapi.handler.EmojiHandler;
+import dev.sbs.discordapi.component.interaction.SelectMenu;
+import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
-import dev.sbs.discordapi.response.component.interaction.action.SelectMenu;
-import dev.sbs.discordapi.response.embed.structure.Field;
+import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.discordapi.response.page.TreePage;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockMember;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonEntry;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.Floor;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.FloorData;
+import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;
 import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-@Structure("cc65f062-45f8-44c0-9635-84359e3ea246")
+@Structure(
+    name = "dungeons",
+    description = "Lookup a players dungeon stats"
+)
 public class DungeonsCommand extends SkyBlockUserCommand {
 
     protected DungeonsCommand(@NotNull DiscordBot discordBot) {
@@ -37,17 +39,15 @@ public class DungeonsCommand extends SkyBlockUserCommand {
 
     @Override
     protected @NotNull Mono<Void> subprocess(@NotNull SlashCommandContext commandContext, @NotNull SkyBlockUser skyBlockUser) {
-        String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
-        String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
-        MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
+        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
+        MojangProfile mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
-        EnhancedMember member = skyBlockUser.getMember().asEnhanced();
+        SkyBlockMember member = skyBlockUser.getMember();
 
         return commandContext.reply(
             Response.builder()
                 .withTimeToLive(60)
-                //.isInteractable()
-                //.replyMention()
                 .withPages(getDungeonPages(skyBlockUser, false))
                 .withPages(getDungeonPages(skyBlockUser, true))
                 .withPages(
@@ -63,16 +63,12 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 mojangProfile,
                                 skyBlockIsland,
                                 "dungeon_classes",
-                                member.getDungeonData()
-                                    .getClasses()
-                                    .stream()
-                                    .map(Dungeon.Class::asEnhanced)
-                                    .collect(Concurrent.toList()),
-                                member.getDungeonClassAverage(),
-                                member.getDungeonClassExperience(),
-                                member.getDungeonClassProgressPercentage(),
-                                dungeonClass -> dungeonClass.getTypeModel().getName(),
-                                dungeonClass -> Emoji.of(dungeonClass.getTypeModel().getEmoji()),
+                                member.getDungeons().getClasses(),
+                                member.getDungeons().getClassAverage(),
+                                member.getDungeons().getClassExperience(),
+                                member.getDungeons().getClassProgressPercentage(),
+                                dungeonClass -> dungeonClass.getType().getName(),
+                                dungeonClass -> Emoji.of(dungeonClass.getType().getEmoji()),
                                 false
                             )
                                 .mutate()
@@ -85,13 +81,12 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
-                                    member.getDungeonData()
+                                    member.getDungeons()
                                         .getSelectedClass()
-                                        .getModel()
                                         .getName(),
-                                    member.getDungeonClassAverage(),
-                                    member.getDungeonClassExperience(),
-                                    member.getDungeonClassProgressPercentage()
+                                    member.getDungeons().getClassAverage(),
+                                    member.getDungeons().getClassExperience(),
+                                    member.getDungeons().getClassProgressPercentage()
                                 )
                                 .build()
                         )
@@ -101,34 +96,35 @@ public class DungeonsCommand extends SkyBlockUserCommand {
         );
     }
 
-    private @NotNull ConcurrentList<Page> getDungeonPages(@NotNull SkyBlockUser skyBlockUser, boolean masterMode) {
-        String emojiReplyStem = EmojiHandler.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
-        String emojiReplyEnd = EmojiHandler.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
-        MojangProfileResponse mojangProfile = skyBlockUser.getMojangProfile();
+    private @NotNull ConcurrentList<TreePage> getDungeonPages(@NotNull SkyBlockUser skyBlockUser, boolean masterMode) {
+        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asSpacedFormat).orElse("");
+        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asSpacedFormat).orElse("");
+        MojangProfile mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
-        Member member = skyBlockUser.getMember();
-        Function<DungeonModel, String> identifierFunction = dungeonModel -> String.format(
+        SkyBlockMember member = skyBlockUser.getMember();
+        Function<DungeonEntry.Type, String> identifierFunction = dungeonType -> String.format(
             "dungeon_%s_%s",
-            dungeonModel.getKey(),
-            (masterMode ? "master" : "_normal")
+            dungeonType.name(),
+            (masterMode ? "MASTER" : "NORMAL")
         );
 
-        return SimplifiedApi.getRepositoryOf(DungeonModel.class)
-            .matchAll(DungeonModel::isMasterModeEnabled)
-            .map(dungeonModel -> Page.builder()
+        return member.getDungeons()
+            .getDungeons()
+            .stream()
+            .collapseToSingle((dungeonType, dungeon) -> Page.builder()
                 .withOption(
                     SelectMenu.Option.builder()
-                        .withValue(identifierFunction.apply(dungeonModel))
+                        .withValue(identifierFunction.apply(dungeonType))
                         .withLabel(
                             "Dungeon: %s (%s)",
-                            dungeonModel.getName(),
+                            dungeonType.getName(),
                             (masterMode ? "Master" : "Normal")
                         )
-                        .withEmoji(Emoji.of(dungeonModel.getEmoji()))
+                        // TODO: DungeonEntry.Type has no emoji field
                         .build()
                 )
                 .withEmbeds(
-                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifierFunction.apply(dungeonModel))
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, identifierFunction.apply(dungeonType))
                         .withDescription(
                             """
                                 %1$sTotal Runs: %3$s
@@ -136,25 +132,23 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                 """,
                             emojiReplyStem,
                             emojiReplyEnd,
-                            member.getDungeons()
-                                .getDungeon(dungeonModel, masterMode)
+                            dungeon.getFloorData(masterMode)
                                 .getTimesPlayed()
                                 .stream()
                                 .mapToInt(Map.Entry::getValue)
                                 .sum(),
-                            member.getDungeons()
-                                .getDungeon(dungeonModel, masterMode)
+                            dungeon.getFloorData(masterMode)
                                 .getBestRuns()
                                 .stream()
                                 .map(Map.Entry::getValue)
                                 .flatMap(ConcurrentList::stream)
-                                .mapToDouble(Dungeon.BestRun::getSecretsFound)
+                                .mapToDouble(FloorData.BestRun::getSecretsFound)
                                 .sum()
                         )
                         .withFields(
                             Field.builder()
-                                .withEmoji(Emoji.of(dungeonModel.getEmoji()))
-                                .withName(dungeonModel.getName())
+                                // TODO: DungeonEntry.Type has no emoji field
+                                .withName(dungeonType.getName())
                                 .withValue(
                                     """
                                         %1$sLevel: **%3$s** / **%4$s**
@@ -164,50 +158,49 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
-                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getLevel(),
-                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getMaxLevel(),
-                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getExperience(),
-                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getProgressPercentage(),
-                                    member.getDungeons().getDungeon(dungeonModel, masterMode).getTotalProgressPercentage()
+                                    dungeon.getLevel(),
+                                    dungeon.getMaxLevel(),
+                                    dungeon.getExperience(),
+                                    dungeon.getProgressPercentage(),
+                                    dungeon.getTotalProgressPercentage()
                                 )
                                 .build()
                         )
                         .withFields(
-                            SimplifiedApi.getRepositoryOf(DungeonFloorModel.class).findAll()
-                                .stream()
-                                .map(dungeonFloorModel -> Field.builder()
-                                    .withEmoji(Emoji.of(dungeonFloorModel.getFloorBoss().getEmoji()))
-                                    .withName(dungeonFloorModel.getFloorBoss().getName())
+                            Arrays.stream(Floor.values())
+                                .map(floor -> Field.builder()
+                                    // TODO: Floor.Boss has no emoji field
+                                    .withName(floor.getBoss().getName())
                                     .withValue(
                                         """
-                                            %1$sKills: **%3$.3f**
-                                            %1$sBest Score: **%4$f**
+                                            %1$sKills: **%3$d**
+                                            %1$sBest Score: **%4$d**
                                             %1$sBest Time: **%5$s**
                                             %1$sBest S Tier: **%6$s**
                                             %2$sBest S+ Tier: **%7$s**
                                             """,
                                         emojiReplyStem,
                                         emojiReplyEnd,
-                                        member.getDungeons()
-                                            .getDungeon(dungeonModel, masterMode)
-                                            .getCompletions(dungeonFloorModel),
-                                        member.getDungeons()
-                                            .getDungeon(dungeonModel, masterMode)
-                                            .getBestScore(dungeonFloorModel),
+                                        dungeon.getFloorData(masterMode)
+                                            .getCompletions()
+                                            .get(floor.getValue()),
+                                        dungeon.getFloorData(masterMode)
+                                            .getBestScore()
+                                            .get(floor.getValue()),
                                         getFastestDate(
-                                            member.getDungeons()
-                                                .getDungeon(dungeonModel, masterMode)
-                                                .getFastestTime(dungeonFloorModel)
+                                            dungeon.getFloorData(masterMode)
+                                                .getFastestTime()
+                                                .get(floor.getValue())
                                         ),
                                         getFastestDate(
-                                            member.getDungeons()
-                                                .getDungeon(dungeonModel, masterMode)
-                                                .getFastestSTierTime(dungeonFloorModel)
+                                            dungeon.getFloorData(masterMode)
+                                                .getFastestSTierTime()
+                                                .get(floor.getValue())
                                         ),
                                         getFastestDate(
-                                            member.getDungeons()
-                                                .getDungeon(dungeonModel, masterMode)
-                                                .getFastestSPlusTierTime(dungeonFloorModel)
+                                            dungeon.getFloorData(masterMode)
+                                                .getFastestSPlusTierTime()
+                                                .get(floor.getValue())
                                         )
                                     )
                                     .isInline()

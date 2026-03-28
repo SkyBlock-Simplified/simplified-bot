@@ -1,38 +1,40 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.client.impl.hypixel.request.HypixelRequest;
-import dev.sbs.api.client.impl.hypixel.response.hypixel.HypixelPlayerResponse;
-import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelPlayer;
-import dev.sbs.api.client.impl.hypixel.response.hypixel.implementation.HypixelSocial;
-import dev.sbs.api.client.impl.sbs.request.SbsRequest;
-import dev.sbs.api.client.impl.sbs.response.MojangProfileResponse;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.data.model.discord.users.UserModel;
-import dev.sbs.api.data.model.discord.users.UserSqlModel;
-import dev.sbs.api.data.sql.SqlRepository;
+import dev.sbs.api.persistence.JpaRepository;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
-import dev.sbs.discordapi.command.exception.input.ExpectedInputException;
+import dev.sbs.discordapi.command.exception.ExpectedInputException;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordUserException;
-import dev.sbs.discordapi.handler.EmojiHandler;
 import dev.sbs.discordapi.response.Emoji;
 import dev.sbs.discordapi.response.Response;
+import dev.sbs.discordapi.response.embed.Author;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.structure.Author;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
+import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelPlayer;
+import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelPlayerResponse;
+import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelSocial;
+import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
+import dev.sbs.minecraftapi.client.sbs.SbsClient;
+import dev.sbs.minecraftapi.client.sbs.request.SbsEndpoint;
+import dev.sbs.simplifiedbot.model.AppUser;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@Structure("48b8f351-4e74-4010-b1ef-9b3d18c9833a")
+@Structure(
+    name = "link",
+    description = "Link your Minecraft account to your Discord account"
+)
 public class LinkCommand extends DiscordCommand<SlashCommandContext> {
 
     protected LinkCommand(@NotNull DiscordBot discordBot) {
@@ -42,9 +44,9 @@ public class LinkCommand extends DiscordCommand<SlashCommandContext> {
     @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         String playerID = commandContext.getArgument("name").map(Argument::asString).orElseThrow(); // Will never throw
-        SbsRequest mojangRequest = SimplifiedApi.getApiRequest(SbsRequest.class);
-        MojangProfileResponse mojangProfileResponse = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
-        HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getApiRequest(HypixelRequest.class).getPlayer(mojangProfileResponse.getUniqueId());
+        SbsEndpoint mojangRequest = SimplifiedApi.getClient(SbsClient.class).getEndpoint();
+        MojangProfile mojangProfile = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
+        HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getClient(HypixelClient.class).getEndpoint().getPlayer(mojangProfile.getUniqueId());
         String interactDiscordTag = commandContext.getInteractUser().getTag();
 
         String hypixelDiscordTag = hypixelPlayerResponse.getPlayer()
@@ -53,36 +55,35 @@ public class LinkCommand extends DiscordCommand<SlashCommandContext> {
             .orElse("");
 
         if (interactDiscordTag.equals(hypixelDiscordTag)) {
-            UserModel userModel = SimplifiedApi.getRepositoryOf(UserModel.class).matchFirstOrNull(user ->
-                user.getDiscordIds().contains(commandContext.getInteractUserId().asLong()) ||
-                    user.getMojangUniqueIds().contains(mojangProfileResponse.getUniqueId())
+            AppUser user = SimplifiedApi.getRepository(AppUser.class).matchFirstOrNull(appUser -> appUser.getDiscordIds()
+                .contains(commandContext.getInteractUserId().asLong()) || appUser.getMojangUniqueIds().contains(mojangProfile.getUniqueId())
             );
 
-            String message = String.format("You have linked `%s` to your Discord account.", mojangProfileResponse.getUsername());
+            String message = String.format("You have linked `%s` to your Discord account.", mojangProfile.getUsername());
 
-            if (userModel == null) {
+            if (user == null) {
                 // Create New User
-                UserSqlModel newUserModel = new UserSqlModel();
+                AppUser newUserModel = new AppUser();
                 newUserModel.getDiscordIds().add(commandContext.getInteractUserId().asLong());
-                newUserModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
+                newUserModel.getMojangUniqueIds().add(mojangProfile.getUniqueId());
 
                 // Save New User
-                ((SqlRepository<UserSqlModel>) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).save(newUserModel);
+                ((JpaRepository<AppUser>) SimplifiedApi.getRepository(AppUser.class)).save(newUserModel);
             } else {
                 boolean alreadyVerified = false;
 
                 // Update Existing User
-                if (!userModel.getDiscordIds().contains(commandContext.getInteractUserId().asLong())) {
-                    userModel.getDiscordIds().add(commandContext.getInteractUserId().asLong());
-                    message = String.format("You have linked your new Discord account to `%s`.", mojangProfileResponse.getUsername());
-                } else if (!userModel.getMojangUniqueIds().contains(mojangProfileResponse.getUniqueId()))
-                    userModel.getMojangUniqueIds().add(mojangProfileResponse.getUniqueId());
+                if (!user.getDiscordIds().contains(commandContext.getInteractUserId().asLong())) {
+                    user.getDiscordIds().add(commandContext.getInteractUserId().asLong());
+                    message = String.format("You have linked your new Discord account to `%s`.", mojangProfile.getUsername());
+                } else if (!user.getMojangUniqueIds().contains(mojangProfile.getUniqueId()))
+                    user.getMojangUniqueIds().add(mojangProfile.getUniqueId());
                 else
                     alreadyVerified = true;
 
                 // Update User
                 if (!alreadyVerified)
-                    ((SqlRepository<UserSqlModel>) SimplifiedApi.getRepositoryOf(UserSqlModel.class)).update((UserSqlModel) userModel);
+                    ((JpaRepository<AppUser>) SimplifiedApi.getRepository(AppUser.class)).update(user);
                 else
                     message = "Your Discord account has been verified.";
 
@@ -117,7 +118,7 @@ public class LinkCommand extends DiscordCommand<SlashCommandContext> {
                                     .withAuthor(
                                         Author.builder()
                                             .withName("Hypixel Verification")
-                                            .withIconUrl(EmojiHandler.getEmoji("STATUS_INFO").map(Emoji::getUrl))
+                                            .withIconUrl(this.getEmoji("STATUS_INFO").map(Emoji::getUrl))
                                             .build()
                                     )
                                     .withDescription(message)

@@ -3,15 +3,19 @@ package dev.sbs.simplifiedbot.command.embed;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
-import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 
 @Structure(
-    parent = "embed",
-    name = "edit"
+    parent = @Structure.Parent(
+        name = "embed",
+        description = "Embed commands"
+    ),
+    name = "edit",
+    description = "Edit an embed"
 )
 public class EmbedEditCommand extends DiscordCommand<SlashCommandContext> {
 

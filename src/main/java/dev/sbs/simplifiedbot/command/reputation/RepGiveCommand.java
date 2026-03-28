@@ -3,23 +3,21 @@ package dev.sbs.simplifiedbot.command.reputation;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.data.model.discord.guild_data.guild_reputation.GuildReputationModel;
-import dev.sbs.api.data.model.discord.guild_data.guild_reputation.GuildReputationSqlModel;
-import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildReputationTypeModel;
-import dev.sbs.api.data.model.discord.guild_data.guild_reputation_types.GuildReputationTypeSqlModel;
-import dev.sbs.api.data.sql.SqlRepository;
-import dev.sbs.api.stream.pair.Pair;
+import dev.sbs.api.persistence.JpaRepository;
+import dev.sbs.api.tuple.pair.Pair;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.simplifiedbot.model.AppGuildReputation;
+import dev.sbs.simplifiedbot.model.AppGuildReputationType;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -29,8 +27,12 @@ import java.awt.*;
 import java.util.Optional;
 
 @Structure(
-    parent = "rep",
-    name = "give"
+    parent = @Structure.Parent(
+        name = "rep",
+        description = "Reputation commands"
+    ),
+    name = "give",
+    description = "Give reputation to another user"
 )
 public class RepGiveCommand extends DiscordCommand<SlashCommandContext> {
 
@@ -56,16 +58,16 @@ public class RepGiveCommand extends DiscordCommand<SlashCommandContext> {
         if (submitterDiscordId == receiverDiscordId)
             return commandContext.reply(genericResponse("You cannot give yourself reputation!", Color.RED));
 
-        Optional<GuildReputationTypeSqlModel> reputationTypeSqlModel = SimplifiedApi.getRepositoryOf(GuildReputationTypeSqlModel.class)
-            .findFirst(GuildReputationTypeModel::getKey, reputationType.toUpperCase());
+        Optional<AppGuildReputationType> reputationTypeModel = SimplifiedApi.getRepository(AppGuildReputationType.class)
+            .findFirst(AppGuildReputationType::getKey, reputationType.toUpperCase());
 
         // Check Reputation Type
-        if (reputationTypeSqlModel.isEmpty())
+        if (reputationTypeModel.isEmpty())
             return commandContext.reply(genericResponse(String.format("The provided reputation type '%s' is invalid!", reputationType), Color.RED));
 
-        long lastReceivedId = SimplifiedApi.getRepositoryOf(GuildReputationModel.class)
-            .findLast(GuildReputationModel::getSubmitterDiscordId, submitterDiscordId)
-            .map(GuildReputationModel::getReceiverDiscordId)
+        long lastReceivedId = SimplifiedApi.getRepository(AppGuildReputation.class)
+            .findLast(AppGuildReputation::getSubmitterDiscordId, submitterDiscordId)
+            .map(AppGuildReputation::getReceiverDiscordId)
             .orElse(0L);
 
         // Prevent Continuous Reputation
@@ -73,12 +75,12 @@ public class RepGiveCommand extends DiscordCommand<SlashCommandContext> {
             return commandContext.reply(genericResponse("You have recently given rep to this user!", Color.RED));
 
         // Create New Reputation
-        GuildReputationSqlModel entry = new GuildReputationSqlModel();
+        AppGuildReputation entry = new AppGuildReputation();
         entry.setSubmitterDiscordId(submitterDiscordId);
         entry.setReceiverDiscordId(receiverDiscordId);
-        entry.setType(reputationTypeSqlModel.get());
+        entry.setType(reputationTypeModel.get());
         entry.setReason(reason);
-        ((SqlRepository<GuildReputationSqlModel>) SimplifiedApi.getRepositoryOf(GuildReputationSqlModel.class)).save(entry);
+        ((JpaRepository<AppGuildReputation>) SimplifiedApi.getRepository(AppGuildReputation.class)).save(entry);
 
         return commandContext.reply(
             genericResponse(String.format(
@@ -123,7 +125,7 @@ public class RepGiveCommand extends DiscordCommand<SlashCommandContext> {
                 .withType(Parameter.Type.WORD)
                 .isRequired()
                 .withChoices(
-                    SimplifiedApi.getRepositoryOf(GuildReputationTypeModel.class)
+                    SimplifiedApi.getRepository(AppGuildReputationType.class)
                         .stream()
                         .map(reputationType -> Pair.of(reputationType.getName(), reputationType.getKey().toLowerCase()))
                         .collect(Concurrent.toWeakLinkedMap())
