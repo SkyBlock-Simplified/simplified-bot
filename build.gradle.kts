@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.gradleup.shadow") version "8.3.6"
 }
 
 group = "dev.sbs"
@@ -51,5 +52,20 @@ dependencies {
 tasks {
     test {
         useJUnitPlatform()
+    }
+
+    shadowJar {
+        archiveClassifier.set("")
+        mergeServiceFiles()
+
+        manifest {
+            attributes["Main-Class"] = "dev.sbs.simplifiedbot.SimplifiedBot"
+        }
+
+        exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+    }
+
+    build {
+        dependsOn(shadowJar)
     }
 }
