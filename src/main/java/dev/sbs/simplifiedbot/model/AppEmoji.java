@@ -1,37 +1,104 @@
 package dev.sbs.simplifiedbot.model;
 
-import dev.sbs.api.data.Model;
-import dev.sbs.discordapi.context.reaction.ReactionContext;
+import dev.sbs.api.persistence.JpaModel;
+import dev.sbs.discordapi.context.message.ReactionContext;
 import dev.sbs.discordapi.response.Emoji;
 import discord4j.common.util.Snowflake;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
 import java.util.function.Function;
 
-public interface AppEmoji extends Model {
+@Getter
+@Entity
+@Table(
+    name = "discord_emojis",
+    indexes = {
+        @Index(
+            columnList = "guild_id"
+        )
+    }
+)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class AppEmoji implements JpaModel {
 
-    Long getEmojiId();
+    @Id
+    @Setter
+    @Column(name = "key")
+    private String key;
 
-    AppGuild getGuild();
+    @Setter
+    @Column(name = "name", nullable = false)
+    private String name;
 
-    String getKey();
+    @Setter
+    @Column(name = "emoji_id", nullable = false, unique = true)
+    private Long emojiId;
 
-    String getName();
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "guild_id", referencedColumnName = "guild_id", nullable = false)
+    private AppGuild guild;
 
-    boolean isAnimated();
+    @Setter
+    @Column(name = "animated", nullable = false)
+    private boolean animated;
 
-    default @NotNull String getUrl() {
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @CreationTimestamp
+    @Column(name = "submitted_at", nullable = false)
+    private Instant submittedAt;
+
+    public @NotNull String getUrl() {
         return Emoji.getUrl(this.getEmojiId(), this.isAnimated());
     }
 
-    default @NotNull Emoji getDiscordEmoji() {
+    public @NotNull Emoji getDiscordEmoji() {
         return this.getDiscordEmoji(null);
     }
 
-    default @NotNull Emoji getDiscordEmoji(@Nullable Function<ReactionContext, Mono<Void>> interaction) {
+    public @NotNull Emoji getDiscordEmoji(@Nullable Function<ReactionContext, Mono<Void>> interaction) {
         return Emoji.of(Snowflake.of(this.getEmojiId()), this.getKey(), this.isAnimated(), interaction);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AppEmoji that = (AppEmoji) o;
+
+        return this.isAnimated() == that.isAnimated()
+            && Objects.equals(this.getEmojiId(), that.getEmojiId())
+            && Objects.equals(this.getGuild(), that.getGuild())
+            && Objects.equals(this.getKey(), that.getKey())
+            && Objects.equals(this.getName(), that.getName())
+            && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
+            && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getEmojiId(), this.getGuild(), this.getKey(), this.getName(), this.isAnimated(), this.getUpdatedAt(), this.getSubmittedAt());
     }
 
 }

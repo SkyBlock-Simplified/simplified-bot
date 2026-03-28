@@ -1,46 +1,156 @@
 package dev.sbs.simplifiedbot.model;
 
-import dev.sbs.api.data.Model;
+import dev.sbs.api.persistence.JpaModel;
+import dev.sbs.api.persistence.converter.ColorConverter;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.awt.*;
 import java.time.Instant;
+import java.util.Objects;
 
-public interface AppGuildEmbed extends Model {
+@Getter
+@Entity
+@Table(
+    name = "discord_guild_embeds",
+    indexes = {
+        @Index(
+            columnList = "guild_id, key",
+            unique = true
+        )
+    }
+)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class AppGuildEmbed implements JpaModel {
 
-    AppGuild getGuild();
+    @Id
+    @Setter
+    @Column(name = "key")
+    private String key;
 
-    String getKey();
+    @Id
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "guild_id", referencedColumnName = "guild_id")
+    private AppGuild guild;
 
-    String getTitle();
+    @Setter
+    @Column(name = "title", nullable = false)
+    private String title;
 
-    Color getColor();
+    @Setter
+    @Column(name = "color", nullable = false)
+    @Convert(converter = ColorConverter.class)
+    private Color color;
 
-    String getUrl();
+    @Setter
+    @Column(name = "url")
+    private String url;
 
-    String getDescription();
+    @Setter
+    @Column(name = "description")
+    private String description;
 
-    String getAuthorName();
+    @Setter
+    @Column(name = "author_name")
+    private String authorName;
 
-    String getAuthorUrl();
+    @Setter
+    @Column(name = "author_url")
+    private String authorUrl;
 
-    String getAuthorIconUrl();
+    @Setter
+    @Column(name = "author_icon_url")
+    private String authorIconUrl;
 
-    String getImageUrl();
+    @Setter
+    @Column(name = "image_url")
+    private String imageUrl;
 
-    String getThumbnailUrl();
+    @Setter
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
 
-    String getVideoUrl();
+    @Setter
+    @Column(name = "video_url")
+    private String videoUrl;
 
-    Instant getTimestamp();
+    @Setter
+    @Column(name = "timestamp")
+    private Instant timestamp;
 
-    String getFooterText();
+    @Setter
+    @Column(name = "footer_text")
+    private String footerText;
 
-    String getFooterIconUrl();
+    @Setter
+    @Column(name = "footer_icon_url")
+    private String footerIconUrl;
 
-    String getNotes();
+    @Setter
+    @Column(name = "notes")
+    private String notes;
 
-    Long getSubmitterDiscordId();
+    @Setter
+    @Column(name = "submitter_discord_id")
+    private Long submitterDiscordId;
 
-    Long getEditorDiscordId();
+    @Setter
+    @Column(name = "editor_discord_id")
+    private Long editorDiscordId;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @CreationTimestamp
+    @Column(name = "submitted_at", nullable = false)
+    private Instant submittedAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AppGuildEmbed that = (AppGuildEmbed) o;
+
+        return Objects.equals(this.getGuild(), that.getGuild())
+            && Objects.equals(this.getKey(), that.getKey())
+            && Objects.equals(this.getTitle(), that.getTitle())
+            && Objects.equals(this.getColor(), that.getColor())
+            && Objects.equals(this.getUrl(), that.getUrl())
+            && Objects.equals(this.getDescription(), that.getDescription())
+            && Objects.equals(this.getAuthorName(), that.getAuthorName())
+            && Objects.equals(this.getAuthorUrl(), that.getAuthorUrl())
+            && Objects.equals(this.getAuthorIconUrl(), that.getAuthorIconUrl())
+            && Objects.equals(this.getImageUrl(), that.getImageUrl())
+            && Objects.equals(this.getThumbnailUrl(), that.getThumbnailUrl())
+            && Objects.equals(this.getVideoUrl(), that.getVideoUrl())
+            && Objects.equals(this.getTimestamp(), that.getTimestamp())
+            && Objects.equals(this.getFooterText(), that.getFooterText())
+            && Objects.equals(this.getFooterIconUrl(), that.getFooterIconUrl())
+            && Objects.equals(this.getNotes(), that.getNotes())
+            && Objects.equals(this.getSubmitterDiscordId(), that.getSubmitterDiscordId())
+            && Objects.equals(this.getEditorDiscordId(), that.getEditorDiscordId())
+            && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
+            && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getGuild(), this.getKey(), this.getTitle(), this.getColor(), this.getUrl(), this.getDescription(), this.getAuthorName(), this.getAuthorUrl(), this.getAuthorIconUrl(), this.getImageUrl(), this.getThumbnailUrl(), this.getVideoUrl(), this.getTimestamp(), this.getFooterText(), this.getFooterIconUrl(), this.getNotes(), this.getSubmitterDiscordId(), this.getEditorDiscordId(), this.getUpdatedAt(), this.getSubmittedAt());
+    }
 
 }

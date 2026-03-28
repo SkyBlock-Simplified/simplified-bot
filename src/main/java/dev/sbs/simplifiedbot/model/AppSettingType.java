@@ -1,11 +1,61 @@
 package dev.sbs.simplifiedbot.model;
 
-import dev.sbs.api.data.Model;
+import dev.sbs.api.persistence.JpaModel;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-public interface AppSettingType extends Model {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
 
-    String getKey();
+@Getter
+@Entity
+@Table(
+    name = "discord_setting_types"
+)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class AppSettingType implements JpaModel {
 
-    String getName();
+    @Id
+    @Setter
+    @Column(name = "key", nullable = false, unique = true)
+    private String key;
+
+    @Setter
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @CreationTimestamp
+    @Column(name = "submitted_at", nullable = false)
+    private Instant submittedAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AppSettingType that = (AppSettingType) o;
+
+        return Objects.equals(this.getKey(), that.getKey())
+            && Objects.equals(this.getName(), that.getName())
+            && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
+            && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getKey(), this.getName(), this.getUpdatedAt(), this.getSubmittedAt());
+    }
 
 }

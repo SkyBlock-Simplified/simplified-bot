@@ -1,13 +1,66 @@
 package dev.sbs.simplifiedbot.model;
 
-import dev.sbs.api.data.Model;
+import dev.sbs.api.persistence.JpaModel;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-public interface OptimizerMobType extends Model {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
 
-    String getKey();
+@Getter
+@Entity
+@Table(
+    name = "discord_optimizer_mob_types"
+)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class OptimizerMobType implements JpaModel {
 
-    String getName();
+    @Id
+    @Setter
+    @Column(name = "key")
+    private String key;
 
-    boolean isActive();
+    @Setter
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Setter
+    @Column(name = "active", nullable = false)
+    private boolean active;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @CreationTimestamp
+    @Column(name = "submitted_at", nullable = false)
+    private Instant submittedAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OptimizerMobType that = (OptimizerMobType) o;
+
+        return this.isActive() == that.isActive()
+            && Objects.equals(this.getKey(), that.getKey())
+            && Objects.equals(this.getName(), that.getName())
+            && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
+            && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getKey(), this.getName(), this.isActive(), this.getUpdatedAt(), this.getSubmittedAt());
+    }
 
 }
