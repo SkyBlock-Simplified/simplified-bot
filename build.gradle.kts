@@ -32,6 +32,7 @@ dependencies {
     testImplementation(libs.hamcrest)
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.platform.launcher)
 
     // Optaplanner
     implementation(libs.optaplanner.core)
