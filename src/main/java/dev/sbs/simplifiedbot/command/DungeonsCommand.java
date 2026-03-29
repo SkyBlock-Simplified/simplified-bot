@@ -183,24 +183,24 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                                         emojiReplyEnd,
                                         dungeon.getFloorData(masterMode)
                                             .getCompletions()
-                                            .get(floor.getValue()),
+                                            .get(floor),
                                         dungeon.getFloorData(masterMode)
                                             .getBestScore()
-                                            .get(floor.getValue()),
+                                            .get(floor),
                                         getFastestDate(
                                             dungeon.getFloorData(masterMode)
                                                 .getFastestTime()
-                                                .get(floor.getValue())
+                                                .get(floor)
                                         ),
                                         getFastestDate(
                                             dungeon.getFloorData(masterMode)
                                                 .getFastestSTierTime()
-                                                .get(floor.getValue())
+                                                .get(floor)
                                         ),
                                         getFastestDate(
                                             dungeon.getFloorData(masterMode)
                                                 .getFastestSPlusTierTime()
-                                                .get(floor.getValue())
+                                                .get(floor)
                                         )
                                     )
                                     .isInline()

@@ -10,7 +10,10 @@ import dev.sbs.simplifiedbot.util.SkyBlockUserCommand;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-@Structure("9171bc6d-fe0b-45e0-bf8f-bdbe87ccf064")
+@Structure(
+    name = "optimizer",
+    description = "Optimize your stats"
+)
 public class OptimizerCommand extends SkyBlockUserCommand {
 
     protected OptimizerCommand(@NotNull DiscordBot discordBot) {

@@ -215,9 +215,9 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
                                 .withName("Details")
                                 .withValue(
                                     """
-                                        {0}Status: {2}
-                                        {0}Deaths: {3}
-                                        {1}Guild: {4}
+                                        %1$sStatus: %3$s
+                                        %1$sDeaths: %4$s
+                                        %2$sGuild: %5$s
                                         """,
                                     emojiReplyStem,
                                     emojiReplyEnd,
@@ -232,9 +232,9 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
                                 .withName("Coins")
                                 .withValue(
                                     """
-                                        {0}Bank: {2,number,#,###}
-                                        {1}Purse: {3,number,#,###}
-                                        """,
+                                        %sBank: %3$,.2f
+                                        %sPurse: %4$,.2f
+                                        """, // {3,number,#,###}
                                     emojiReplyStem,
                                     emojiReplyEnd,
                                     skyBlockIsland.getBanking().map(Banking::getBalance).orElse(0.0),

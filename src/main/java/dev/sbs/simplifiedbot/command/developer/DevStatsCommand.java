@@ -142,12 +142,13 @@ public class DevStatsCommand extends DiscordCommand<SlashCommandContext> {
                     )
                 );
 
-            if (!guild.getFeatures().isEmpty()) {
+            if (!guild.getGuildFeatures().isEmpty()) {
                 builder.withField(
                     "Features",
                     StringUtil.join(
-                        guild.getFeatures()
+                        guild.getGuildFeatures()
                             .stream()
+                            .map(Guild.GuildFeature::getValue)
                             .map(value -> value.replace("_", " "))
                             .map(StringUtil::capitalizeFully)
                             .collect(Concurrent.toList()),

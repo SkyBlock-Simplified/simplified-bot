@@ -55,7 +55,7 @@ public final class SkyBlockUser {
 
             optionalPlayerID = SimplifiedApi.getRepository(AppUser.class)
                 .matchFirst(userModel -> userModel.getDiscordIds().contains(commandContext.getInteractUserId().asLong()))
-                .map(userModel -> userModel.getMojangUniqueIds().get(userModel.getMojangUniqueIds().size() - 1))
+                .map(userModel -> userModel.getMojangUniqueIds().getLast())
                 .map(UUID::toString);
         }
 

@@ -24,7 +24,7 @@ public class AuctionsCommand extends SkyBlockUserCommand {
         return commandContext.reply(
             Response.builder()
                 .withTimeToLive(30)
-                .withPages(PlayerCommand.buildPages(skyBlockUser))
+                .withPages(buildPages(skyBlockUser))
                 .withDefaultPage("auctions")
                 .build()
         );

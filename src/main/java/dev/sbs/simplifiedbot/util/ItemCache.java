@@ -56,7 +56,7 @@ public class ItemCache {
                     .getItems()
                     .stream()
                     .filter(endedAuction -> item.getId().equals(
-                            endedAuction.getItemNbt()
+                            endedAuction.getItem()
                                 .getNbtData()
                                 .getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY)
                                 .getValue()
@@ -74,7 +74,7 @@ public class ItemCache {
                     .getItems()
                     .stream()
                     .filter(activeAuction -> item.getId().equals(
-                        activeAuction.getItemNbt()
+                        activeAuction.getItem()
                             .getNbtData()
                             .getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY)
                             .getValue()
