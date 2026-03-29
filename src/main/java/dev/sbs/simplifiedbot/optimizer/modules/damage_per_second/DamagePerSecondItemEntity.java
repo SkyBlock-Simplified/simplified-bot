@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.modules.damage_per_second;
 
-import dev.sbs.simplifiedbot.data.skyblock.item_types.ItemTypeModel;
+import dev.sbs.minecraftapi.model.ItemCategory;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ItemEntity;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.profile_stats.data.ObjectData;
@@ -25,7 +25,7 @@ public final class DamagePerSecondItemEntity implements ItemEntity {
 
     @PlanningId
     private UUID uniqueId;
-    private ItemTypeModel type;
+    private ItemCategory type;
     private ObjectData<?> objectData;
 
     @Setter
@@ -43,7 +43,7 @@ public final class DamagePerSecondItemEntity implements ItemEntity {
 
     } // Optimizer Cloning
 
-    public DamagePerSecondItemEntity(ItemTypeModel type, ObjectData<?> objectData, List<ReforgeFact> availableReforges) {
+    public DamagePerSecondItemEntity(ItemCategory type, ObjectData<?> objectData, List<ReforgeFact> availableReforges) {
         this.uniqueId = UUID.randomUUID();
         this.type = type;
         this.objectData = objectData;
@@ -65,7 +65,7 @@ public final class DamagePerSecondItemEntity implements ItemEntity {
 
     @Override
     public String toString() {
-        return "DamagePerHitItemEntity(reforge=" + this.getAvailableReforges().get(0) + ")";
+        return "DamagePerSecondItemEntity(reforge=" + this.getAvailableReforges().get(0) + ")";
     }
 
     public boolean effectivelyEquals(DamagePerSecondItemEntity that) {

@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot.optimizer.modules.common;
 
 
-import dev.sbs.simplifiedbot.data.skyblock.item_types.ItemTypeModel;
-import dev.sbs.simplifiedbot.data.skyblock.rarities.RarityModel;
+import dev.sbs.minecraftapi.model.ItemCategory;
+import dev.sbs.minecraftapi.skyblock.common.Rarity;
 import dev.sbs.simplifiedbot.profile_stats.data.ObjectData;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public interface ItemEntity {
 
     List<ReforgeFact> getAvailableReforges();
 
-    default RarityModel getRarity() {
+    default Rarity getRarity() {
         return this.getObjectData().getRarity();
     }
 
@@ -20,7 +20,7 @@ public interface ItemEntity {
 
     ObjectData<?> getObjectData();
 
-    ItemTypeModel getType();
+    ItemCategory getType();
 
     UUID getUniqueId();
 

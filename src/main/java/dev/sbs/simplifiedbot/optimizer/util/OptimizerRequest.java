@@ -1,25 +1,24 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.builder.ClassBuilder;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.collection.concurrent.ConcurrentMap;
-import dev.sbs.minecraftapi.client.hypixel.request.HypixelRequest;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockProfilesResponse;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.implementation.island.SkyBlockIsland;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.implementation.island.member.Member;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.implementation.island.util.NbtContent;
-import dev.sbs.minecraftapi.client.sbs.request.SbsRequest;
-import dev.sbs.minecraftapi.client.sbs.response.MojangProfileResponse;
+import dev.sbs.api.util.builder.ClassBuilder;
+import dev.sbs.minecraftapi.MinecraftApi;
+import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockMember;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockProfiles;
+import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
+import dev.sbs.minecraftapi.client.sbs.SbsClient;
+import dev.sbs.minecraftapi.model.BonusPetAbilityStat;
+import dev.sbs.minecraftapi.model.Item;
+import dev.sbs.minecraftapi.model.Reforge;
 import dev.sbs.minecraftapi.nbt.tags.collection.CompoundTag;
 import dev.sbs.minecraftapi.nbt.tags.primitive.StringTag;
-import dev.sbs.simplifiedbot.client.EnhancedMember;
-import dev.sbs.simplifiedbot.data.discord.optimizer_mob_types.OptimizerMobTypeModel;
-import dev.sbs.simplifiedbot.data.skyblock.bonus_data.bonus_pet_ability_stats.BonusPetAbilityStatModel;
-import dev.sbs.simplifiedbot.data.skyblock.items.ItemModel;
-import dev.sbs.simplifiedbot.data.skyblock.profiles.ProfileModel;
-import dev.sbs.simplifiedbot.data.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
+import dev.sbs.minecraftapi.skyblock.common.NbtContent;
+import dev.sbs.simplifiedbot.model.OptimizerMobType;
 import dev.sbs.simplifiedbot.profile_stats.ProfileStats;
 import dev.sbs.simplifiedbot.profile_stats.data.ItemData;
 import dev.sbs.simplifiedbot.profile_stats.data.PlayerDataHelper;
@@ -36,23 +35,23 @@ import java.util.UUID;
 @Getter
 public final class OptimizerRequest {
 
-    private final @NotNull Member member;
+    private final @NotNull SkyBlockMember member;
     private final @NotNull ProfileStats profileStats;
     private final @NotNull ConcurrentMap<String, Double> expressionVariables;
     private final @NotNull Optional<WeaponData> weapon;
-    private final @NotNull ConcurrentList<ReforgeStatModel> allowedReforges;
+    private final @NotNull ConcurrentList<Reforge> allowedReforges;
     private final @NotNull Type type;
-    private final @NotNull OptimizerMobTypeModel mobType;
+    private final @NotNull OptimizerMobType mobType;
     private final double playerDamage;
     private final double weaponDamage;
     private final double weaponBonus;
 
     private OptimizerRequest(OptimizerRequestBuilder optimizerRequestBuilder) {
         SkyBlockIsland island = optimizerRequestBuilder.skyBlockProfilesResponse.getIslands().get(optimizerRequestBuilder.islandIndex);
-        Member member = island.getMembers().get(optimizerRequestBuilder.uniqueId);
+        SkyBlockMember member = island.getMembers().get(optimizerRequestBuilder.uniqueId);
 
         this.member = member;
-        this.profileStats = new ProfileStats(island, new EnhancedMember(member), true);
+        this.profileStats = new ProfileStats(island, member, true);
         this.expressionVariables = this.profileStats.getExpressionVariables();
         this.allowedReforges = optimizerRequestBuilder.allowedReforges;
         this.type = optimizerRequestBuilder.type;
@@ -61,7 +60,9 @@ public final class OptimizerRequest {
         // Load Weapon
         Optional<WeaponData> optionalWeapon = Optional.empty();
 
-        if (optimizerRequestBuilder.weaponItemModel.isPresent()) {
+        if (optimizerRequestBuilder.weaponItem.isPresent()) {
+            String weaponItemId = optimizerRequestBuilder.weaponItem.get().getId();
+
             // Inventory
             optionalWeapon = member.getInventory()
                 .getContent()
@@ -69,7 +70,7 @@ public final class OptimizerRequest {
                 .<CompoundTag>getListTag("i")
                 .stream()
                 .filter(CompoundTag::notEmpty)
-                .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
+                .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(weaponItemId))
                 .findFirst()
                 .map(itemTag -> new WeaponData(itemTag, this));
 
@@ -81,7 +82,7 @@ public final class OptimizerRequest {
                     .<CompoundTag>getListTag("i")
                     .stream()
                     .filter(CompoundTag::notEmpty)
-                    .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
+                    .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(weaponItemId))
                     .findFirst()
                     .map(itemTag -> new WeaponData(itemTag, this));
             }
@@ -95,50 +96,43 @@ public final class OptimizerRequest {
                     .map(NbtContent::getNbtData)
                     .flatMap(compoundTag -> compoundTag.<CompoundTag>getListTag("i").stream())
                     .filter(CompoundTag::notEmpty)
-                    .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(optimizerRequestBuilder.weaponItemModel.get().getItemId()))
+                    .filter(itemTag -> itemTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue().equals(weaponItemId))
                     .findFirst()
                     .map(itemTag -> new WeaponData(itemTag, this));
             }
         }
 
         this.weapon = optionalWeapon;
-        this.playerDamage = this.getProfileStats().getCombinedStats().get(OptimizerHelper.DAMAGE_STAT_MODEL).getTotal();
+        this.playerDamage = this.getProfileStats().getCombinedStats().get(OptimizerHelper.DAMAGE_STAT).getTotal();
         this.weaponDamage = OptimizerHelper.getWeaponDamage(this);
         this.weaponBonus = OptimizerHelper.getWeaponBonus(this);
     }
 
     public static OptimizerRequestBuilder of(String username) {
-        MojangProfileResponse mojangProfileResponse = SimplifiedApi.getApiRequest(SbsRequest.class).getProfileFromUsername(username);
-        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getApiRequest(HypixelRequest.class).getProfiles(mojangProfileResponse.getUniqueId());
-        return new OptimizerRequestBuilder(skyBlockProfilesResponse, mojangProfileResponse.getUniqueId());
+        MojangProfile mojangProfile = SimplifiedApi.getClient(SbsClient.class).getEndpoint().getProfileFromUsername(username);
+        SkyBlockProfiles skyBlockProfilesResponse = SimplifiedApi.getClient(HypixelClient.class).getEndpoint().getProfiles(mojangProfile.getUniqueId());
+        return new OptimizerRequestBuilder(skyBlockProfilesResponse, mojangProfile.getUniqueId());
     }
 
     public static OptimizerRequestBuilder of(UUID uniqueId) {
-        SkyBlockProfilesResponse skyBlockProfilesResponse = SimplifiedApi.getApiRequest(HypixelRequest.class).getProfiles(uniqueId);
+        SkyBlockProfiles skyBlockProfilesResponse = SimplifiedApi.getClient(HypixelClient.class).getEndpoint().getProfiles(uniqueId);
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, uniqueId);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class OptimizerRequestBuilder implements ClassBuilder<OptimizerRequest> {
 
-        private final SkyBlockProfilesResponse skyBlockProfilesResponse;
+        private final SkyBlockProfiles skyBlockProfilesResponse;
         private final UUID uniqueId;
-        private final ConcurrentList<ReforgeStatModel> allowedReforges = Concurrent.newList();
+        private final ConcurrentList<Reforge> allowedReforges = Concurrent.newList();
         private Type type;
-        private OptimizerMobTypeModel mobType;
+        private OptimizerMobType mobType;
         private int islandIndex;
-        private Optional<ItemModel> weaponItemModel;
+        private Optional<Item> weaponItem = Optional.empty();
 
-        public @NotNull OptimizerRequestBuilder withAllowedReforges(@NotNull ConcurrentList<ReforgeStatModel> allowedReforges) {
+        public @NotNull OptimizerRequestBuilder withAllowedReforges(@NotNull ConcurrentList<Reforge> allowedReforges) {
             this.allowedReforges.addAll(allowedReforges);
             return this;
-        }
-
-        public @NotNull OptimizerRequestBuilder withIsland(@NotNull ProfileModel profileModel) {
-            return this.withIsland(this.skyBlockProfilesResponse.getIsland(profileModel.getKey())
-                .map(skyBlockIsland -> skyBlockProfilesResponse.getIslands().indexOf(skyBlockIsland))
-                .orElse(0)
-            );
         }
 
         public @NotNull OptimizerRequestBuilder withIsland(int islandIndex) {
@@ -146,7 +140,7 @@ public final class OptimizerRequest {
             return this;
         }
 
-        public @NotNull OptimizerRequestBuilder withMobType(@NotNull OptimizerMobTypeModel mobType) {
+        public @NotNull OptimizerRequestBuilder withMobType(@NotNull OptimizerMobType mobType) {
             this.mobType = mobType;
             return this;
         }
@@ -156,8 +150,8 @@ public final class OptimizerRequest {
             return this;
         }
 
-        public @NotNull OptimizerRequestBuilder withWeapon(@Nullable ItemModel itemModel) {
-            this.weaponItemModel = Optional.ofNullable(itemModel);
+        public @NotNull OptimizerRequestBuilder withWeapon(@Nullable Item item) {
+            this.weaponItem = Optional.ofNullable(item);
             return this;
         }
 
@@ -182,8 +176,8 @@ public final class OptimizerRequest {
 
         private WeaponData(@NotNull CompoundTag compoundTag, OptimizerRequest optimizerRequest) {
             super(
-                SimplifiedApi.getRepositoryOf(ItemModel.class).findFirstOrNull(
-                    ItemModel::getItemId,
+                MinecraftApi.getRepository(Item.class).findFirstOrNull(
+                    Item::getId,
                     compoundTag.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue()
                 ),
                 compoundTag
@@ -195,11 +189,11 @@ public final class OptimizerRequest {
                 .getProfileStats()
                 .getBonusPetAbilityStatModels()
                 .stream()
-                .filter(BonusPetAbilityStatModel::notPercentage)
-                .filter(BonusPetAbilityStatModel::hasRequiredItem)
-                .filter(bonusPetAbilityStatModel -> this.getItem().equals(bonusPetAbilityStatModel.getRequiredItem()))
-                .filter(bonusPetAbilityStatModel -> bonusPetAbilityStatModel.noRequiredMobType() || bonusPetAbilityStatModel.getRequiredMobType().equals(optimizerRequest.getMobType()))
-                .forEach(bonusPetAbilityStatModel -> this.getStats(Type.STATS)
+                .filter(BonusPetAbilityStat::notPercentage)
+                .filter(BonusPetAbilityStat::hasRequiredItem)
+                .filter(bonusPetAbilityStat -> this.getItem().equals(bonusPetAbilityStat.getRequiredItem()))
+                .filter(bonusPetAbilityStat -> bonusPetAbilityStat.noRequiredMobType() || bonusPetAbilityStat.getRequiredMobTypeKey().equals(optimizerRequest.getMobType().getKey()))
+                .forEach(bonusPetAbilityStat -> this.getStats(Type.STATS)
                     .forEach((statModel, statData) -> this.setBonus(
                         statData,
                         PlayerDataHelper.handleBonusEffects(
@@ -207,7 +201,7 @@ public final class OptimizerRequest {
                             statData.getBonus(),
                             this.getCompoundTag(),
                             optimizerRequest.getExpressionVariables(),
-                            bonusPetAbilityStatModel
+                            bonusPetAbilityStat
                         ))
                     )
                 );
@@ -224,10 +218,10 @@ public final class OptimizerRequest {
                 .getProfileStats()
                 .getBonusPetAbilityStatModels()
                 .stream()
-                .filter(BonusPetAbilityStatModel::isPercentage)
-                .filter(BonusPetAbilityStatModel::noRequiredItem)
-                .filter(BonusPetAbilityStatModel::noRequiredMobType)
-                .forEach(bonusPetAbilityStatModel -> this.getStats().forEach((type, statEntries) -> statEntries.forEach((statModel, statData) -> {
+                .filter(BonusPetAbilityStat::isPercentage)
+                .filter(BonusPetAbilityStat::noRequiredItem)
+                .filter(BonusPetAbilityStat::noRequiredMobType)
+                .forEach(bonusPetAbilityStat -> this.getStats().forEach((type, statEntries) -> statEntries.forEach((statModel, statData) -> {
                     this.setBase(
                         statData,
                         PlayerDataHelper.handleBonusEffects(
@@ -235,7 +229,7 @@ public final class OptimizerRequest {
                             statData.getBase(),
                             this.getCompoundTag(),
                             this.getOptimizerRequest().getExpressionVariables(),
-                            bonusPetAbilityStatModel
+                            bonusPetAbilityStat
                         )
                     );
 
@@ -246,7 +240,7 @@ public final class OptimizerRequest {
                             statData.getBonus(),
                             this.getCompoundTag(),
                             this.getOptimizerRequest().getExpressionVariables(),
-                            bonusPetAbilityStatModel
+                            bonusPetAbilityStat
                         )
                     );
                 })));

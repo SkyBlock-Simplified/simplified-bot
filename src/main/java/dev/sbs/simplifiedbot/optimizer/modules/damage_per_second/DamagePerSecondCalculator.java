@@ -14,9 +14,9 @@ public final class DamagePerSecondCalculator extends Calculator<DamagePerSecondI
         OptimizerRequest optimizerRequest = solution.getOptimizerRequest();
         Map<String, Double> computedStats = solution.getComputedStats();
         double strSum = this.getReforgeSum(solution, "STRENGTH") + computedStats.get("STRENGTH");
-        double asSum = Math.min(this.getReforgeSum(solution, "ATTACK_SPEED") + computedStats.get("ATTACK_SPEED"), 82);
+        double asSum = Math.min(this.getReforgeSum(solution, "BONUS_ATTACK_SPEED") + computedStats.get("BONUS_ATTACK_SPEED"), 82);
         double ferSum = this.getReforgeSum(solution, "FEROCITY") + computedStats.get("FEROCITY");
-        double cdSum = this.getReforgeSum(solution, "CRITICAL_DAMAGE") + computedStats.get("CRITICAL_DAMAGE");
+        double cdSum = this.getReforgeSum(solution, "CRIT_DAMAGE") + computedStats.get("CRIT_DAMAGE");
         double ccSum = Math.min(this.getReforgeSum(solution, "CRIT_CHANCE") + computedStats.get("CRIT_CHANCE"), 100);
         double dmgSum = this.getReforgeSum(solution, "DAMAGE");
         double playerDamage = optimizerRequest.getPlayerDamage();

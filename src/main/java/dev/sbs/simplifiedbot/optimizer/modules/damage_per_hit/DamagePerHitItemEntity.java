@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit;
 
-import dev.sbs.simplifiedbot.data.skyblock.item_types.ItemTypeModel;
+import dev.sbs.minecraftapi.model.ItemCategory;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ItemEntity;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.profile_stats.data.ObjectData;
@@ -25,7 +25,7 @@ public final class DamagePerHitItemEntity implements ItemEntity {
 
     @PlanningId
     private UUID uniqueId;
-    private ItemTypeModel type;
+    private ItemCategory type;
     private ObjectData<?> objectData;
 
     @Setter
@@ -42,7 +42,7 @@ public final class DamagePerHitItemEntity implements ItemEntity {
     public DamagePerHitItemEntity() {
     } // Optimizer Cloning
 
-    public DamagePerHitItemEntity(ItemTypeModel type, ObjectData<?> objectData, List<ReforgeFact> availableReforges) {
+    public DamagePerHitItemEntity(ItemCategory type, ObjectData<?> objectData, List<ReforgeFact> availableReforges) {
         this.uniqueId = UUID.randomUUID();
         this.type = type;
         this.objectData = objectData;

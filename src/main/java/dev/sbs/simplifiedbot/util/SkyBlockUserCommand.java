@@ -3,28 +3,63 @@ package dev.sbs.simplifiedbot.util;
 import dev.sbs.api.SimplifiedApi;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
+import dev.sbs.api.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
+import dev.sbs.api.util.StreamUtil;
 import dev.sbs.api.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
-import dev.sbs.discordapi.context.deferrable.command.SlashCommandContext;
+import dev.sbs.discordapi.component.interaction.SelectMenu;
+import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordException;
 import dev.sbs.discordapi.response.Emoji;
+import dev.sbs.discordapi.response.embed.Author;
 import dev.sbs.discordapi.response.embed.Embed;
-import dev.sbs.discordapi.response.embed.structure.Author;
-import dev.sbs.discordapi.response.embed.structure.Field;
-import dev.sbs.discordapi.response.embed.structure.Footer;
-import dev.sbs.minecraftapi.client.mojang.profile.MojangProfile;
-import dev.sbs.minecraftapi.skyblock.island.Profile;
-import dev.sbs.minecraftapi.skyblock.island.SkyBlockIsland;
-import dev.sbs.minecraftapi.skyblock.type.Experience;
+import dev.sbs.discordapi.response.embed.Field;
+import dev.sbs.discordapi.response.embed.Footer;
+import dev.sbs.discordapi.response.handler.Search;
+import dev.sbs.discordapi.response.handler.Sorter;
+import dev.sbs.discordapi.response.handler.item.ItemHandler;
+import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.discordapi.response.page.TreePage;
+import dev.sbs.discordapi.response.page.item.field.StringItem;
+import dev.sbs.discordapi.util.DiscordDate;
+import dev.sbs.minecraftapi.MinecraftApi;
+import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelGuild;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockAuction;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockMember;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.island.Banking;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.island.CommunityUpgrades;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.JacobsContest;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonClass;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonEntry;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.pet.PetEntry;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.skill.SkillEntry;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.slayer.SlayerBoss;
+import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
+import dev.sbs.minecraftapi.client.sbs.response.SkyBlockEmojis;
+import dev.sbs.minecraftapi.model.Collection;
+import dev.sbs.minecraftapi.model.Item;
+import dev.sbs.minecraftapi.model.Minion;
+import dev.sbs.minecraftapi.model.Pet;
+import dev.sbs.minecraftapi.model.Stat;
+import dev.sbs.minecraftapi.nbt.tags.collection.CompoundTag;
+import dev.sbs.minecraftapi.nbt.tags.primitive.StringTag;
+import dev.sbs.minecraftapi.skyblock.common.Experience;
+import dev.sbs.minecraftapi.skyblock.common.Profile;
+import dev.sbs.minecraftapi.skyblock.common.Weight;
 import dev.sbs.simplifiedbot.model.AppUser;
+import dev.sbs.simplifiedbot.profile_stats.data.AccessoryData;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -153,8 +188,603 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
             .build();
     }
 
+    public @NotNull ConcurrentList<TreePage> buildPages(@NotNull SkyBlockUser skyBlockUser) {
+        String emojiReplyStem = this.getEmoji("REPLY_STEM").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyLine = this.getEmoji("REPLY_LINE").map(Emoji::asPreSpacedFormat).orElse("");
+        String emojiReplyEnd = this.getEmoji("REPLY_END").map(Emoji::asPreSpacedFormat).orElse("");
+        MojangProfile mojangProfile = skyBlockUser.getMojangProfile();
+        SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
+        SkyBlockMember member = skyBlockUser.getMember();
+        int uniqueMinions = skyBlockIsland.getUniqueMinions();
+
+        // Weights
+        Weight totalWeight = member.getTotalWeight();
+        ConcurrentMap<SkillEntry, Weight> skillWeight = member.getSkills().getWeight();
+        ConcurrentMap<SlayerBoss, Weight> slayerWeight = member.getSlayers().getWeight();
+        ConcurrentMap<DungeonEntry, Weight> dungeonWeight = member.getDungeons().getWeight();
+        ConcurrentMap<DungeonClass, Weight> dungeonClassWeight = member.getDungeons().getClassWeight();
+
+        return Concurrent.newList(
+            Page.builder()
+                .withOption(getOptionBuilder("stats").withEmoji(Emoji.of(skyBlockIsland.getProfile().getSymbol())).build())
+                .withEmbeds(
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "stats")
+                        .withFields(
+                            Field.builder()
+                                .withEmoji(this.getEmoji("STATUS_INFO"))
+                                .withName("Details")
+                                .withValue(
+                                    """
+                                        {0}Status: {2}
+                                        {0}Deaths: {3}
+                                        {1}Guild: {4}
+                                        """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    skyBlockUser.getSession().isOnline() ? "Online" : "Offline",
+                                    member.getProgress().getDeathCount(),
+                                    skyBlockUser.getGuild().map(HypixelGuild::getName).orElse("None")
+                                )
+                                .isInline()
+                                .build(),
+                            Field.builder()
+                                .withEmoji(this.getEmoji("TRADING_COIN_PIGGY"))
+                                .withName("Coins")
+                                .withValue(
+                                    """
+                                        {0}Bank: {2,number,#,###}
+                                        {1}Purse: {3,number,#,###}
+                                        """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    skyBlockIsland.getBanking().map(Banking::getBalance).orElse(0.0),
+                                    member.getCurrencies().getPurse()
+                                )
+                                .isInline()
+                                .build(),
+                            Field.empty(true)
+                        )
+                        .withFields(
+                            Field.builder()
+                                .withEmoji(this.getEmoji("GEM_EMERALD"))
+                                .withName("Community Upgrades")
+                                .withValue(
+                                    StringUtil.join(
+                                        StreamUtil.prependEach(
+                                                Arrays.stream(CommunityUpgrades.Type.values())
+                                                    .map(upgradeType -> String.format(
+                                                        "%s: %s / %s",
+                                                        upgradeType.getName(),
+                                                        skyBlockIsland.getCommunityUpgrades()
+                                                            .map(communityUpgrades -> communityUpgrades.getHighestTier(upgradeType))
+                                                            .orElse(0),
+                                                        upgradeType.getMaxLevel()
+                                                    )),
+                                                emojiReplyStem,
+                                                emojiReplyEnd
+                                            )
+                                            .collect(Concurrent.toList()),
+                                        "\n"
+                                    )
+                                )
+                                .isInline()
+                                .build(),
+                            Field.builder()
+                                .withEmoji(this.getEmoji("SKYBLOCK_LAPIS_MINION"))
+                                .withName("Minions")
+                                .withValue(
+                                    """
+                                        %1$sSlots: %3$s
+                                        %2$sUniques: %4$s
+                                        """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    Minion.UNIQUE_CRAFTS.stream()
+                                        .filter(threshold -> uniqueMinions >= threshold)
+                                        .count() +
+                                        skyBlockIsland.getCommunityUpgrades()
+                                            .map(communityUpgrades -> communityUpgrades.getHighestTier(CommunityUpgrades.Type.MINION_SLOTS))
+                                            .orElse(0),
+                                    uniqueMinions
+                                )
+                                .isInline()
+                                .build(),
+                            Field.empty(true)
+                        )
+                        .build()
+                )
+                .build(),
+            Page.builder()
+                .withOption(getOptionBuilder("skills").withEmoji(this.getEmoji("SKILLS")).build())
+                .withEmbeds(
+                    getSkillEmbed(
+                        mojangProfile,
+                        skyBlockIsland,
+                        "skills",
+                        member.getSkills()
+                            .getSkills()
+                            .stream()
+                            .collect(Concurrent.toList()),
+                        member.getSkills().getAverage(),
+                        member.getSkills().getExperience(),
+                        member.getSkills().getProgressPercentage(),
+                        skill -> skill.getSkill().getName(),
+                        skill -> this.getEmoji("SKILL_" + skill.getId()),
+                        true
+                    )
+                )
+                .build(),
+            Page.builder()
+                .withOption(getOptionBuilder("slayers").withEmoji(this.getEmoji("SLAYER")).build())
+                .withEmbeds(
+                    getSkillEmbed(
+                        mojangProfile,
+                        skyBlockIsland,
+                        "slayers",
+                        member.getSlayers()
+                            .getBosses()
+                            .stream()
+                            .collect(Concurrent.toList()),
+                        member.getSlayers().getAverage(),
+                        member.getSlayers().getExperience(),
+                        member.getSlayers().getProgressPercentage(),
+                        slayer -> slayer.getSlayer().getName(),
+                        slayer -> this.getEmoji("SLAYER_" + slayer.getId()),
+                        true
+                    )
+                )
+                .build(),
+            Page.builder()
+                .withOption(getOptionBuilder("weight").withEmoji(this.getEmoji("WEIGHT")).build())
+                .withEmbeds(
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "weight")
+                        .withDescription(String.format(
+                            """
+                            %1$sTotal Weight: **%3$s** (**%4$s** + **%5$s**)
+                            %1$sTotal Skill Weight: **%6$s** (**%7$s** + **%8$s**)
+                            %1$sTotal Slayer Weight: **%9$s** (**%10$s** + **%11$s**)
+                            %1$sTotal Dungeon Weight: **%12$s** (**%13$s** + **%14$s**)
+                            %2$sTotal Dungeon Class Weight: **%15$s** (**%16$s** + **%17$s**)
+                            """,
+                            emojiReplyStem,
+                            emojiReplyEnd,
+                            totalWeight.getTotal(),
+                            totalWeight.getValue(),
+                            totalWeight.getOverflow(),
+                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getTotal).sum(),
+                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            skillWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getOverflow).sum(),
+                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getTotal).sum(),
+                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            slayerWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getOverflow).sum(),
+                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getTotal).sum(),
+                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            dungeonWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getTotal).sum(),
+                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getValue).sum(),
+                            dungeonClassWeight.stream().map(Map.Entry::getValue).mapToDouble(Weight::getOverflow).sum()
+                        ))
+                        .withFields(
+                            getWeightFields(
+                                "Skills",
+                                skillWeight,
+                                skill -> skill.getSkill().getName()
+                            )
+                        )
+                        .withFields(
+                            getWeightFields(
+                                "Slayers",
+                                slayerWeight,
+                                slayer -> slayer.getSlayer().getName()
+                            )
+                        )
+                        .withFields(
+                            getWeightFields(
+                                "Dungeons",
+                                dungeonWeight,
+                                dungeon -> DungeonEntry.Type.CATACOMBS.getName()
+                            )
+                        )
+                        .withFields(
+                            getWeightFields(
+                                "Dungeon Classes",
+                                dungeonClassWeight,
+                                dungeonClass -> member.getDungeons()
+                                    .getClasses()
+                                    .stream()
+                                    .filter(entry -> entry.getValue() == dungeonClass)
+                                    .map(entry -> entry.getKey().getName())
+                                    .findFirst()
+                                    .orElse("Unknown")
+                            )
+                        )
+                        .build()
+                )
+                .build(),
+            Page.builder()
+                .withOption(getOptionBuilder("pets").withEmoji(this.getEmoji("PETS")).build())
+                .withEmbeds(
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "pets")
+                        .withDescription(String.format(
+                            """
+                            Unique Pets: **%s** / **%s**
+                            Pet Score: **%s** (+%s Magic Find)
+                            """,
+                            member.getPets()
+                                .getPets()
+                                .stream()
+                                .filter(StreamUtil.distinctByKey(PetEntry::getId))
+                                .collect(Concurrent.toList())
+                                .size(),
+                            MinecraftApi.getRepository(Pet.class)
+                                .findAll()
+                                .size(),
+                            member.getPets().getPetScore(),
+                            member.getPets().getPetScoreMagicFind()
+                        ))
+                        .build()
+                )
+                .withItemHandler(
+                    ItemHandler.<PetEntry>embed()
+                        .withItems(member.getPets().getPets())
+                        .withTransformer((pet, index, size) -> StringItem.builder()
+                            .withOption(
+                                SelectMenu.Option.builder()
+                                    .withLabel(
+                                        "%s%s",
+                                        pet.getPrettyName(),
+                                        this.getEmoji(String.format("RARITY_%s", pet.getRarity().name()))
+                                            .map(Emoji::asPreSpacedFormat)
+                                            .orElse("")
+                                    )
+                                    .withEmoji(
+                                        skyBlockUser.getSkyBlockEmojis()
+                                            .getPetEmoji(pet.getId())
+                                            .map(SkyBlockUserCommand::getEmoji)
+                                    )
+                                    .withValue(pet.getId())
+                                    .build()
+                            )
+                            .withDescription(String.format(
+                                """
+                                    %1$sLevel: **%4$d** / **%5$d**
+                                    %1$sExperience:
+                                    %2$s**%6$f**
+                                    %3$sProgress: **%7$f%%**
+                                    """,
+                                emojiReplyStem,
+                                emojiReplyLine,
+                                emojiReplyEnd,
+                                pet.getLevel(),
+                                pet.getMaxLevel(),
+                                pet.getExperience(),
+                                pet.getProgressPercentage()
+                            ))
+                            .build())
+                        .withSorters(
+                            Sorter.<PetEntry>builder()
+                                .withComparators((o1, o2) -> Comparator.comparing(PetEntry::getRarityOrdinal)
+                                    .thenComparingInt(Experience::getLevel)
+                                    .reversed()
+                                    .thenComparing(PetEntry::getId)
+                                    .compare(o1, o2)
+                                )
+                                .withLabel("Default")
+                                .build()
+                        )
+                        .withFieldStyle(ItemHandler.FieldStyle.FIELD_INLINE)
+                        .withAmountPerPage(12)
+                        .build()
+                )
+                .build(),
+            Page.builder()
+                .withOption(getOptionBuilder("accessories").withEmoji(this.getEmoji("ACCESSORIES")).build())
+                .withEmbeds(
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "accessories")
+                        .withDescription("If you wish to see missing accessory information, use the /missing command.")
+                        .build()
+                )
+                .withItemHandler(
+                    ItemHandler.<AccessoryData>embed()
+                        .withItems(skyBlockIsland.getProfileStats(member).getAccessoryBag().getFilteredAccessories())
+                        .withTransformer((accessoryData, index, size) -> StringItem.builder()
+                            .withOption(
+                                SelectMenu.Option.builder()
+                                    .withLabel(
+                                        "%s%s",
+                                        accessoryData.getAccessory().getItem().getDisplayName(),
+                                        this.getEmoji(String.format("RARITY_%s", accessoryData.getRarity().name()))
+                                            .map(Emoji::asPreSpacedFormat)
+                                            .orElse("")
+                                    )
+                                    .withEmoji(
+                                        skyBlockUser.getSkyBlockEmojis()
+                                            .getEmoji(accessoryData.getAccessory().getItem().getId())
+                                            .map(SkyBlockUserCommand::getEmoji)
+                                    )
+                                    .withValue(accessoryData.getAccessory().getItem().getId())
+                                    .build()
+                            )
+                            .withValue(
+                                """
+                                %1$sRecombobulator: **%3$s**
+                                %2$sEnrichment: **%4$s**
+                                """,
+                                emojiReplyStem,
+                                emojiReplyEnd,
+                                this.getEmoji(accessoryData.isRecombobulated() ? "ACTION_ACCEPT" : "ACTION_DENY")
+                                    .map(Emoji::asFormat)
+                                    .orElse("?"),
+                                (accessoryData.getRarity().isEnrichable() ? accessoryData.getEnrichmentStat()
+                                                                            .map(Stat::getId)
+                                                                            .map(statId -> String.format("TALISMAN_ENRICHMENT_%s", statId))
+                                                                            .flatMap(this::getEmoji)
+                                                                            .or(() -> this.getEmoji("TAG_NOT_APPLICABLE")) :
+                                    this.getEmoji("TAG_NOT_APPLICABLE"))
+                                    .map(Emoji::asFormat)
+                                    .orElse("N/A")
+                            )
+                            .build()
+                        )
+                        .withSorters(
+                            Sorter.<AccessoryData>builder()
+                                .withComparators((o1, o2) -> Comparator.comparing(AccessoryData::getRarity)
+                                    .reversed()
+                                    .thenComparing(accessoryData -> accessoryData.getAccessory().getItem().getDisplayName())
+                                    .compare(o1, o2)
+                                )
+                                .withLabel("Default")
+                                .build()
+                        )
+                        .withSearch(
+                            Search.<AccessoryData>builder()
+                                .withPredicates((accessoryData, value) -> accessoryData.getAccessory().getItem().getId().equalsIgnoreCase(value))
+                                .withPredicates((accessoryData, value) -> accessoryData.getAccessory().getItem().getDisplayName().equalsIgnoreCase(value))
+                                .withPlaceholder("Searches by ID/Name")
+                                .build()
+                        )
+                        .withFieldStyle(ItemHandler.FieldStyle.FIELD_INLINE)
+                        .withAmountPerPage(12)
+                        .build()
+                )
+                .build(),
+            Page.builder()
+                .withOption(getOptionBuilder("auctions").withEmoji(this.getEmoji("AUCTIONS")).build())
+                .withEmbeds(
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "auctions")
+                        .withDescription(String.format(
+                            """
+                            %1$sUnclaimed Auctions: **%3$s**
+                            %1$sExpired Auctions: **%4$s**
+                            %2$sTotal Coins: **%5$s**
+                            """,
+                            emojiReplyStem,
+                            emojiReplyEnd,
+                            skyBlockUser.getAuctions()
+                                .matchAll(SkyBlockAuction::notClaimed)
+                                .count(),
+                            skyBlockUser.getAuctions()
+                                .matchAll(skyBlockAuction -> skyBlockAuction.getEndsAt().getRealTime() > System.currentTimeMillis())
+                                .count(),
+                            skyBlockUser.getAuctions()
+                                .stream()
+                                .mapToDouble(SkyBlockAuction::getHighestBid)
+                                .sum()
+                        ))
+                        .build()
+                )
+                .withItemHandler(
+                    ItemHandler.<SkyBlockAuction>embed()
+                        .withItems(skyBlockUser.getAuctions())
+                        .withTransformer((skyBlockAuction, index, size) -> {
+                            CompoundTag auctionNbt = skyBlockAuction.getItem().getNbtData();
+                            String itemId = auctionNbt.getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY).getValue();
+
+                            return StringItem.builder()
+                                .withOption(
+                                    SelectMenu.Option.builder()
+                                        .withLabel(
+                                            "%s%s",
+                                            MinecraftApi.getRepository(Item.class)
+                                                .findFirst(Item::getId, itemId)
+                                                .map(Item::getDisplayName)
+                                                .orElse("Unknown"),
+                                            this.getEmoji(String.format("RARITY_%s", skyBlockAuction.getRarity().name()))
+                                                .map(Emoji::asPreSpacedFormat)
+                                                .orElse("")
+                                        )
+                                        .withEmoji(
+                                            skyBlockUser.getSkyBlockEmojis()
+                                                .getEmoji(itemId)
+                                                .map(SkyBlockUserCommand::getEmoji)
+                                        )
+                                        .withValue(skyBlockAuction.getAuctionId().toString())
+                                        .build()
+                                )
+                                .withDescription(String.format(
+                                    """
+                                    %1$sStarting Bid: **%3$s**
+                                    %1$sHighest Bid: **%4$s**
+                                    %1$sEnds: **%5$s**
+                                    %2$sHighest BIN: **%6$s**
+                                    """,
+                                    emojiReplyStem,
+                                    emojiReplyEnd,
+                                    skyBlockAuction.getStartingBid(),
+                                    skyBlockAuction.getHighestBid(),
+                                    new DiscordDate(skyBlockAuction.getEndsAt().getRealTime()).as(DiscordDate.Type.RELATIVE),
+                                    skyBlockUser.getAuctionHouse()
+                                        .getItems()
+                                        .stream()
+                                        .filter(auctionHouseItem -> auctionHouseItem.getItem()
+                                            .getNbtData()
+                                            .getPathOrDefault("tag.ExtraAttributes.id", StringTag.EMPTY)
+                                            .getValue().equals(itemId)
+                                        )
+                                        .map(SkyBlockAuction::getHighestBid)
+                                        .collect(Concurrent.toList())
+                                        .sorted()
+                                        .getOrDefault(0, 0L)
+                                ))
+                                .build();
+                        })
+                        .withFieldStyle(ItemHandler.FieldStyle.FIELD_INLINE)
+                        .withAmountPerPage(12)
+                        .build()
+                )
+                .build(),
+            Page.builder()
+                .withOption(getOptionBuilder("jacobs_farming").withEmoji(this.getEmoji("SKILL_FARMING")).build())
+                .withEmbeds(
+                    getEmbedBuilder(mojangProfile, skyBlockIsland, "jacobs_farming")
+                        .withFields(
+                            Field.builder()
+                                .withName("Medals")
+                                .withValue(
+                                    Arrays.stream(JacobsContest.Medal.values())
+                                        .map(farmingMedal -> String.format(
+                                            "%s%s: %s",
+                                            "",
+                                            StringUtil.capitalizeEnum(farmingMedal),
+                                            member.getJacobsContest().getMedals().get(farmingMedal)
+                                        ))
+                                        .collect(StreamUtil.toStringBuilder(true))
+                                        .toString()
+                                )
+                                .isInline()
+                                .build(),
+                            Field.empty(true),
+                            Field.builder()
+                                .withName("Upgrades")
+                                .withValue(String.format(
+                                    """
+                                        Farming Level Cap: %s
+                                        Double Drops: %s
+                                        """,
+                                    member.getJacobsContest().getFarmingLevelCap(),
+                                    member.getJacobsContest().getDoubleDrops()
+                                ))
+                                .isInline()
+                                .build()
+                        )
+                        .withFields(
+                            Field.builder()
+                                .withName("Collection")
+                                .withValue(
+                                    MinecraftApi.getRepository(Collection.class)
+                                        .findFirst(Collection::getId, "FARMING")
+                                        .map(Collection::getItems)
+                                        .stream()
+                                        .flatMap(items -> items.stream().map(entry -> entry.getValue().getName()))
+                                        .collect(StreamUtil.toStringBuilder(true))
+                                        .toString()
+                                )
+                                .isInline()
+                                .build(),
+                            Field.builder()
+                                .withName("Highscores")
+                                .withValue(
+                                    MinecraftApi.getRepository(Collection.class)
+                                        .findFirst(Collection::getId, "FARMING")
+                                        .map(Collection::getItems)
+                                        .stream()
+                                        .flatMap(items -> items.keySet().stream())
+                                        .map(itemId -> member.getJacobsContest()
+                                            .getContests()
+                                            .stream()
+                                            .filter(farmingContest -> farmingContest.getCollectionName().equals(itemId))
+                                            .sorted((o1, o2) -> Comparator.comparing(JacobsContest.Contest::getCollected).compare(o2, o1))
+                                            .map(JacobsContest.Contest::getCollected)
+                                            .findFirst()
+                                            .orElse(0)
+                                        )
+                                        .collect(StreamUtil.toStringBuilder(true))
+                                        .toString()
+                                )
+                                .isInline()
+                                .build(),
+                            Field.builder()
+                                .withName("Unique Gold")
+                                .withValue(
+                                    MinecraftApi.getRepository(Collection.class)
+                                        .findFirst(Collection::getId, "FARMING")
+                                        .map(Collection::getItems)
+                                        .stream()
+                                        .flatMap(items -> items.keySet().stream())
+                                        .map(itemId -> member.getJacobsContest()
+                                            .getUniqueBrackets()
+                                            .stream()
+                                            .filter(entry -> entry.getValue().contains(itemId))
+                                            .findFirst()
+                                            .map(entry -> "Yes")
+                                            .orElse("No")
+                                        )
+                                        .collect(StreamUtil.toStringBuilder(true))
+                                        .toString()
+                                )
+                                .isInline()
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+        );
+    }
+
+    private static <T extends Experience> ConcurrentList<Field> getWeightFields(String title, ConcurrentMap<T, Weight> weightMap, Function<T, String> typeNameFunction) {
+        return Concurrent.newList(
+            Field.builder()
+                .withName(title)
+                .withValue(
+                    weightMap.stream()
+                        .map(Map.Entry::getKey)
+                        .map(typeNameFunction)
+                        .collect(StreamUtil.toStringBuilder(true))
+                        .toString()
+                )
+                .isInline()
+                .build(),
+            Field.builder()
+                .withName("Weight")
+                .withValue(
+                    weightMap.stream()
+                        .map(Map.Entry::getValue)
+                        .map(Weight::getValue)
+                        .collect(StreamUtil.toStringBuilder(true))
+                        .toString()
+                )
+                .isInline()
+                .build(),
+            Field.builder()
+                .withName("Overflow")
+                .withValue(
+                    weightMap.stream()
+                        .map(Map.Entry::getValue)
+                        .map(Weight::getOverflow)
+                        .collect(StreamUtil.toStringBuilder(true))
+                        .toString()
+                )
+                .isInline()
+                .build()
+        );
+    }
+
+    private static SelectMenu.Option.Builder getOptionBuilder(String identifier) {
+        return SelectMenu.Option.builder()
+            .withValue(identifier)
+            .withLabel(StringUtil.capitalizeFully(identifier.replace("_", " ")));
+    }
+
+    protected static @NotNull Emoji getEmoji(@NotNull SkyBlockEmojis.Emoji sbEmoji) {
+        return Emoji.of(
+            sbEmoji.getId(),
+            sbEmoji.getName(),
+            sbEmoji.isAnimated()
+        );
+    }
+
     public final boolean isUserVerified(@NotNull UUID uniqueId) {
-        return SimplifiedApi.getRepositoryOf(AppUser.class).matchFirst(userModel -> userModel.getMojangUniqueIds().contains(uniqueId)).isPresent();
+        return SimplifiedApi.getRepository(AppUser.class).matchFirst(userModel -> userModel.getMojangUniqueIds().contains(uniqueId)).isPresent();
     }
 
 }

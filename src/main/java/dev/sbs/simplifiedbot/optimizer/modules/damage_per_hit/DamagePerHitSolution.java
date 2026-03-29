@@ -2,8 +2,8 @@ package dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit;
 
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
-import dev.sbs.api.stream.pair.Pair;
-import dev.sbs.simplifiedbot.data.skyblock.item_types.ItemTypeModel;
+import dev.sbs.api.tuple.pair.Pair;
+import dev.sbs.minecraftapi.model.ItemCategory;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
@@ -29,7 +29,7 @@ public class DamagePerHitSolution extends Solution<DamagePerHitItemEntity> {
     private List<DamagePerHitItemEntity> availableItems;
 
     @ProblemFactCollectionProperty
-    private List<ReforgeFact> allReforges;
+    private List<ReforgeFact> allReforgesFacts;
 
     @PlanningScore
     private SimpleBigDecimalScore score;
@@ -44,13 +44,13 @@ public class DamagePerHitSolution extends Solution<DamagePerHitItemEntity> {
         // Generate Reforge Stats
         Pair<ConcurrentList<DamagePerHitItemEntity>, ConcurrentList<ReforgeFact>> availableContent = this.generateAvailableItems();
         this.availableItems = availableContent.getLeft();
-        this.allReforges = availableContent.getRight();
+        this.allReforgesFacts = availableContent.getRight();
     }
 
     @Override
-    protected @NotNull DamagePerHitItemEntity createItemEntity(@NotNull ItemTypeModel itemTypeModel, @NotNull ObjectData<?> objectData, @NotNull ConcurrentList<ReforgeFact> optimalReforges) {
+    protected @NotNull DamagePerHitItemEntity createItemEntity(@NotNull ItemCategory itemCategory, @NotNull ObjectData<?> objectData, @NotNull ConcurrentList<ReforgeFact> optimalReforges) {
         return new DamagePerHitItemEntity(
-            itemTypeModel,
+            itemCategory,
             objectData,
             optimalReforges
         );
