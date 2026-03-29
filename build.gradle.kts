@@ -38,12 +38,6 @@ dependencies {
     implementation(libs.optaplanner.core)
     testImplementation(libs.optaplanner.benchmark)
 
-    // Spring
-    implementation(libs.spring.boot)
-    implementation(libs.spring.boot.web)
-    implementation(libs.spring.boot.security)
-    testImplementation(libs.spring.security.test)
-
     // Projects
     implementation("dev.sbs:api:0.1.0")
     implementation("dev.sbs:minecraft-api:0.1.0")
