@@ -25,7 +25,7 @@ Tests require a live MariaDB database and valid `HYPIXEL_API_KEY` - they are int
 ### Entry Points
 
 - **`SimplifiedBot`** - Main bot entry point. Extends `DiscordBot`, configures Discord gateway, connects to MariaDB via `JpaConfig.commonSql()`, schedules Hypixel cache updates.
-- **`SimplifiedConsole`** - Secondary entry point for a resource-processing console bot. Runs `ResourceProcessor` tasks on a schedule to sync Hypixel resource API data into the database. Also experiments with a Spring Boot / Reactor Netty embedded server.
+- **`SimplifiedConsole`** - Secondary entry point for a resource-processing console bot. Runs `ResourceProcessor` tasks on a schedule to sync Hypixel resource API data into the database.
 
 ### Package Structure
 
@@ -54,8 +54,6 @@ Tests require a live MariaDB database and valid `HYPIXEL_API_KEY` - they are int
 **`data/skyblock/`** - Supplementary SkyBlock data models (also JPA entities). These extend the `minecraft-api` model layer with additional bonus/shop data: `BonusArmorSetModel`, `BonusItemStatModel`, `BonusReforgeStatModel`, `HotPotatoStatModel`, `ShopBitTypeModel`, etc.
 
 **`processor/`** - `Processor<R>` base class for syncing Hypixel resource API responses into the database. Subclasses: `ResourceItemsProcessor`, `ResourceSkillsProcessor`, `ResourceCollectionsProcessor`.
-
-**`server/`** - Spring Boot web server (`SimplifiedServer`). Excludes Jackson in favor of Gson via `SimplifiedApi.getGson()`. Controllers: `ErrorController`, `MojangController`.
 
 **`util/`** - Shared utilities:
 - `SkyBlockUserCommand` - Abstract base for player-lookup commands; provides common parameters (`name`, `profile`), embed builders, and skill embed formatting
