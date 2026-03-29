@@ -13,7 +13,7 @@ import dev.sbs.discordapi.response.handler.item.ItemHandler;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
 import dev.sbs.minecraftapi.MinecraftApi;
-import dev.sbs.minecraftapi.model.Accessory;
+import dev.sbs.minecraftapi.persistence.model.Accessory;
 import dev.sbs.simplifiedbot.profile_stats.ProfileStats;
 import dev.sbs.simplifiedbot.profile_stats.data.AccessoryData;
 import dev.sbs.simplifiedbot.util.SkyBlockUser;

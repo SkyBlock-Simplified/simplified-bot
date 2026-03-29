@@ -3,7 +3,7 @@ package dev.sbs.simplifiedbot.optimizer.modules.damage_per_second;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.tuple.pair.Pair;
-import dev.sbs.minecraftapi.model.ItemCategory;
+import dev.sbs.minecraftapi.persistence.model.ItemCategory;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;

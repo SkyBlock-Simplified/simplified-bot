@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.collection.concurrent.ConcurrentMap;
-import dev.sbs.minecraftapi.model.Reforge;
+import dev.sbs.minecraftapi.persistence.model.Reforge;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

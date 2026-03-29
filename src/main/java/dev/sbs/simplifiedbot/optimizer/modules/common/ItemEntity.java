@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.optimizer.modules.common;
 
 
-import dev.sbs.minecraftapi.model.ItemCategory;
+import dev.sbs.minecraftapi.persistence.model.ItemCategory;
 import dev.sbs.minecraftapi.skyblock.common.Rarity;
 import dev.sbs.simplifiedbot.profile_stats.data.ObjectData;
 

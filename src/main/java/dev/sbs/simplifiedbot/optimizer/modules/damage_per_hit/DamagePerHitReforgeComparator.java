@@ -3,7 +3,7 @@ package dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentMap;
 import dev.sbs.api.tuple.pair.Pair;
-import dev.sbs.minecraftapi.model.Stat;
+import dev.sbs.minecraftapi.persistence.model.Stat;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeComparator;
 
 import java.util.Map;

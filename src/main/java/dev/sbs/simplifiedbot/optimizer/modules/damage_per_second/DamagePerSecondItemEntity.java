@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.modules.damage_per_second;
 
-import dev.sbs.minecraftapi.model.ItemCategory;
+import dev.sbs.minecraftapi.persistence.model.ItemCategory;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ItemEntity;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.profile_stats.data.ObjectData;
