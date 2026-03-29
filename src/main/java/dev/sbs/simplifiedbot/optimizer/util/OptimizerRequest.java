@@ -18,7 +18,7 @@ import dev.sbs.minecraftapi.persistence.model.BonusPetAbilityStat;
 import dev.sbs.minecraftapi.persistence.model.Item;
 import dev.sbs.minecraftapi.persistence.model.Reforge;
 import dev.sbs.minecraftapi.skyblock.common.NbtContent;
-import dev.sbs.simplifiedbot.model.OptimizerMobType;
+import dev.sbs.simplifiedbot.persistence.model.OptimizerMobType;
 import dev.sbs.simplifiedbot.profile_stats.ProfileStats;
 import dev.sbs.simplifiedbot.profile_stats.data.ItemData;
 import dev.sbs.simplifiedbot.profile_stats.data.PlayerDataHelper;

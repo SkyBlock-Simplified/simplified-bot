@@ -1,6 +1,10 @@
-package dev.sbs.simplifiedbot.model;
+package dev.sbs.simplifiedbot.persistence.model;
 
 import dev.sbs.api.persistence.JpaModel;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -8,32 +12,16 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import java.time.Instant;
 import java.util.Objects;
 
 @Getter
 @Entity
 @Table(
-    name = "discord_guild_report_types",
-    indexes = {
-        @Index(
-            columnList = "guild_id, key",
-            unique = true
-        ),
-        @Index(
-            columnList = "key"
-        )
-    }
+    name = "discord_optimizer_mob_types"
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class AppGuildReportType implements JpaModel {
+public class OptimizerMobType implements JpaModel {
 
     @Id
     @Setter
@@ -44,15 +32,9 @@ public class AppGuildReportType implements JpaModel {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Id
     @Setter
-    @ManyToOne
-    @JoinColumn(name = "guild_id", referencedColumnName = "guild_id")
-    private AppGuild guild;
-
-    @Setter
-    @Column(name = "description", nullable = false)
-    private String description;
+    @Column(name = "active", nullable = false)
+    private boolean active;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
@@ -67,19 +49,18 @@ public class AppGuildReportType implements JpaModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AppGuildReportType that = (AppGuildReportType) o;
+        OptimizerMobType that = (OptimizerMobType) o;
 
-        return Objects.equals(this.getGuild(), that.getGuild())
+        return this.isActive() == that.isActive()
             && Objects.equals(this.getKey(), that.getKey())
             && Objects.equals(this.getName(), that.getName())
-            && Objects.equals(this.getDescription(), that.getDescription())
             && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
             && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getGuild(), this.getKey(), this.getName(), this.getDescription(), this.getUpdatedAt(), this.getSubmittedAt());
+        return Objects.hash(this.getKey(), this.getName(), this.isActive(), this.getUpdatedAt(), this.getSubmittedAt());
     }
 
 }

@@ -1,7 +1,15 @@
-package dev.sbs.simplifiedbot.model;
+package dev.sbs.simplifiedbot.persistence.model;
 
 import dev.sbs.api.persistence.JpaModel;
 import dev.sbs.api.persistence.converter.ColorConverter;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -9,14 +17,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import java.awt.*;
 import java.time.Instant;
 import java.util.Objects;

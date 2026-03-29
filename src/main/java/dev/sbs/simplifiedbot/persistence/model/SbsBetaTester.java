@@ -1,6 +1,11 @@
-package dev.sbs.simplifiedbot.model;
+package dev.sbs.simplifiedbot.persistence.model;
 
 import dev.sbs.api.persistence.JpaModel;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -8,29 +13,32 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.time.Instant;
 import java.util.Objects;
 
 @Getter
 @Entity
 @Table(
-    name = "discord_setting_types"
+    name = "discord_sbs_beta_testers",
+    indexes = {
+        @Index(
+            columnList = "discord_id, early",
+            unique = true
+        )
+    }
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class AppSettingType implements JpaModel {
+public class SbsBetaTester implements JpaModel {
 
     @Id
     @Setter
-    @Column(name = "key", nullable = false, unique = true)
-    private String key;
+    @Column(name = "discord_id")
+    private Long discordId;
 
+    @Id
     @Setter
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "early")
+    private boolean early;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
@@ -45,17 +53,17 @@ public class AppSettingType implements JpaModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AppSettingType that = (AppSettingType) o;
+        SbsBetaTester that = (SbsBetaTester) o;
 
-        return Objects.equals(this.getKey(), that.getKey())
-            && Objects.equals(this.getName(), that.getName())
+        return this.isEarly() == that.isEarly()
+            && Objects.equals(this.getDiscordId(), that.getDiscordId())
             && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
             && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getKey(), this.getName(), this.getUpdatedAt(), this.getSubmittedAt());
+        return Objects.hash(this.getDiscordId(), this.isEarly(), this.getUpdatedAt(), this.getSubmittedAt());
     }
 
 }

@@ -22,7 +22,7 @@ import dev.sbs.minecraftapi.client.sbs.response.SkyBlockEmojiData;
 import dev.sbs.minecraftapi.skyblock.common.Profile;
 import dev.sbs.simplifiedbot.SimplifiedBot;
 import dev.sbs.simplifiedbot.command.exception.UnlinkedAccountException;
-import dev.sbs.simplifiedbot.model.AppUser;
+import dev.sbs.simplifiedbot.persistence.model.AppUser;
 import discord4j.common.util.Snowflake;
 import lombok.Getter;
 import org.intellij.lang.annotations.PrintFormat;

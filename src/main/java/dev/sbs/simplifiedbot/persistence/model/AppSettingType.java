@@ -1,7 +1,10 @@
-package dev.sbs.simplifiedbot.model;
+package dev.sbs.simplifiedbot.persistence.model;
 
 import dev.sbs.api.persistence.JpaModel;
-import dev.sbs.minecraftapi.model.Item;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -9,33 +12,25 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Objects;
 
 @Getter
 @Entity
 @Table(
-    name = "discord_optimizer_support_items"
+    name = "discord_setting_types"
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class OptimizerSupportItem implements JpaModel {
+public class AppSettingType implements JpaModel {
 
     @Id
     @Setter
-    @ManyToOne
-    @JoinColumn(name = "item_id", referencedColumnName = "id")
-    private Item item;
+    @Column(name = "key", nullable = false, unique = true)
+    private String key;
 
     @Setter
-    @Column(name = "effects", nullable = false)
-    private Map<String, Double> effects;
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
@@ -50,17 +45,17 @@ public class OptimizerSupportItem implements JpaModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        OptimizerSupportItem that = (OptimizerSupportItem) o;
+        AppSettingType that = (AppSettingType) o;
 
-        return Objects.equals(this.getItem(), that.getItem())
-            && Objects.equals(this.getEffects(), that.getEffects())
+        return Objects.equals(this.getKey(), that.getKey())
+            && Objects.equals(this.getName(), that.getName())
             && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
             && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getItem(), this.getEffects(), this.getUpdatedAt(), this.getSubmittedAt());
+        return Objects.hash(this.getKey(), this.getName(), this.getUpdatedAt(), this.getSubmittedAt());
     }
 
 }

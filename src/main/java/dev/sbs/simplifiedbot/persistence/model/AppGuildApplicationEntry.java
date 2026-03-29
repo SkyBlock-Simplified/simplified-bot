@@ -1,6 +1,7 @@
-package dev.sbs.simplifiedbot.model;
+package dev.sbs.simplifiedbot.persistence.model;
 
 import dev.sbs.api.persistence.JpaModel;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -8,22 +9,25 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
 import java.time.Instant;
 import java.util.Objects;
 
 @Getter
 @Entity
 @Table(
-    name = "discord_guild_reputation",
+    name = "discord_guild_application_entries",
     indexes = {
         @Index(
-            columnList = "guild_id, reputation_type_key"
+            columnList = "guild_id, application_key, submitter_discord_id",
+            unique = true
+        ),
+        @Index(
+            columnList = "guild_id, application_key"
         )
     }
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class AppGuildReputation implements JpaModel {
+public class AppGuildApplicationEntry implements JpaModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,26 +37,14 @@ public class AppGuildReputation implements JpaModel {
     @Setter
     @ManyToOne
     @JoinColumns({
-        @JoinColumn(name = "guild_id", nullable = false, referencedColumnName = "guild_id"),
-        @JoinColumn(name = "reputation_type_key", nullable = false, referencedColumnName = "key")
+        @JoinColumn(name = "guild_id", referencedColumnName = "guild_id", nullable = false),
+        @JoinColumn(name = "application_key", referencedColumnName = "key", nullable = false)
     })
-    private AppGuildReputationType type;
+    private AppGuildApplication application;
 
     @Setter
-    @Column(name = "receiver_discord_id", nullable = false)
-    private Long receiverDiscordId;
-
-    @Setter
-    @Column(name = "submitter_discord_id", nullable = false)
+    @Column(name = "submitter_discord_id")
     private Long submitterDiscordId;
-
-    @Setter
-    @Column(name = "assignee_discord_id")
-    private Long assigneeDiscordId;
-
-    @Setter
-    @Column(name = "reason")
-    private String reason;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
@@ -67,21 +59,18 @@ public class AppGuildReputation implements JpaModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AppGuildReputation that = (AppGuildReputation) o;
+        AppGuildApplicationEntry that = (AppGuildApplicationEntry) o;
 
         return Objects.equals(this.getId(), that.getId())
-            && Objects.equals(this.getType(), that.getType())
-            && Objects.equals(this.getReceiverDiscordId(), that.getReceiverDiscordId())
+            && Objects.equals(this.getApplication(), that.getApplication())
             && Objects.equals(this.getSubmitterDiscordId(), that.getSubmitterDiscordId())
-            && Objects.equals(this.getAssigneeDiscordId(), that.getAssigneeDiscordId())
-            && Objects.equals(this.getReason(), that.getReason())
             && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
             && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getId(), this.getType(), this.getReceiverDiscordId(), this.getSubmitterDiscordId(), this.getAssigneeDiscordId(), this.getReason(), this.getUpdatedAt(), this.getSubmittedAt());
+        return Objects.hash(this.getId(), this.getApplication(), this.getSubmitterDiscordId(), this.getUpdatedAt(), this.getSubmittedAt());
     }
 
 }

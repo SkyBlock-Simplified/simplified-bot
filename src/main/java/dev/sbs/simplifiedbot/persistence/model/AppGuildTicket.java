@@ -1,6 +1,14 @@
-package dev.sbs.simplifiedbot.model;
+package dev.sbs.simplifiedbot.persistence.model;
 
 import dev.sbs.api.persistence.JpaModel;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -8,28 +16,17 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import java.time.Instant;
 import java.util.Objects;
 
 @Getter
 @Entity
 @Table(
-    name = "discord_guild_applications",
+    name = "discord_guild_tickets",
     indexes = {
         @Index(
             columnList = "guild_id, key",
             unique = true
-        ),
-        @Index(
-            columnList = "guild_id, type_key"
         ),
         @Index(
             columnList = "guild_id, embed_key"
@@ -37,7 +34,7 @@ import java.util.Objects;
     }
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class AppGuildApplication implements JpaModel {
+public class AppGuildTicket implements JpaModel {
 
     @Id
     @Setter
@@ -51,22 +48,14 @@ public class AppGuildApplication implements JpaModel {
     @Id
     @Setter
     @ManyToOne
-    @JoinColumn(name = "guild_id", referencedColumnName = "guild_id", nullable = false)
+    @JoinColumn(name = "guild_id", referencedColumnName = "guild_id", insertable = false, updatable = false)
     private AppGuild guild;
 
     @Setter
     @ManyToOne
     @JoinColumns({
-        @JoinColumn(name = "guild_id", referencedColumnName = "guild_id", nullable = false, updatable = false, insertable = false),
-        @JoinColumn(name = "type_key", referencedColumnName = "key", nullable = false, updatable = false, insertable = false)
-    })
-    private AppGuildApplicationType type;
-
-    @Setter
-    @ManyToOne
-    @JoinColumns({
-        @JoinColumn(name = "guild_id", referencedColumnName = "guild_id", nullable = false, updatable = false, insertable = false),
-        @JoinColumn(name = "embed_key", referencedColumnName = "key", nullable = false, updatable = false, insertable = false)
+        @JoinColumn(name = "guild_id", referencedColumnName = "guild_id", nullable = false),
+        @JoinColumn(name = "embed_key", referencedColumnName = "key", nullable = false)
     })
     private AppGuildEmbed embed;
 
@@ -77,14 +66,6 @@ public class AppGuildApplication implements JpaModel {
     @Setter
     @Column(name = "notes")
     private String notes;
-
-    @Setter
-    @Column(name = "live_at")
-    private Instant liveAt;
-
-    @Setter
-    @Column(name = "close_at")
-    private Instant closeAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
@@ -99,24 +80,21 @@ public class AppGuildApplication implements JpaModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AppGuildApplication that = (AppGuildApplication) o;
+        AppGuildTicket that = (AppGuildTicket) o;
 
         return this.isEnabled() == that.isEnabled()
             && Objects.equals(this.getKey(), that.getKey())
             && Objects.equals(this.getName(), that.getName())
             && Objects.equals(this.getGuild(), that.getGuild())
-            && Objects.equals(this.getType(), that.getType())
             && Objects.equals(this.getEmbed(), that.getEmbed())
             && Objects.equals(this.getNotes(), that.getNotes())
-            && Objects.equals(this.getLiveAt(), that.getLiveAt())
-            && Objects.equals(this.getCloseAt(), that.getCloseAt())
             && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
             && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getKey(), this.getName(), this.getGuild(), this.getType(), this.getEmbed(), this.isEnabled(), this.getNotes(), this.getLiveAt(), this.getCloseAt(), this.getUpdatedAt(), this.getSubmittedAt());
+        return Objects.hash(this.getKey(), this.getName(), this.getGuild(), this.getEmbed(), this.isEnabled(), this.getNotes(), this.getUpdatedAt(), this.getSubmittedAt());
     }
 
 }

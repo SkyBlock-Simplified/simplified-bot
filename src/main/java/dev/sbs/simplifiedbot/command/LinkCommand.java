@@ -25,7 +25,7 @@ import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelSocial;
 import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
 import dev.sbs.minecraftapi.client.sbs.SbsClient;
 import dev.sbs.minecraftapi.client.sbs.request.SbsEndpoint;
-import dev.sbs.simplifiedbot.model.AppUser;
+import dev.sbs.simplifiedbot.persistence.model.AppUser;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;

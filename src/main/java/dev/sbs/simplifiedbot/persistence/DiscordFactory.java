@@ -4,7 +4,7 @@ import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.persistence.JpaModel;
 import dev.sbs.api.persistence.RepositoryFactory;
 import dev.sbs.api.persistence.strategy.RefreshStrategy;
-import dev.sbs.simplifiedbot.model.AppGuild;
+import dev.sbs.simplifiedbot.persistence.model.AppGuild;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 

@@ -17,8 +17,8 @@ import dev.sbs.discordapi.response.embed.Footer;
 import dev.sbs.discordapi.response.handler.item.ItemHandler;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
-import dev.sbs.simplifiedbot.model.AppUser;
-import dev.sbs.simplifiedbot.model.SbsLegacyDonor;
+import dev.sbs.simplifiedbot.persistence.model.AppUser;
+import dev.sbs.simplifiedbot.persistence.model.SbsLegacyDonor;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 

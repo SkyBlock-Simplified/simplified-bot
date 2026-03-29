@@ -1,6 +1,13 @@
-package dev.sbs.simplifiedbot.model;
+package dev.sbs.simplifiedbot.persistence.model;
 
 import dev.sbs.api.persistence.JpaModel;
+import dev.sbs.minecraftapi.persistence.model.Item;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -8,37 +15,27 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 
 @Getter
 @Entity
 @Table(
-    name = "discord_guilds"
+    name = "discord_optimizer_support_items"
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class AppGuild implements JpaModel {
+public class OptimizerSupportItem implements JpaModel {
 
     @Id
     @Setter
-    @Column(name = "guild_id")
-    private Long guildId;
+    @ManyToOne
+    @JoinColumn(name = "item_id", referencedColumnName = "id")
+    private Item item;
 
     @Setter
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    @Setter
-    @Column(name = "reports_public", nullable = false)
-    private boolean reportsPublic;
-
-    @Setter
-    @Column(name = "emoji_management", nullable = false)
-    private boolean emojiServer;
+    @Column(name = "effects", nullable = false)
+    private Map<String, Double> effects;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
@@ -53,19 +50,17 @@ public class AppGuild implements JpaModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AppGuild that = (AppGuild) o;
+        OptimizerSupportItem that = (OptimizerSupportItem) o;
 
-        return this.isReportsPublic() == that.isReportsPublic()
-            && this.isEmojiServer() == that.isEmojiServer()
-            && Objects.equals(this.getGuildId(), that.getGuildId())
-            && Objects.equals(this.getName(), that.getName())
+        return Objects.equals(this.getItem(), that.getItem())
+            && Objects.equals(this.getEffects(), that.getEffects())
             && Objects.equals(this.getUpdatedAt(), that.getUpdatedAt())
             && Objects.equals(this.getSubmittedAt(), that.getSubmittedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getGuildId(), this.getName(), this.isReportsPublic(), this.isEmojiServer(), this.getUpdatedAt(), this.getSubmittedAt());
+        return Objects.hash(this.getItem(), this.getEffects(), this.getUpdatedAt(), this.getSubmittedAt());
     }
 
 }

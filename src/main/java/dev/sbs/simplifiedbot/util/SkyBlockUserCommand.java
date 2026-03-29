@@ -50,7 +50,7 @@ import dev.sbs.minecraftapi.persistence.model.Stat;
 import dev.sbs.minecraftapi.skyblock.common.Experience;
 import dev.sbs.minecraftapi.skyblock.common.Profile;
 import dev.sbs.minecraftapi.skyblock.common.Weight;
-import dev.sbs.simplifiedbot.model.AppUser;
+import dev.sbs.simplifiedbot.persistence.model.AppUser;
 import dev.sbs.simplifiedbot.profile_stats.data.AccessoryData;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
