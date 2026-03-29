@@ -35,12 +35,6 @@ public final class SimplifiedBot extends DiscordBot {
         super(discordConfig);
     }
 
-    private static SimplifiedBot create(@NotNull DiscordConfig discordConfig) {
-        SimplifiedBot simplifiedBot = new SimplifiedBot(discordConfig);
-        simplifiedBot.start();
-        return simplifiedBot;
-    }
-
     public static void main(final String[] args) {
         DiscordConfig discordConfig = DiscordConfig.builder()
             .withToken(SystemUtil.getEnv("DISCORD_TOKEN"))
@@ -59,7 +53,8 @@ public final class SimplifiedBot extends DiscordBot {
             .withMemberRequestFilter(MemberRequestFilter.withLargeGuilds())
             .build();
 
-        SimplifiedBot.create(discordConfig);
+        SimplifiedBot simplifiedBot = new SimplifiedBot(discordConfig);
+        simplifiedBot.start();
     }
 
     @Override
