@@ -39,7 +39,6 @@ dependencies {
     testImplementation(libs.optaplanner.benchmark)
 
     // Projects
-    implementation("dev.sbs:api:0.1.0")
     implementation("dev.sbs:minecraft-api:0.1.0")
     implementation("dev.sbs:discord-api:0.1.0")
 }

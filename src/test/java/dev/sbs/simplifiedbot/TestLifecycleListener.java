@@ -16,7 +16,7 @@ public class TestLifecycleListener implements TestExecutionListener {
 
     @Override
     public void testPlanExecutionStarted(TestPlan testPlan) {
-        System.out.println("[TestLifecycleListener] Initializing SimplifiedApi");
+        System.out.println("[TestLifecycleListener] Initializing MinecraftApi");
         MinecraftApi.getSessionManager();
     }
 

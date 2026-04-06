@@ -16,11 +16,11 @@ See the root [`CLAUDE.md`](../CLAUDE.md) for multi-module build commands, enviro
 ./gradlew :simplified-bot:shadowJar      # Output: build/libs/simplified-bot-0.1.0.jar
 ```
 
-Tests require a live MariaDB database and valid `HYPIXEL_API_KEY` - they are integration tests that hit real APIs. A `TestLifecycleListener` (JUnit platform listener) manages `SimplifiedApi` startup/shutdown so the test JVM exits cleanly.
+Tests require a live MariaDB database and valid `HYPIXEL_API_KEY` - they are integration tests that hit real APIs. A `TestLifecycleListener` (JUnit platform listener) manages `MinecraftApi` startup/shutdown so the test JVM exits cleanly.
 
 ## Module Overview
 
-`simplified-bot` is the Discord bot application. It depends on all three library modules (`api`, `discord-api`, `minecraft-api`) via Maven coordinates (not project references).
+`simplified-bot` is the Discord bot application. It depends on `discord-api` and `minecraft-api` via Maven coordinates (not project references). All shared infrastructure (Gson, Scheduler, SessionManager, repositories) is reached through `MinecraftApi`.
 
 ### Entry Points
 
@@ -65,7 +65,7 @@ Tests require a live MariaDB database and valid `HYPIXEL_API_KEY` - they are int
 - **`SkyBlockUserCommand` template method**: `process()` is final and creates a `SkyBlockUser`, then calls abstract `subprocess()`. All player-facing commands follow this.
 - **`ProfileStats` as computation hub**: Constructed from a `SkyBlockIsland` + `SkyBlockMember`, it loads every stat source, applies bonus calculations, and provides `getCombinedStats()` for total stat aggregation. The optimizer consumes this directly.
 - **Optimizer flow**: `OptimizerRequest.of(username)` (builder) -> `Optimizer.solve(request)` -> `OptimizerResponse` containing solution, reforge counts, and final damage. The `Solution` base class handles reforge pruning (dominance elimination) and stat aggregation.
-- **Two JPA entity sets**: `model/` entities are bot-application data (users, guilds, settings). `data/skyblock/` entities are game data (bonus stats, shop data). Both live in MariaDB and are accessed via `SimplifiedApi.getRepository(ModelClass.class)`.
+- **Two JPA entity sets**: `model/` entities are bot-application data (users, guilds, settings). `data/skyblock/` entities are game data (bonus stats, shop data). Both live in MariaDB and are accessed via `MinecraftApi.getRepository(ModelClass.class)`.
 
 ### Optimizer Math (README Summary)
 
