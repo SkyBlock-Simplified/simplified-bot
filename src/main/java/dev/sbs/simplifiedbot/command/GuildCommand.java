@@ -1,13 +1,5 @@
 package dev.sbs.simplifiedbot.command;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.collection.Concurrent;
-import dev.simplified.collection.ConcurrentList;
-import dev.simplified.collection.ConcurrentMap;
-import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
-import dev.simplified.collection.query.SortOrder;
-import dev.simplified.collection.tuple.pair.Pair;
-import dev.simplified.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
@@ -34,10 +26,17 @@ import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockMember;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonClass;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonData;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.skill.SkillLevel;
+import dev.sbs.minecraftapi.generator.text.ChatFormat;
 import dev.sbs.minecraftapi.persistence.model.Skill;
 import dev.sbs.minecraftapi.persistence.model.Slayer;
-import dev.sbs.minecraftapi.generator.text.ChatFormat;
 import dev.sbs.minecraftapi.skyblock.common.Weight;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
+import dev.simplified.collection.query.SortOrder;
+import dev.simplified.collection.tuple.pair.Pair;
+import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
+import dev.simplified.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -72,7 +71,7 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         String guildName = commandContext.getArgument("name").map(Argument::asString).orElseThrow();
 
-        HypixelGuildResponse hypixelGuildResponse = SimplifiedApi.getClient(HypixelClient.class).getEndpoint().getGuildByName(guildName);
+        HypixelGuildResponse hypixelGuildResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getGuildByName(guildName);
 
         if (hypixelGuildResponse.getGuild().isEmpty()) {
             return commandContext.reply(
@@ -96,7 +95,7 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
         ConcurrentList<Slayer> slayerModels = MinecraftApi.getRepository(Slayer.class).findAll();
         DungeonData.Type catacombs = DungeonData.Type.CATACOMBS;
         ConcurrentList<DungeonClass.Type> dungeonClassModels = Concurrent.newList(DungeonClass.Type.HEALER, DungeonClass.Type.MAGE, DungeonClass.Type.BERSERK, DungeonClass.Type.ARCHER, DungeonClass.Type.TANK);
-        HypixelEndpoint hypixelEndpoints = SimplifiedApi.getClient(HypixelClient.class).getEndpoint();
+        HypixelEndpoint hypixelEndpoints = MinecraftApi.getClient(HypixelClient.class).getEndpoint();
         HypixelGuild guild = hypixelGuildResponse.getGuild().get();
 
         ConcurrentMap<HypixelPlayer, SkyBlockIsland> guildMembers = guild.getMembers()

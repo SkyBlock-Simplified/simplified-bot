@@ -1,11 +1,5 @@
 package dev.sbs.simplifiedbot.command.reputation;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.collection.Concurrent;
-import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
-import dev.simplified.persistence.JpaRepository;
-import dev.simplified.collection.tuple.pair.Pair;
-import dev.simplified.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
@@ -16,8 +10,14 @@ import dev.sbs.discordapi.exception.DiscordException;
 import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.simplifiedbot.persistence.model.AppGuildReputation;
 import dev.sbs.simplifiedbot.persistence.model.AppGuildReputationType;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.tuple.pair.Pair;
+import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
+import dev.simplified.persistence.JpaRepository;
+import dev.simplified.util.StringUtil;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -58,14 +58,14 @@ public class RepGiveCommand extends DiscordCommand<SlashCommandContext> {
         if (submitterDiscordId == receiverDiscordId)
             return commandContext.reply(genericResponse("You cannot give yourself reputation!", Color.RED));
 
-        Optional<AppGuildReputationType> reputationTypeModel = SimplifiedApi.getRepository(AppGuildReputationType.class)
+        Optional<AppGuildReputationType> reputationTypeModel = MinecraftApi.getRepository(AppGuildReputationType.class)
             .findFirst(AppGuildReputationType::getKey, reputationType.toUpperCase());
 
         // Check Reputation Type
         if (reputationTypeModel.isEmpty())
             return commandContext.reply(genericResponse(String.format("The provided reputation type '%s' is invalid!", reputationType), Color.RED));
 
-        long lastReceivedId = SimplifiedApi.getRepository(AppGuildReputation.class)
+        long lastReceivedId = MinecraftApi.getRepository(AppGuildReputation.class)
             .findLast(AppGuildReputation::getSubmitterDiscordId, submitterDiscordId)
             .map(AppGuildReputation::getReceiverDiscordId)
             .orElse(0L);
@@ -80,7 +80,7 @@ public class RepGiveCommand extends DiscordCommand<SlashCommandContext> {
         entry.setReceiverDiscordId(receiverDiscordId);
         entry.setType(reputationTypeModel.get());
         entry.setReason(reason);
-        ((JpaRepository<AppGuildReputation>) SimplifiedApi.getRepository(AppGuildReputation.class)).save(entry);
+        ((JpaRepository<AppGuildReputation>) MinecraftApi.getRepository(AppGuildReputation.class)).save(entry);
 
         return commandContext.reply(
             genericResponse(String.format(
@@ -125,7 +125,7 @@ public class RepGiveCommand extends DiscordCommand<SlashCommandContext> {
                 .withType(Parameter.Type.WORD)
                 .isRequired()
                 .withChoices(
-                    SimplifiedApi.getRepository(AppGuildReputationType.class)
+                    MinecraftApi.getRepository(AppGuildReputationType.class)
                         .stream()
                         .map(reputationType -> Pair.of(reputationType.getName(), reputationType.getKey().toLowerCase()))
                         .collect(Concurrent.toWeakLinkedMap())

@@ -1,13 +1,9 @@
 package dev.sbs.simplifiedbot;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.persistence.JpaConfig;
-import dev.simplified.reflection.Reflection;
-import dev.simplified.util.NumberUtil;
-import dev.simplified.util.SystemUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.handler.DiscordConfig;
+import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
 import dev.sbs.minecraftapi.client.hypixel.request.HypixelEndpoint;
 import dev.sbs.minecraftapi.client.sbs.SbsClient;
@@ -16,6 +12,10 @@ import dev.sbs.simplifiedbot.processor.resource.ResourceCollectionsProcessor;
 import dev.sbs.simplifiedbot.processor.resource.ResourceItemsProcessor;
 import dev.sbs.simplifiedbot.processor.resource.ResourceSkillsProcessor;
 import dev.sbs.simplifiedbot.util.ItemCache;
+import dev.simplified.persistence.JpaConfig;
+import dev.simplified.reflection.Reflection;
+import dev.simplified.util.NumberUtil;
+import dev.simplified.util.SystemUtil;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public final class SimplifiedBot extends DiscordBot {
 
-    private static final HypixelEndpoint HYPIXEL_RESOURCE_REQUEST = SimplifiedApi.getClient(HypixelClient.class).getEndpoint();
+    private static final HypixelEndpoint HYPIXEL_RESOURCE_REQUEST = MinecraftApi.getClient(HypixelClient.class).getEndpoint();
     private ItemCache itemCache;
     private SkyBlockEmojiData skyBlockEmojis;
 
@@ -65,14 +65,14 @@ public final class SimplifiedBot extends DiscordBot {
 
     @Override
     protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
-        SimplifiedApi.getKeyManager().add(SystemUtil.getEnvPair("HYPIXEL_API_KEY"));
+        MinecraftApi.getKeyManager().add(SystemUtil.getEnvPair("HYPIXEL_API_KEY"));
+        this.onDatabaseConnected();
     }
 
-    @Override
-    protected void onDatabaseConnected() {
+    private void onDatabaseConnected() {
         // Update Caches
         log.info("Building Caches");
-        this.skyBlockEmojis = SimplifiedApi.getClient(SbsClient.class).getEndpoint().getItemEmojis();
+        this.skyBlockEmojis = MinecraftApi.getClient(SbsClient.class).getEndpoint().getItemEmojis();
         this.itemCache = new ItemCache();
         this.getItemCache().getAuctionHouse().update();
         this.getItemCache().getBazaar().update();
@@ -80,7 +80,7 @@ public final class SimplifiedBot extends DiscordBot {
 
         // Schedule SkyBlock Emoji Cache Updates
         this.getScheduler().scheduleAsync(
-            () -> this.skyBlockEmojis = SimplifiedApi.getClient(SbsClient.class).getEndpoint().getItemEmojis(),
+            () -> this.skyBlockEmojis = MinecraftApi.getClient(SbsClient.class).getEndpoint().getItemEmojis(),
             10,
             10,
             TimeUnit.MINUTES

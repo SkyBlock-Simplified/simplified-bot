@@ -1,17 +1,16 @@
 package dev.sbs.simplifiedbot.optimizer;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.persistence.JpaConfig;
-import dev.simplified.persistence.JpaSession;
-import dev.simplified.util.StringUtil;
 import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.minecraftapi.persistence.model.Item;
 import dev.sbs.minecraftapi.persistence.model.Reforge;
-import dev.sbs.simplifiedbot.persistence.model.OptimizerMobType;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitSolution;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_second.DamagePerSecondSolution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerResponse;
+import dev.sbs.simplifiedbot.persistence.model.OptimizerMobType;
+import dev.simplified.persistence.JpaConfig;
+import dev.simplified.persistence.JpaSession;
+import dev.simplified.util.StringUtil;
 import org.junit.jupiter.api.Test;
 import org.optaplanner.benchmark.api.PlannerBenchmark;
 import org.optaplanner.benchmark.api.PlannerBenchmarkFactory;
@@ -23,7 +22,7 @@ public class OptimizerTest {
     
     private void initializeDatabase() {
         System.out.println("Database Starting... ");
-        JpaSession session = SimplifiedApi.getSessionManager().connect(JpaConfig.commonSql());
+        JpaSession session = MinecraftApi.getSessionManager().connect(JpaConfig.commonSql());
         System.out.println("Database initialized in " + session.getInitialization().getDurationMillis() + "ms");
         System.out.println("Database started in " + session.getRepositoryCache().getDurationMillis() + "ms");
     }
@@ -37,7 +36,7 @@ public class OptimizerTest {
         return OptimizerRequest.of(playerName)
             .withAllowedReforges(MinecraftApi.getRepository(Reforge.class).findAll())
             .withIsland(0)
-            .withMobType(SimplifiedApi.getRepository(OptimizerMobType.class).findFirstOrNull(OptimizerMobType::getKey, mobType))
+            .withMobType(MinecraftApi.getRepository(OptimizerMobType.class).findFirstOrNull(OptimizerMobType::getKey, mobType))
             .withWeapon(MinecraftApi.getRepository(Item.class).findFirstOrNull(Item::getId, weapon))
             .withType(type)
             .build();

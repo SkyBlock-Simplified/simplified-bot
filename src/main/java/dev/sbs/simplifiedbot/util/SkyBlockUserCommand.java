@@ -1,12 +1,5 @@
 package dev.sbs.simplifiedbot.util;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.collection.Concurrent;
-import dev.simplified.collection.ConcurrentList;
-import dev.simplified.collection.ConcurrentMap;
-import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
-import dev.simplified.collection.StreamUtil;
-import dev.simplified.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
@@ -52,6 +45,12 @@ import dev.sbs.minecraftapi.skyblock.common.Profile;
 import dev.sbs.minecraftapi.skyblock.common.Weight;
 import dev.sbs.simplifiedbot.persistence.model.AppUser;
 import dev.sbs.simplifiedbot.profile_stats.data.AccessoryData;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
+import dev.simplified.collection.StreamUtil;
+import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
+import dev.simplified.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -784,7 +783,7 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
     }
 
     public final boolean isUserVerified(@NotNull UUID uniqueId) {
-        return SimplifiedApi.getRepository(AppUser.class).matchFirst(userModel -> userModel.getMojangUniqueIds().contains(uniqueId)).isPresent();
+        return MinecraftApi.getRepository(AppUser.class).matchFirst(userModel -> userModel.getMojangUniqueIds().contains(uniqueId)).isPresent();
     }
 
 }

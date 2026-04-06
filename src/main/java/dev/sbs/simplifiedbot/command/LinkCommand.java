@@ -1,10 +1,5 @@
 package dev.sbs.simplifiedbot.command;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.collection.Concurrent;
-import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
-import dev.simplified.persistence.JpaRepository;
-import dev.simplified.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
@@ -18,6 +13,7 @@ import dev.sbs.discordapi.response.Response;
 import dev.sbs.discordapi.response.embed.Author;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelPlayer;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelPlayerResponse;
@@ -26,6 +22,10 @@ import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
 import dev.sbs.minecraftapi.client.sbs.SbsClient;
 import dev.sbs.minecraftapi.client.sbs.request.SbsEndpoint;
 import dev.sbs.simplifiedbot.persistence.model.AppUser;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
+import dev.simplified.persistence.JpaRepository;
+import dev.simplified.util.StringUtil;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -44,9 +44,9 @@ public class LinkCommand extends DiscordCommand<SlashCommandContext> {
     @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         String playerID = commandContext.getArgument("name").map(Argument::asString).orElseThrow(); // Will never throw
-        SbsEndpoint mojangRequest = SimplifiedApi.getClient(SbsClient.class).getEndpoint();
+        SbsEndpoint mojangRequest = MinecraftApi.getClient(SbsClient.class).getEndpoint();
         MojangProfile mojangProfile = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
-        HypixelPlayerResponse hypixelPlayerResponse = SimplifiedApi.getClient(HypixelClient.class).getEndpoint().getPlayer(mojangProfile.getUniqueId());
+        HypixelPlayerResponse hypixelPlayerResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getPlayer(mojangProfile.getUniqueId());
         String interactDiscordTag = commandContext.getInteractUser().getTag();
 
         String hypixelDiscordTag = hypixelPlayerResponse.getPlayer()
@@ -55,7 +55,7 @@ public class LinkCommand extends DiscordCommand<SlashCommandContext> {
             .orElse("");
 
         if (interactDiscordTag.equals(hypixelDiscordTag)) {
-            AppUser user = SimplifiedApi.getRepository(AppUser.class).matchFirstOrNull(appUser -> appUser.getDiscordIds()
+            AppUser user = MinecraftApi.getRepository(AppUser.class).matchFirstOrNull(appUser -> appUser.getDiscordIds()
                 .contains(commandContext.getInteractUserId().asLong()) || appUser.getMojangUniqueIds().contains(mojangProfile.getUniqueId())
             );
 
@@ -68,7 +68,7 @@ public class LinkCommand extends DiscordCommand<SlashCommandContext> {
                 newUserModel.getMojangUniqueIds().add(mojangProfile.getUniqueId());
 
                 // Save New User
-                ((JpaRepository<AppUser>) SimplifiedApi.getRepository(AppUser.class)).save(newUserModel);
+                ((JpaRepository<AppUser>) MinecraftApi.getRepository(AppUser.class)).save(newUserModel);
             } else {
                 boolean alreadyVerified = false;
 
@@ -83,7 +83,7 @@ public class LinkCommand extends DiscordCommand<SlashCommandContext> {
 
                 // Update User
                 if (!alreadyVerified)
-                    ((JpaRepository<AppUser>) SimplifiedApi.getRepository(AppUser.class)).update(user);
+                    ((JpaRepository<AppUser>) MinecraftApi.getRepository(AppUser.class)).update(user);
                 else
                     message = "Your Discord account has been verified.";
 

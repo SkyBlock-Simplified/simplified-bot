@@ -1,9 +1,5 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.collection.Concurrent;
-import dev.simplified.collection.ConcurrentList;
-import dev.simplified.collection.ConcurrentMap;
 import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
@@ -21,6 +17,9 @@ import dev.sbs.simplifiedbot.persistence.model.OptimizerMobType;
 import dev.sbs.simplifiedbot.profile_stats.ProfileStats;
 import dev.sbs.simplifiedbot.profile_stats.data.ItemData;
 import dev.sbs.simplifiedbot.profile_stats.data.PlayerDataHelper;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -108,13 +107,13 @@ public final class OptimizerRequest {
     }
 
     public static OptimizerRequestBuilder of(String username) {
-        MojangProfile mojangProfile = SimplifiedApi.getClient(SbsClient.class).getEndpoint().getProfileFromUsername(username);
-        SkyBlockProfiles skyBlockProfilesResponse = SimplifiedApi.getClient(HypixelClient.class).getEndpoint().getProfiles(mojangProfile.getUniqueId());
+        MojangProfile mojangProfile = MinecraftApi.getClient(SbsClient.class).getEndpoint().getProfileFromUsername(username);
+        SkyBlockProfiles skyBlockProfilesResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getProfiles(mojangProfile.getUniqueId());
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, mojangProfile.getUniqueId());
     }
 
     public static OptimizerRequestBuilder of(UUID uniqueId) {
-        SkyBlockProfiles skyBlockProfilesResponse = SimplifiedApi.getClient(HypixelClient.class).getEndpoint().getProfiles(uniqueId);
+        SkyBlockProfiles skyBlockProfilesResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getProfiles(uniqueId);
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, uniqueId);
     }
 

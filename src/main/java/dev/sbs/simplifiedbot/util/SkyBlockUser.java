@@ -1,12 +1,10 @@
 package dev.sbs.simplifiedbot.util;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.collection.ConcurrentList;
-import dev.simplified.util.StringUtil;
 import dev.sbs.discordapi.command.exception.InputException;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordUserException;
+import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
 import dev.sbs.minecraftapi.client.hypixel.request.HypixelEndpoint;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelGuild;
@@ -23,6 +21,8 @@ import dev.sbs.minecraftapi.skyblock.common.Profile;
 import dev.sbs.simplifiedbot.SimplifiedBot;
 import dev.sbs.simplifiedbot.command.exception.UnlinkedAccountException;
 import dev.sbs.simplifiedbot.persistence.model.AppUser;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.util.StringUtil;
 import discord4j.common.util.Snowflake;
 import lombok.Getter;
 import org.intellij.lang.annotations.PrintFormat;
@@ -53,15 +53,15 @@ public final class SkyBlockUser {
             if (!this.isVerified(commandContext.getInteractUserId()))
                 throw new UnlinkedAccountException();
 
-            optionalPlayerID = SimplifiedApi.getRepository(AppUser.class)
+            optionalPlayerID = MinecraftApi.getRepository(AppUser.class)
                 .matchFirst(userModel -> userModel.getDiscordIds().contains(commandContext.getInteractUserId().asLong()))
                 .map(userModel -> userModel.getMojangUniqueIds().getLast())
                 .map(UUID::toString);
         }
 
         String playerID = optionalPlayerID.orElseThrow(); // Will never reach here
-        SbsEndpoint sbsEndpoints = SimplifiedApi.getClient(SbsClient.class).getEndpoint();
-        HypixelEndpoint hypixelEndpoints = SimplifiedApi.getClient(HypixelClient.class).getEndpoint();
+        SbsEndpoint sbsEndpoints = MinecraftApi.getClient(SbsClient.class).getEndpoint();
+        HypixelEndpoint hypixelEndpoints = MinecraftApi.getClient(HypixelClient.class).getEndpoint();
         this.mojangProfile = StringUtil.isUUID(playerID) ? sbsEndpoints.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : sbsEndpoints.getProfileFromUsername(playerID);
         this.profiles = hypixelEndpoints.getProfiles(this.getMojangProfile().getUniqueId());
         this.guild = hypixelEndpoints.getGuildByPlayer(this.getMojangProfile().getUniqueId()).getGuild();
@@ -107,7 +107,7 @@ public final class SkyBlockUser {
     }
 
     public boolean isVerified(@NotNull Snowflake userId) {
-        return SimplifiedApi.getRepository(AppUser.class).matchFirst(userModel -> userModel.getDiscordIds().contains(userId.asLong())).isPresent();
+        return MinecraftApi.getRepository(AppUser.class).matchFirst(userModel -> userModel.getDiscordIds().contains(userId.asLong())).isPresent();
     }
 
     public void setSelectedIsland(@NotNull Profile profile) {

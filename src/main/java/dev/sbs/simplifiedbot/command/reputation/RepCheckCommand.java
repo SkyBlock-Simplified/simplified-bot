@@ -1,12 +1,5 @@
 package dev.sbs.simplifiedbot.command.reputation;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.collection.Concurrent;
-import dev.simplified.collection.ConcurrentList;
-import dev.simplified.collection.ConcurrentMap;
-import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
-import dev.simplified.collection.query.SearchFunction;
-import dev.simplified.collection.tuple.pair.Pair;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
@@ -19,9 +12,16 @@ import dev.sbs.discordapi.response.embed.Author;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.embed.Field;
 import dev.sbs.discordapi.response.page.Page;
+import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.simplifiedbot.persistence.model.AppGuild;
 import dev.sbs.simplifiedbot.persistence.model.AppGuildReputation;
 import dev.sbs.simplifiedbot.persistence.model.AppGuildReputationType;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
+import dev.simplified.collection.query.SearchFunction;
+import dev.simplified.collection.tuple.pair.Pair;
+import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +67,7 @@ public class RepCheckCommand extends DiscordCommand<SlashCommandContext> {
             .orElse(receivingMember.get().getTag());
 
         // Get reputation types for current Guild
-        ConcurrentList<AppGuildReputationType> reputationTypes = SimplifiedApi.getRepository(AppGuildReputationType.class)
+        ConcurrentList<AppGuildReputationType> reputationTypes = MinecraftApi.getRepository(AppGuildReputationType.class)
             .findAll(SearchFunction.combine(AppGuildReputationType::getGuild, AppGuild::getGuildId), commandContext.getGuildId().orElseThrow())
             .collect(Concurrent.toList());
 
@@ -78,7 +78,7 @@ public class RepCheckCommand extends DiscordCommand<SlashCommandContext> {
         ConcurrentMap<AppGuildReputationType, ConcurrentList<AppGuildReputation>> receiverReputation = reputationTypes.stream()
             .map(reputationType -> Pair.of(
                 reputationType,
-                SimplifiedApi.getRepository(AppGuildReputation.class)
+                MinecraftApi.getRepository(AppGuildReputation.class)
                     .findAll(
                         Pair.of(AppGuildReputation::getType, reputationType),
                         Pair.of(AppGuildReputation::getReceiverDiscordId, receiverDiscordId)

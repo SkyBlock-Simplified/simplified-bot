@@ -1,8 +1,5 @@
 package dev.sbs.simplifiedbot.command;
 
-import dev.sbs.api.SimplifiedApi;
-import dev.simplified.collection.Concurrent;
-import dev.simplified.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
@@ -17,8 +14,11 @@ import dev.sbs.discordapi.response.embed.Footer;
 import dev.sbs.discordapi.response.handler.item.ItemHandler;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
+import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.simplifiedbot.persistence.model.AppUser;
 import dev.sbs.simplifiedbot.persistence.model.SbsLegacyDonor;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -76,7 +76,7 @@ public class AboutCommand extends DiscordCommand<SlashCommandContext> {
                                         .withName("Developers")
                                         .withValue(
                                             StringUtil.join(
-                                                SimplifiedApi.getRepository(AppUser.class)
+                                                MinecraftApi.getRepository(AppUser.class)
                                                     .matchAll(AppUser::isDeveloper)
                                                     .map(userModel -> String.format("<@%s>", userModel.getDiscordIds().getFirst()))
                                                     .collect(Concurrent.toList()),
@@ -146,7 +146,7 @@ public class AboutCommand extends DiscordCommand<SlashCommandContext> {
                                 )
                                 .withItemHandler(
                                     ItemHandler.<SbsLegacyDonor>embed()
-                                        .withItems(SimplifiedApi.getRepository(SbsLegacyDonor.class).findAll())
+                                        .withItems(MinecraftApi.getRepository(SbsLegacyDonor.class).findAll())
                                         .withTransformer((legacyDonorModel, index, size) -> StringItem.builder()
                                             .withLabel("<@%s>", legacyDonorModel.getDiscordId())
                                             .withValue("$%.2f", legacyDonorModel.getAmount())
