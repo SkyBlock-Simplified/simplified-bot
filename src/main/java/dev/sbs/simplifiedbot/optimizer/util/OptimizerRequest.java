@@ -1,10 +1,9 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.collection.concurrent.Concurrent;
-import dev.sbs.api.collection.concurrent.ConcurrentList;
-import dev.sbs.api.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.util.builder.ClassBuilder;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
 import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
@@ -120,7 +119,7 @@ public final class OptimizerRequest {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class OptimizerRequestBuilder implements ClassBuilder<OptimizerRequest> {
+    public static class OptimizerRequestBuilder {
 
         private final SkyBlockProfiles skyBlockProfilesResponse;
         private final UUID uniqueId;
@@ -155,7 +154,6 @@ public final class OptimizerRequest {
             return this;
         }
 
-        @Override
         public @NotNull OptimizerRequest build() {
             return new OptimizerRequest(this);
         }

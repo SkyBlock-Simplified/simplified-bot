@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.modules.common;
 
-import dev.sbs.api.collection.concurrent.ConcurrentMap;
+import dev.simplified.collection.ConcurrentMap;
 import dev.sbs.minecraftapi.persistence.model.Reforge;
 import dev.sbs.minecraftapi.skyblock.common.Rarity;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.command;
 
-import dev.sbs.api.collection.concurrent.Concurrent;
-import dev.sbs.api.collection.concurrent.ConcurrentList;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.component.interaction.SelectMenu;
@@ -13,7 +13,7 @@ import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.TreePage;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockMember;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonEntry;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonData;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.Floor;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.FloorData;
 import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
@@ -102,7 +102,7 @@ public class DungeonsCommand extends SkyBlockUserCommand {
         MojangProfile mojangProfile = skyBlockUser.getMojangProfile();
         SkyBlockIsland skyBlockIsland = skyBlockUser.getSelectedIsland();
         SkyBlockMember member = skyBlockUser.getMember();
-        Function<DungeonEntry.Type, String> identifierFunction = dungeonType -> String.format(
+        Function<DungeonData.Type, String> identifierFunction = dungeonType -> String.format(
             "dungeon_%s_%s",
             dungeonType.name(),
             (masterMode ? "MASTER" : "NORMAL")
@@ -120,7 +120,7 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                             dungeonType.getName(),
                             (masterMode ? "Master" : "Normal")
                         )
-                        // TODO: DungeonEntry.Type has no emoji field
+                        // TODO: MemberDungeon.Type has no emoji field
                         .build()
                 )
                 .withEmbeds(
@@ -147,7 +147,7 @@ public class DungeonsCommand extends SkyBlockUserCommand {
                         )
                         .withFields(
                             Field.builder()
-                                // TODO: DungeonEntry.Type has no emoji field
+                                // TODO: MemberDungeon.Type has no emoji field
                                 .withName(dungeonType.getName())
                                 .withValue(
                                     """

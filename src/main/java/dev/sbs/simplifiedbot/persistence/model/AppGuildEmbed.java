@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.persistence.model;
 
-import dev.sbs.api.persistence.JpaModel;
-import dev.sbs.api.persistence.converter.ColorConverter;
+import dev.simplified.persistence.JpaModel;
+import dev.simplified.persistence.converter.ColorConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;

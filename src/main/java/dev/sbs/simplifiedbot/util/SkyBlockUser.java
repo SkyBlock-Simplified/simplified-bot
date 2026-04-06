@@ -1,8 +1,8 @@
 package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.collection.concurrent.ConcurrentList;
-import dev.sbs.api.util.StringUtil;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.util.StringUtil;
 import dev.sbs.discordapi.command.exception.InputException;
 import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.context.command.SlashCommandContext;

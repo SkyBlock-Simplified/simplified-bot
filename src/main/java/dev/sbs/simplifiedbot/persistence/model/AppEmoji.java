@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.persistence.model;
 
-import dev.sbs.api.persistence.JpaModel;
+import dev.simplified.persistence.JpaModel;
 import dev.sbs.discordapi.context.message.ReactionContext;
 import dev.sbs.discordapi.response.Emoji;
 import discord4j.common.util.Snowflake;

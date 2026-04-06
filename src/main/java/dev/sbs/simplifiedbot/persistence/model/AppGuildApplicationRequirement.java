@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.persistence.model;
 
-import dev.sbs.api.persistence.JpaModel;
+import dev.simplified.persistence.JpaModel;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

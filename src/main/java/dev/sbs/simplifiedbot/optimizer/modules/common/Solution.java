@@ -1,10 +1,10 @@
 package dev.sbs.simplifiedbot.optimizer.modules.common;
 
-import dev.sbs.api.collection.concurrent.Concurrent;
-import dev.sbs.api.collection.concurrent.ConcurrentList;
-import dev.sbs.api.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.tuple.pair.Pair;
-import dev.sbs.api.util.mutable.MutableDouble;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
+import dev.simplified.collection.tuple.pair.Pair;
+import dev.simplified.util.mutable.MutableDouble;
 import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.minecraftapi.persistence.model.BonusItemStat;
 import dev.sbs.minecraftapi.persistence.model.BonusPetAbilityStat;

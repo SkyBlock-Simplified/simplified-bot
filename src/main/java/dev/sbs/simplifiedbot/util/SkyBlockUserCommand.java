@@ -1,12 +1,12 @@
 package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.collection.concurrent.Concurrent;
-import dev.sbs.api.collection.concurrent.ConcurrentList;
-import dev.sbs.api.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.util.StreamUtil;
-import dev.sbs.api.util.StringUtil;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
+import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
+import dev.simplified.collection.StreamUtil;
+import dev.simplified.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.parameter.Parameter;
@@ -34,9 +34,9 @@ import dev.sbs.minecraftapi.client.hypixel.response.skyblock.island.Banking;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.island.CommunityUpgrades;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.JacobsContest;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonClass;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonEntry;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.pet.PetEntry;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.skill.SkillEntry;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonData;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.pet.OwnedPet;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.skill.SkillLevel;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.slayer.SlayerBoss;
 import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
 import dev.sbs.minecraftapi.client.sbs.response.SkyBlockEmojis;
@@ -199,9 +199,9 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
 
         // Weights
         Weight totalWeight = member.getTotalWeight();
-        ConcurrentMap<SkillEntry, Weight> skillWeight = member.getSkills().getWeight();
+        ConcurrentMap<SkillLevel, Weight> skillWeight = member.getSkills().getWeight();
         ConcurrentMap<SlayerBoss, Weight> slayerWeight = member.getSlayers().getWeight();
-        ConcurrentMap<DungeonEntry, Weight> dungeonWeight = member.getDungeons().getWeight();
+        ConcurrentMap<DungeonData, Weight> dungeonWeight = member.getDungeons().getWeight();
         ConcurrentMap<DungeonClass, Weight> dungeonClassWeight = member.getDungeons().getClassWeight();
 
         return Concurrent.newList(
@@ -222,7 +222,7 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
                                     emojiReplyStem,
                                     emojiReplyEnd,
                                     skyBlockUser.getSession().isOnline() ? "Online" : "Offline",
-                                    member.getProgress().getDeathCount(),
+                                    member.getPlayerData().getDeathCount(),
                                     skyBlockUser.getGuild().map(HypixelGuild::getName).orElse("None")
                                 )
                                 .isInline()
@@ -302,7 +302,7 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
                         skyBlockIsland,
                         "skills",
                         member.getSkills()
-                            .getSkills()
+                            .getSkillLevels()
                             .stream()
                             .collect(Concurrent.toList()),
                         member.getSkills().getAverage(),
@@ -382,7 +382,7 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
                             getWeightFields(
                                 "Dungeons",
                                 dungeonWeight,
-                                dungeon -> DungeonEntry.Type.CATACOMBS.getName()
+                                dungeon -> DungeonData.Type.CATACOMBS.getName()
                             )
                         )
                         .withFields(
@@ -413,7 +413,7 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
                             member.getPets()
                                 .getPets()
                                 .stream()
-                                .filter(StreamUtil.distinctByKey(PetEntry::getId))
+                                .filter(StreamUtil.distinctByKey(OwnedPet::getId))
                                 .collect(Concurrent.toList())
                                 .size(),
                             MinecraftApi.getRepository(Pet.class)
@@ -425,7 +425,7 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
                         .build()
                 )
                 .withItemHandler(
-                    ItemHandler.<PetEntry>embed()
+                    ItemHandler.<OwnedPet>embed()
                         .withItems(member.getPets().getPets())
                         .withTransformer((pet, index, size) -> StringItem.builder()
                             .withOption(
@@ -462,11 +462,11 @@ public abstract class SkyBlockUserCommand extends DiscordCommand<SlashCommandCon
                             ))
                             .build())
                         .withSorters(
-                            Sorter.<PetEntry>builder()
-                                .withComparators((o1, o2) -> Comparator.comparing(PetEntry::getRarityOrdinal)
+                            Sorter.<OwnedPet>builder()
+                                .withComparators((o1, o2) -> Comparator.comparing(OwnedPet::getRarityOrdinal)
                                     .thenComparingInt(Experience::getLevel)
                                     .reversed()
-                                    .thenComparing(PetEntry::getId)
+                                    .thenComparing(OwnedPet::getId)
                                     .compare(o1, o2)
                                 )
                                 .withLabel("Default")

@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.optimizer.modules.common;
 
-import dev.sbs.api.persistence.Repository;
+import dev.simplified.persistence.Repository;
 import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.minecraftapi.persistence.model.Stat;
 

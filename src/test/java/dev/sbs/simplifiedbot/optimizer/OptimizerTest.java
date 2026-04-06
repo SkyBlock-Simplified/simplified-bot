@@ -1,12 +1,13 @@
 package dev.sbs.simplifiedbot.optimizer;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.data.sql.SqlConfig;
-import dev.sbs.api.util.StringUtil;
-import dev.sbs.simplifiedbot.data.discord.optimizer_mob_types.OptimizerMobTypeModel;
-import dev.sbs.simplifiedbot.data.skyblock.items.ItemModel;
-import dev.sbs.simplifiedbot.data.skyblock.profiles.ProfileModel;
-import dev.sbs.simplifiedbot.data.skyblock.reforge_data.reforge_stats.ReforgeStatModel;
+import dev.simplified.persistence.JpaConfig;
+import dev.simplified.persistence.JpaSession;
+import dev.simplified.util.StringUtil;
+import dev.sbs.minecraftapi.MinecraftApi;
+import dev.sbs.minecraftapi.persistence.model.Item;
+import dev.sbs.minecraftapi.persistence.model.Reforge;
+import dev.sbs.simplifiedbot.persistence.model.OptimizerMobType;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit.DamagePerHitSolution;
 import dev.sbs.simplifiedbot.optimizer.modules.damage_per_second.DamagePerSecondSolution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
@@ -22,9 +23,9 @@ public class OptimizerTest {
     
     private void initializeDatabase() {
         System.out.println("Database Starting... ");
-        SimplifiedApi.getSessionManager().connect(SqlConfig.defaultSql());
-        System.out.println("Database initialized in " + SimplifiedApi.getSessionManager().getSession().getInitialization() + "ms");
-        System.out.println("Database started in " + SimplifiedApi.getSessionManager().getSession().getStartup() + "ms");
+        JpaSession session = SimplifiedApi.getSessionManager().connect(JpaConfig.commonSql());
+        System.out.println("Database initialized in " + session.getInitialization().getDurationMillis() + "ms");
+        System.out.println("Database started in " + session.getRepositoryCache().getDurationMillis() + "ms");
     }
 
     private static final String profileName = "PINEAPPLE";
@@ -34,10 +35,10 @@ public class OptimizerTest {
 
     private OptimizerRequest buildRequest(OptimizerRequest.Type type) {
         return OptimizerRequest.of(playerName)
-            .withAllowedReforges(SimplifiedApi.getRepositoryOf(ReforgeStatModel.class).findAll())
-            .withIsland(SimplifiedApi.getRepositoryOf(ProfileModel.class).findFirstOrNull(ProfileModel::getKey, profileName))
-            .withMobType(SimplifiedApi.getRepositoryOf(OptimizerMobTypeModel.class).findFirstOrNull(OptimizerMobTypeModel::getKey, mobType))
-            .withWeapon(SimplifiedApi.getRepositoryOf(ItemModel.class).findFirstOrNull(ItemModel::getItemId, weapon))
+            .withAllowedReforges(MinecraftApi.getRepository(Reforge.class).findAll())
+            .withIsland(0)
+            .withMobType(SimplifiedApi.getRepository(OptimizerMobType.class).findFirstOrNull(OptimizerMobType::getKey, mobType))
+            .withWeapon(MinecraftApi.getRepository(Item.class).findFirstOrNull(Item::getId, weapon))
             .withType(type)
             .build();
     }
@@ -49,7 +50,7 @@ public class OptimizerTest {
         OptimizerResponse response = Optimizer.solve(request);
         System.out.println("Final damage: " + response.getFinalDamage());
         System.out.println("Time spent: " + response.getDuration().toMillis() + "ms");
-        response.getReforgeCount().forEach((reforge, value) -> System.out.println("[" + StringUtil.join(reforge.getReforge().getItemTypes(), ", ") + "] " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
+        response.getReforgeCount().forEach((reforge, value) -> System.out.println("[" + StringUtil.join(reforge.getReforge().getCategoryIds(), ", ") + "] " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
     }
 
     @Test
@@ -59,7 +60,7 @@ public class OptimizerTest {
         OptimizerResponse response = Optimizer.solveDamagePerSecond(request);
         System.out.println("Final damage: " + response.getFinalDamage());
         System.out.println("Time spent: " + response.getDuration().toMillis() + "ms");
-        response.getReforgeCount().forEach((reforge, value) -> System.out.println("[" + StringUtil.join(reforge.getReforge().getItemTypes(), ", ") + "] " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
+        response.getReforgeCount().forEach((reforge, value) -> System.out.println("[" + StringUtil.join(reforge.getReforge().getCategoryIds(), ", ") + "] " + reforge.getRarity().getName() + " " + reforge.getReforge().getName() + ": " + value));
     }
 
     @Test

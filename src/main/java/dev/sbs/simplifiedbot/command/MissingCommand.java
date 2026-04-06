@@ -1,7 +1,7 @@
 package dev.sbs.simplifiedbot.command;
 
-import dev.sbs.api.collection.concurrent.Concurrent;
-import dev.sbs.api.collection.concurrent.ConcurrentList;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.Structure;
 import dev.sbs.discordapi.component.interaction.SelectMenu;

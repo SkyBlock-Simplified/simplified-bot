@@ -1,6 +1,6 @@
 package dev.sbs.simplifiedbot.persistence.model;
 
-import dev.sbs.api.persistence.JpaModel;
+import dev.simplified.persistence.JpaModel;
 import dev.sbs.minecraftapi.skyblock.date.Season;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,13 +1,13 @@
 package dev.sbs.simplifiedbot.command;
 
 import dev.sbs.api.SimplifiedApi;
-import dev.sbs.api.collection.concurrent.Concurrent;
-import dev.sbs.api.collection.concurrent.ConcurrentList;
-import dev.sbs.api.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.collection.concurrent.unmodifiable.ConcurrentUnmodifiableList;
-import dev.sbs.api.collection.query.SortOrder;
-import dev.sbs.api.tuple.pair.Pair;
-import dev.sbs.api.util.StringUtil;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
+import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
+import dev.simplified.collection.query.SortOrder;
+import dev.simplified.collection.tuple.pair.Pair;
+import dev.simplified.util.StringUtil;
 import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.command.Structure;
@@ -32,11 +32,11 @@ import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelPlayerRespons
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockMember;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonClass;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonEntry;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.skill.SkillEntry;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.DungeonData;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.skill.SkillLevel;
 import dev.sbs.minecraftapi.persistence.model.Skill;
 import dev.sbs.minecraftapi.persistence.model.Slayer;
-import dev.sbs.minecraftapi.render.text.ChatFormat;
+import dev.sbs.minecraftapi.generator.text.ChatFormat;
 import dev.sbs.minecraftapi.skyblock.common.Weight;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
@@ -94,7 +94,7 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
 
         ConcurrentList<Skill> skillModels = MinecraftApi.getRepository(Skill.class).findAll();
         ConcurrentList<Slayer> slayerModels = MinecraftApi.getRepository(Slayer.class).findAll();
-        DungeonEntry.Type catacombs = DungeonEntry.Type.CATACOMBS;
+        DungeonData.Type catacombs = DungeonData.Type.CATACOMBS;
         ConcurrentList<DungeonClass.Type> dungeonClassModels = Concurrent.newList(DungeonClass.Type.HEALER, DungeonClass.Type.MAGE, DungeonClass.Type.BERSERK, DungeonClass.Type.ARCHER, DungeonClass.Type.TANK);
         HypixelEndpoint hypixelEndpoints = SimplifiedApi.getClient(HypixelClient.class).getEndpoint();
         HypixelGuild guild = hypixelGuildResponse.getGuild().get();
@@ -131,10 +131,10 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
             .map(guildMemberPlayer -> Pair.of(guildMemberPlayer, (long) guildMemberPlayer.getCurrencies().getPurse())) //TODO: networth query
             .collect(Concurrent.toMap());
 
-        ConcurrentMap<SkyBlockMember, ConcurrentList<SkillEntry>> skills = guildMemberPlayers.stream()
+        ConcurrentMap<SkyBlockMember, ConcurrentList<SkillLevel>> skills = guildMemberPlayers.stream()
             .map(guildMemberPlayer -> Pair.of(
                 guildMemberPlayer,
-                guildMemberPlayer.getSkills().getSkills()
+                guildMemberPlayer.getSkills().getSkillLevels()
             ))
             .collect(Concurrent.toMap());
 
