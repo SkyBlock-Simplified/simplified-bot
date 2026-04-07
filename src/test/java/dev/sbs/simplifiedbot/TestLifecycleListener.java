@@ -18,6 +18,7 @@ public class TestLifecycleListener implements TestExecutionListener {
     public void testPlanExecutionStarted(TestPlan testPlan) {
         System.out.println("[TestLifecycleListener] Initializing MinecraftApi");
         MinecraftApi.getSessionManager();
+        MinecraftApi.connectSkyBlockSession();
     }
 
     @Override

@@ -40,6 +40,10 @@ public final class SimplifiedBot extends DiscordBot {
     }
 
     public static void main(final String[] args) {
+        // Connect the SkyBlock H2 session before commands fire - the static initializer
+        // no longer auto-connects (see MinecraftApi.connectSkyBlockSession Javadoc).
+        MinecraftApi.connectSkyBlockSession();
+
         DiscordConfig discordConfig = DiscordConfig.builder()
             .withToken(SystemUtil.getEnv("DISCORD_TOKEN"))
             .withMainGuildId(652148034448261150L)
