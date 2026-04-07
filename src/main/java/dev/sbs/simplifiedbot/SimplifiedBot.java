@@ -15,7 +15,6 @@ import dev.simplified.persistence.JpaConfig;
 import dev.simplified.reflection.Reflection;
 import dev.simplified.util.NumberUtil;
 import dev.simplified.util.SystemUtil;
-import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.shard.MemberRequestFilter;
@@ -51,6 +50,7 @@ public final class SimplifiedBot extends DiscordBot {
                     .filterPackage("dev.sbs.simplifiedbot.command")
                     .getTypesOf(DiscordCommand.class)
             )
+            .withBotEventListeners(GatewayConnectListener.class)
             .withEmojis(Reflection.getResources(SimplifiedBot.class.getClassLoader()).getResources("emojis/"))
             .withAllowedMentions(AllowedMentions.suppressEveryone())
             .withDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES))
@@ -62,13 +62,14 @@ public final class SimplifiedBot extends DiscordBot {
         simplifiedBot.start();
     }
 
-    @Override
-    protected void onGatewayConnected(@NotNull GatewayDiscordClient gatewayDiscordClient) {
+    /**
+     * Bootstraps Hypixel API access, builds the SkyBlock emoji and item caches,
+     * and schedules the periodic resource processors. Invoked from
+     * {@link GatewayConnectListener} once the gateway is online.
+     */
+    void bootstrap() {
         MinecraftApi.getKeyManager().add(SystemUtil.getEnvPair("HYPIXEL_API_KEY"));
-        this.onDatabaseConnected();
-    }
 
-    private void onDatabaseConnected() {
         // Update Caches
         log.info("Building Caches");
         this.skyBlockEmojis = MinecraftApi.getClient(SbsContract.class).getContract().getItemEmojis();
