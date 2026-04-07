@@ -1,12 +1,12 @@
 package dev.sbs.simplifiedbot.optimizer.util;
 
 import dev.sbs.minecraftapi.MinecraftApi;
-import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
+import dev.sbs.minecraftapi.client.hypixel.request.HypixelContract;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockMember;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockProfiles;
 import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
-import dev.sbs.minecraftapi.client.sbs.SbsClient;
+import dev.sbs.minecraftapi.client.sbs.request.SbsContract;
 import dev.sbs.minecraftapi.nbt.tags.collection.CompoundTag;
 import dev.sbs.minecraftapi.nbt.tags.primitive.StringTag;
 import dev.sbs.minecraftapi.persistence.model.BonusPetAbilityStat;
@@ -107,13 +107,13 @@ public final class OptimizerRequest {
     }
 
     public static OptimizerRequestBuilder of(String username) {
-        MojangProfile mojangProfile = MinecraftApi.getClient(SbsClient.class).getEndpoint().getProfileFromUsername(username);
-        SkyBlockProfiles skyBlockProfilesResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getProfiles(mojangProfile.getUniqueId());
+        MojangProfile mojangProfile = MinecraftApi.getClient(SbsContract.class).getContract().getProfileFromUsername(username);
+        SkyBlockProfiles skyBlockProfilesResponse = MinecraftApi.getClient(HypixelContract.class).getContract().getProfiles(mojangProfile.getUniqueId());
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, mojangProfile.getUniqueId());
     }
 
     public static OptimizerRequestBuilder of(UUID uniqueId) {
-        SkyBlockProfiles skyBlockProfilesResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getProfiles(uniqueId);
+        SkyBlockProfiles skyBlockProfilesResponse = MinecraftApi.getClient(HypixelContract.class).getContract().getProfiles(uniqueId);
         return new OptimizerRequestBuilder(skyBlockProfilesResponse, uniqueId);
     }
 

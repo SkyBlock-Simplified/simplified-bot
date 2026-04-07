@@ -14,13 +14,12 @@ import dev.sbs.discordapi.response.embed.Author;
 import dev.sbs.discordapi.response.embed.Embed;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.minecraftapi.MinecraftApi;
-import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
+import dev.sbs.minecraftapi.client.hypixel.request.HypixelContract;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelPlayer;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelPlayerResponse;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelSocial;
 import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
-import dev.sbs.minecraftapi.client.sbs.SbsClient;
-import dev.sbs.minecraftapi.client.sbs.request.SbsEndpoint;
+import dev.sbs.minecraftapi.client.sbs.request.SbsContract;
 import dev.sbs.simplifiedbot.persistence.model.AppUser;
 import dev.simplified.collection.Concurrent;
 import dev.simplified.collection.unmodifiable.ConcurrentUnmodifiableList;
@@ -44,9 +43,9 @@ public class LinkCommand extends DiscordCommand<SlashCommandContext> {
     @Override
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         String playerID = commandContext.getArgument("name").map(Argument::asString).orElseThrow(); // Will never throw
-        SbsEndpoint mojangRequest = MinecraftApi.getClient(SbsClient.class).getEndpoint();
-        MojangProfile mojangProfile = StringUtil.isUUID(playerID) ? mojangRequest.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : mojangRequest.getProfileFromUsername(playerID);
-        HypixelPlayerResponse hypixelPlayerResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getPlayer(mojangProfile.getUniqueId());
+        SbsContract sbs = MinecraftApi.getClient(SbsContract.class).getContract();
+        MojangProfile mojangProfile = StringUtil.isUUID(playerID) ? sbs.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : sbs.getProfileFromUsername(playerID);
+        HypixelPlayerResponse hypixelPlayerResponse = MinecraftApi.getClient(HypixelContract.class).getContract().getPlayer(mojangProfile.getUniqueId());
         String interactDiscordTag = commandContext.getInteractUser().getTag();
 
         String hypixelDiscordTag = hypixelPlayerResponse.getPlayer()

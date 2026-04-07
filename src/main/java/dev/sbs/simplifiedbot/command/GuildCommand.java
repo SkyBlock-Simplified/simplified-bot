@@ -15,8 +15,7 @@ import dev.sbs.discordapi.response.handler.item.ItemHandler;
 import dev.sbs.discordapi.response.page.Page;
 import dev.sbs.discordapi.response.page.item.field.StringItem;
 import dev.sbs.minecraftapi.MinecraftApi;
-import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
-import dev.sbs.minecraftapi.client.hypixel.request.HypixelEndpoint;
+import dev.sbs.minecraftapi.client.hypixel.request.HypixelContract;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelGuild;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelGuildResponse;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelPlayer;
@@ -71,7 +70,7 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
     protected @NotNull Mono<Void> process(@NotNull SlashCommandContext commandContext) {
         String guildName = commandContext.getArgument("name").map(Argument::asString).orElseThrow();
 
-        HypixelGuildResponse hypixelGuildResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getGuildByName(guildName);
+        HypixelGuildResponse hypixelGuildResponse = MinecraftApi.getClient(HypixelContract.class).getContract().getGuildByName(guildName);
 
         if (hypixelGuildResponse.getGuild().isEmpty()) {
             return commandContext.reply(
@@ -95,7 +94,7 @@ public class GuildCommand extends DiscordCommand<SlashCommandContext> {
         ConcurrentList<Slayer> slayerModels = MinecraftApi.getRepository(Slayer.class).findAll();
         DungeonData.Type catacombs = DungeonData.Type.CATACOMBS;
         ConcurrentList<DungeonClass.Type> dungeonClassModels = Concurrent.newList(DungeonClass.Type.HEALER, DungeonClass.Type.MAGE, DungeonClass.Type.BERSERK, DungeonClass.Type.ARCHER, DungeonClass.Type.TANK);
-        HypixelEndpoint hypixelEndpoints = MinecraftApi.getClient(HypixelClient.class).getEndpoint();
+        HypixelContract hypixelEndpoints = MinecraftApi.getClient(HypixelContract.class).getContract();
         HypixelGuild guild = hypixelGuildResponse.getGuild().get();
 
         ConcurrentMap<HypixelPlayer, SkyBlockIsland> guildMembers = guild.getMembers()

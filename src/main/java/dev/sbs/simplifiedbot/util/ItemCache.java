@@ -2,9 +2,8 @@ package dev.sbs.simplifiedbot.util;
 
 import dev.sbs.discordapi.exception.DiscordException;
 import dev.sbs.minecraftapi.MinecraftApi;
-import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
 import dev.sbs.minecraftapi.client.hypixel.exception.HypixelApiException;
-import dev.sbs.minecraftapi.client.hypixel.request.HypixelEndpoint;
+import dev.sbs.minecraftapi.client.hypixel.request.HypixelContract;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockAuction;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockAuctions;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockAuctionsEnded;
@@ -98,16 +97,16 @@ public class ItemCache {
         @Override
         public long process() {
             try {
-                HypixelEndpoint hypixelEndpoints = MinecraftApi.getClient(HypixelClient.class).getEndpoint();
+                HypixelContract hypixel = MinecraftApi.getClient(HypixelContract.class).getContract();
                 ConcurrentList<SkyBlockAuction> auctions = Concurrent.newList();
-                SkyBlockAuctions skyBlockAuctionsResponse = hypixelEndpoints.getAuctions();
+                SkyBlockAuctions skyBlockAuctionsResponse = hypixel.getAuctions();
                 auctions.addAll(skyBlockAuctionsResponse.getAuctions());
                 long lastUpdated = skyBlockAuctionsResponse.getLastUpdated().getRealTime();
 
                 // Handle Auction Pages
                 for (int i = 1; i < skyBlockAuctionsResponse.getTotalPages(); i++) {
                     try {
-                        SkyBlockAuctions skyBlockAuctionsPageResponse = hypixelEndpoints.getAuctions(i);
+                        SkyBlockAuctions skyBlockAuctionsPageResponse = hypixel.getAuctions(i);
                         auctions.addAll(skyBlockAuctionsPageResponse.getAuctions());
 
                         if (skyBlockAuctionsPageResponse.getLastUpdated().getRealTime() > lastUpdated)
@@ -133,7 +132,7 @@ public class ItemCache {
 
         @Override
         public long process() {
-            SkyBlockBazaar skyBlockBazaarResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getBazaar();
+            SkyBlockBazaar skyBlockBazaarResponse = MinecraftApi.getClient(HypixelContract.class).getContract().getBazaar();
             this.replaceItems(skyBlockBazaarResponse.getProducts().values());
             return skyBlockBazaarResponse.getLastUpdated().getRealTime();
         }
@@ -144,7 +143,7 @@ public class ItemCache {
 
         @Override
         protected long process() {
-            SkyBlockAuctionsEnded skyBlockAuctionsEndedResponse = MinecraftApi.getClient(HypixelClient.class).getEndpoint().getEndedAuctions();
+            SkyBlockAuctionsEnded skyBlockAuctionsEndedResponse = MinecraftApi.getClient(HypixelContract.class).getContract().getEndedAuctions();
             this.replaceItems(skyBlockAuctionsEndedResponse.getAuctions());
             return skyBlockAuctionsEndedResponse.getLastUpdated().getRealTime();
         }

@@ -4,9 +4,8 @@ import dev.sbs.discordapi.DiscordBot;
 import dev.sbs.discordapi.command.DiscordCommand;
 import dev.sbs.discordapi.handler.DiscordConfig;
 import dev.sbs.minecraftapi.MinecraftApi;
-import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
-import dev.sbs.minecraftapi.client.hypixel.request.HypixelEndpoint;
-import dev.sbs.minecraftapi.client.sbs.SbsClient;
+import dev.sbs.minecraftapi.client.hypixel.request.HypixelContract;
+import dev.sbs.minecraftapi.client.sbs.request.SbsContract;
 import dev.sbs.minecraftapi.client.sbs.response.SkyBlockEmojiData;
 import dev.sbs.simplifiedbot.processor.resource.ResourceCollectionsProcessor;
 import dev.sbs.simplifiedbot.processor.resource.ResourceItemsProcessor;
@@ -33,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public final class SimplifiedBot extends DiscordBot {
 
-    private static final HypixelEndpoint HYPIXEL_RESOURCE_REQUEST = MinecraftApi.getClient(HypixelClient.class).getEndpoint();
+    private static final HypixelContract HYPIXEL_RESOURCE_REQUEST = MinecraftApi.getClient(HypixelContract.class).getContract();
     private ItemCache itemCache;
     private SkyBlockEmojiData skyBlockEmojis;
 
@@ -72,7 +71,7 @@ public final class SimplifiedBot extends DiscordBot {
     private void onDatabaseConnected() {
         // Update Caches
         log.info("Building Caches");
-        this.skyBlockEmojis = MinecraftApi.getClient(SbsClient.class).getEndpoint().getItemEmojis();
+        this.skyBlockEmojis = MinecraftApi.getClient(SbsContract.class).getContract().getItemEmojis();
         this.itemCache = new ItemCache();
         this.getItemCache().getAuctionHouse().update();
         this.getItemCache().getBazaar().update();
@@ -80,7 +79,7 @@ public final class SimplifiedBot extends DiscordBot {
 
         // Schedule SkyBlock Emoji Cache Updates
         this.getScheduler().scheduleAsync(
-            () -> this.skyBlockEmojis = MinecraftApi.getClient(SbsClient.class).getEndpoint().getItemEmojis(),
+            () -> this.skyBlockEmojis = MinecraftApi.getClient(SbsContract.class).getContract().getItemEmojis(),
             10,
             10,
             TimeUnit.MINUTES

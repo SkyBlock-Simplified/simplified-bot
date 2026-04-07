@@ -5,8 +5,7 @@ import dev.sbs.discordapi.command.parameter.Argument;
 import dev.sbs.discordapi.context.command.SlashCommandContext;
 import dev.sbs.discordapi.exception.DiscordUserException;
 import dev.sbs.minecraftapi.MinecraftApi;
-import dev.sbs.minecraftapi.client.hypixel.HypixelClient;
-import dev.sbs.minecraftapi.client.hypixel.request.HypixelEndpoint;
+import dev.sbs.minecraftapi.client.hypixel.request.HypixelContract;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelGuild;
 import dev.sbs.minecraftapi.client.hypixel.response.hypixel.HypixelStatus;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockAuction;
@@ -14,8 +13,7 @@ import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockMember;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockProfiles;
 import dev.sbs.minecraftapi.client.mojang.response.MojangProfile;
-import dev.sbs.minecraftapi.client.sbs.SbsClient;
-import dev.sbs.minecraftapi.client.sbs.request.SbsEndpoint;
+import dev.sbs.minecraftapi.client.sbs.request.SbsContract;
 import dev.sbs.minecraftapi.client.sbs.response.SkyBlockEmojiData;
 import dev.sbs.minecraftapi.skyblock.common.Profile;
 import dev.sbs.simplifiedbot.SimplifiedBot;
@@ -60,13 +58,13 @@ public final class SkyBlockUser {
         }
 
         String playerID = optionalPlayerID.orElseThrow(); // Will never reach here
-        SbsEndpoint sbsEndpoints = MinecraftApi.getClient(SbsClient.class).getEndpoint();
-        HypixelEndpoint hypixelEndpoints = MinecraftApi.getClient(HypixelClient.class).getEndpoint();
-        this.mojangProfile = StringUtil.isUUID(playerID) ? sbsEndpoints.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : sbsEndpoints.getProfileFromUsername(playerID);
-        this.profiles = hypixelEndpoints.getProfiles(this.getMojangProfile().getUniqueId());
-        this.guild = hypixelEndpoints.getGuildByPlayer(this.getMojangProfile().getUniqueId()).getGuild();
-        this.session = hypixelEndpoints.getStatus(this.getMojangProfile().getUniqueId()).getSession();
-        this.auctions = hypixelEndpoints.getAuctionByPlayer(this.getMojangProfile().getUniqueId()).getAuctions();
+        SbsContract sbs = MinecraftApi.getClient(SbsContract.class).getContract();
+        HypixelContract hypixel = MinecraftApi.getClient(HypixelContract.class).getContract();
+        this.mojangProfile = StringUtil.isUUID(playerID) ? sbs.getProfileFromUniqueId(StringUtil.toUUID(playerID)) : sbs.getProfileFromUsername(playerID);
+        this.profiles = hypixel.getProfiles(this.getMojangProfile().getUniqueId());
+        this.guild = hypixel.getGuildByPlayer(this.getMojangProfile().getUniqueId()).getGuild();
+        this.session = hypixel.getStatus(this.getMojangProfile().getUniqueId()).getSession();
+        this.auctions = hypixel.getAuctionByPlayer(this.getMojangProfile().getUniqueId()).getAuctions();
 
         // Empty Profile
         if (this.profiles.getIslands().isEmpty())
