@@ -23,8 +23,8 @@ public class OptimizerTest {
     private void initializeDatabase() {
         System.out.println("Database Starting... ");
         JpaSession session = MinecraftApi.getSessionManager().connect(JpaConfig.commonSql());
-        System.out.println("Database initialized in " + session.getInitialization().getDurationMillis() + "ms");
-        System.out.println("Database started in " + session.getRepositoryCache().getDurationMillis() + "ms");
+        System.out.println("Database initialized in " + session.getInitialization().durationMillis() + "ms");
+        System.out.println("Database started in " + session.getRepositoryCache().durationMillis() + "ms");
     }
 
     private static final String profileName = "PINEAPPLE";

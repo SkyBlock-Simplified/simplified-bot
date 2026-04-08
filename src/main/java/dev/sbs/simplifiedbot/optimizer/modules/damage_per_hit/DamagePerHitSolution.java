@@ -1,13 +1,13 @@
 package dev.sbs.simplifiedbot.optimizer.modules.damage_per_hit;
 
-import dev.simplified.collection.Concurrent;
-import dev.simplified.collection.ConcurrentList;
-import dev.simplified.collection.tuple.pair.Pair;
 import dev.sbs.minecraftapi.persistence.model.ItemCategory;
 import dev.sbs.simplifiedbot.optimizer.modules.common.ReforgeFact;
 import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
 import dev.sbs.simplifiedbot.optimizer.util.OptimizerRequest;
 import dev.sbs.simplifiedbot.profile_stats.data.ObjectData;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.tuple.pair.Pair;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
@@ -43,8 +43,8 @@ public class DamagePerHitSolution extends Solution<DamagePerHitItemEntity> {
 
         // Generate Reforge Stats
         Pair<ConcurrentList<DamagePerHitItemEntity>, ConcurrentList<ReforgeFact>> availableContent = this.generateAvailableItems();
-        this.availableItems = availableContent.getLeft();
-        this.allReforgesFacts = availableContent.getRight();
+        this.availableItems = availableContent.left();
+        this.allReforgesFacts = availableContent.right();
     }
 
     @Override

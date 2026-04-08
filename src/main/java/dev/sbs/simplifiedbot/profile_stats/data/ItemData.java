@@ -1,9 +1,5 @@
 package dev.sbs.simplifiedbot.profile_stats.data;
 
-import dev.simplified.collection.Concurrent;
-import dev.simplified.collection.ConcurrentList;
-import dev.simplified.collection.ConcurrentMap;
-import dev.simplified.collection.tuple.pair.Pair;
 import dev.sbs.minecraftapi.MinecraftApi;
 import dev.sbs.minecraftapi.nbt.tags.collection.CompoundTag;
 import dev.sbs.minecraftapi.nbt.tags.primitive.IntTag;
@@ -13,6 +9,10 @@ import dev.sbs.minecraftapi.persistence.model.Enchantment;
 import dev.sbs.minecraftapi.persistence.model.HotPotatoStat;
 import dev.sbs.minecraftapi.persistence.model.Item;
 import dev.sbs.minecraftapi.persistence.model.Stat;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
+import dev.simplified.collection.tuple.pair.Pair;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +86,7 @@ public class ItemData extends ObjectData<ItemData.Type> {
                     .findFirstOrNull(Enchantment::getId, entry.getKey().toUpperCase()),
                 ((IntTag)entry.getValue()).getValue()
             ))
-            .filter(enchantmentData -> Objects.nonNull(enchantmentData.getLeft()))
+            .filter(enchantmentData -> Objects.nonNull(enchantmentData.left()))
             .forEach(enchantmentData -> {
                 Enchantment enchantment = enchantmentData.getKey();
                 int level = enchantmentData.getValue();

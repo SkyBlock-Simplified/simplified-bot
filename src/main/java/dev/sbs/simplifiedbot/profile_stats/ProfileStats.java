@@ -1,38 +1,26 @@
 package dev.sbs.simplifiedbot.profile_stats;
 
-import dev.simplified.collection.Concurrent;
-import dev.simplified.collection.ConcurrentList;
-import dev.simplified.collection.ConcurrentMap;
-import dev.simplified.collection.atomic.AtomicMap;
-import dev.simplified.collection.linked.ConcurrentLinkedMap;
-import dev.simplified.collection.tuple.pair.Pair;
 import dev.sbs.minecraftapi.MinecraftApi;
-import dev.sbs.minecraftapi.nbt.tags.collection.CompoundTag;
-import dev.sbs.minecraftapi.nbt.tags.primitive.StringTag;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockIsland;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.SkyBlockMember;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.AccessoryBag;
-import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.pet.OwnedPet;
 import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.dungeon.FloorData;
-import dev.sbs.minecraftapi.persistence.model.BonusArmorSet;
-import dev.sbs.minecraftapi.persistence.model.BonusPetAbilityStat;
-import dev.sbs.minecraftapi.persistence.model.Collection;
-import dev.sbs.minecraftapi.persistence.model.HotmPerk;
-import dev.sbs.minecraftapi.persistence.model.Item;
-import dev.sbs.minecraftapi.persistence.model.MelodySong;
-import dev.sbs.minecraftapi.persistence.model.Pet;
-import dev.sbs.minecraftapi.persistence.model.PetItem;
-import dev.sbs.minecraftapi.persistence.model.Potion;
-import dev.sbs.minecraftapi.persistence.model.ShopPerk;
-import dev.sbs.minecraftapi.persistence.model.Skill;
-import dev.sbs.minecraftapi.persistence.model.Slayer;
-import dev.sbs.minecraftapi.persistence.model.Stat;
+import dev.sbs.minecraftapi.client.hypixel.response.skyblock.member.pet.OwnedPet;
+import dev.sbs.minecraftapi.nbt.tags.collection.CompoundTag;
+import dev.sbs.minecraftapi.nbt.tags.primitive.StringTag;
+import dev.sbs.minecraftapi.persistence.model.*;
 import dev.sbs.minecraftapi.skyblock.common.Rarity;
 import dev.sbs.simplifiedbot.profile_stats.data.Data;
 import dev.sbs.simplifiedbot.profile_stats.data.ItemData;
 import dev.sbs.simplifiedbot.profile_stats.data.ObjectData;
 import dev.sbs.simplifiedbot.profile_stats.data.PlayerDataHelper;
 import dev.sbs.simplifiedbot.profile_stats.data.StatData;
+import dev.simplified.collection.Concurrent;
+import dev.simplified.collection.ConcurrentList;
+import dev.simplified.collection.ConcurrentMap;
+import dev.simplified.collection.atomic.AtomicMap;
+import dev.simplified.collection.linked.ConcurrentLinkedMap;
+import dev.simplified.collection.tuple.pair.Pair;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -444,19 +432,19 @@ public class ProfileStats extends StatData<ProfileStats.Type> {
                 .reversed();
 
             this.bonusArmorSetModel = MinecraftApi.getRepository(BonusArmorSet.class).findFirst(
-                Pair.of(BonusArmorSet::getHelmetItem, armorItemModels.get(0).getRight().orElse(null)),
-                Pair.of(BonusArmorSet::getChestplateItem, armorItemModels.get(1).getRight().orElse(null)),
-                Pair.of(BonusArmorSet::getLeggingsItem, armorItemModels.get(2).getRight().orElse(null)),
-                Pair.of(BonusArmorSet::getBootsItem, armorItemModels.get(3).getRight().orElse(null))
+                Pair.of(BonusArmorSet::getHelmetItem, armorItemModels.get(0).right().orElse(null)),
+                Pair.of(BonusArmorSet::getChestplateItem, armorItemModels.get(1).right().orElse(null)),
+                Pair.of(BonusArmorSet::getLeggingsItem, armorItemModels.get(2).right().orElse(null)),
+                Pair.of(BonusArmorSet::getBootsItem, armorItemModels.get(3).right().orElse(null))
             );
 
             armorItemModels.forEach(armorItemModelPair -> {
                 ItemData itemData = null;
 
-                if (armorItemModelPair.getLeft().notEmpty() && armorItemModelPair.getRight().isPresent())
+                if (armorItemModelPair.left().notEmpty() && armorItemModelPair.right().isPresent())
                     itemData = new ItemData(
-                        armorItemModelPair.getRight().get(),
-                        armorItemModelPair.getLeft()
+                        armorItemModelPair.right().get(),
+                        armorItemModelPair.left()
                     );
 
                 this.armor.add(Optional.ofNullable(itemData));
