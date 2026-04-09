@@ -1,28 +1,4 @@
+// Phase 6c cleanup: file disabled pending refactor landing. Has not been
+// touched in weeks. Restore via `git show 8df680a:<path>` when the broader
+// minecraft-api + minecraft-renderer + Simplified-Dev refactor lands.
 package dev.sbs.simplifiedbot.profile_stats.data;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@AllArgsConstructor
-public class Data {
-
-    @Getter double base;
-    @Getter double bonus;
-
-    public Data() {
-        this(0, 0);
-    }
-
-    void addBase(double value) {
-        this.base += value;
-    }
-
-    void addBonus(double value) {
-        this.bonus += value;
-    }
-
-    public final double getTotal() {
-        return this.getBase() + this.getBonus();
-    }
-
-}

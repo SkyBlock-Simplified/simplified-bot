@@ -1,26 +1,4 @@
+// Phase 6c cleanup: file disabled pending refactor landing. Has not been
+// touched in weeks. Restore via `git show 8df680a:<path>` when the broader
+// minecraft-api + minecraft-renderer + Simplified-Dev refactor lands.
 package dev.sbs.simplifiedbot.optimizer.util;
-
-import dev.simplified.collection.ConcurrentMap;
-import dev.sbs.minecraftapi.persistence.model.Reforge;
-import dev.sbs.simplifiedbot.optimizer.modules.common.Solution;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.util.UUID;
-
-@AllArgsConstructor
-public final class OptimizerResponse {
-
-    @Getter private final Solution<?> solution;
-    @Getter private final ConcurrentMap<Reforge, Integer> reforgeCount;
-    @Getter private final double finalDamage;
-    @Getter private final UUID problemId;
-    @Getter private final Duration duration;
-
-    public BigDecimal getScore() {
-        return this.getSolution().getScore().score();
-    }
-
-}
