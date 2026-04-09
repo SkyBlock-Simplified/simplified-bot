@@ -4,6 +4,7 @@ simplified-annotations = "1.0.4"
 junit-jupiter = "5.11.4"
 hamcrest = "2.2"
 optaplanner = "8.35.0.Final"
+hazelcast = "5.6.0"
 
 [libraries]
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
@@ -14,3 +15,4 @@ junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform
 hamcrest = { group = "org.hamcrest", name = "hamcrest", version.ref = "hamcrest" }
 optaplanner-core = { group = "org.optaplanner", name = "optaplanner-core", version.ref = "optaplanner" }
 optaplanner-benchmark = { group = "org.optaplanner", name = "optaplanner-benchmark", version.ref = "optaplanner" }
+hazelcast = { group = "com.hazelcast", name = "hazelcast", version.ref = "hazelcast" }

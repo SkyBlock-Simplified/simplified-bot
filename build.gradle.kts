@@ -38,6 +38,9 @@ dependencies {
     implementation(libs.optaplanner.core)
     testImplementation(libs.optaplanner.benchmark)
 
+    // Hazelcast client for the Phase 6c WriteDispatcher SDK
+    implementation(libs.hazelcast)
+
     // Projects
     implementation("dev.sbs:minecraft-api:0.1.0")
     implementation("dev.sbs:discord-api:0.1.0")
